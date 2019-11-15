@@ -30,7 +30,7 @@ void CObj::SetTexture( const string & strKey, const wchar_t * pFullPath, bool bC
 
 bool CObj::Init()
 {
-	return false;
+	return true;
 }
 
 void CObj::Input()
@@ -88,10 +88,15 @@ void CObj::Render( HDC hDC )
 			iHeight = m_pTexture->GetHeight();
 
 			UINT	iImageX = 0, iImageY = 0;
-
-			TransparentBlt( hDC, x, y, iWidth, iHeight,
-				m_pTexture->GetMemDC(), iImageX, iImageY, iWidth, iHeight,
-				m_pTexture->GetColorKey() );
+			
+			if(m_tSize.x > 0 && m_tSize.y > 0 )
+				TransparentBlt( hDC, x, y, m_tSize.x, m_tSize.y,
+					m_pTexture->GetMemDC(), iImageX, iImageY, iWidth, iHeight,
+					m_pTexture->GetColorKey() );
+			else
+				TransparentBlt( hDC, x, y, iWidth, iHeight,
+					m_pTexture->GetMemDC(), iImageX, iImageY, iWidth, iHeight,
+					m_pTexture->GetColorKey() );
 		}
 	}
 }

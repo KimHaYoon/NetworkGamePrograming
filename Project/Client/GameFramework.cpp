@@ -4,6 +4,7 @@
 #include "Texture.h"
 #include "ResourcesManager.h"
 #include "Scene.h"
+#include "SceneManager.h"
 #include "Texture.h"
 
 
@@ -20,7 +21,7 @@ CGameFramework::~CGameFramework()
 	GET_SINGLE( CObjectManager )->DestroyInst();
 	GET_SINGLE( CResourcesManager )->DestroyInst();
 	GET_SINGLE( CInput )->DestroyInst();
-	GET_SINGLE( CScene )->DestroyInst();
+	GET_SINGLE( CSceneManager )->DestroyInst();
 	ReleaseDC( m_hWnd, m_hDC );
 }
 
@@ -45,7 +46,7 @@ bool CGameFramework::Init(HWND hWnd, HINSTANCE  hInst)
 	if ( !GET_SINGLE( CObjectManager )->Init() )
 		return false;
 
-	if ( !GET_SINGLE( CScene )->Init() )
+	if ( !GET_SINGLE( CSceneManager )->Init() )
 		return false;
 
 	m_pBackBuffer = GET_SINGLE( CResourcesManager )->FindTexture( "BackBuffer" );
@@ -55,16 +56,19 @@ void CGameFramework::Input()
 {
 	GET_SINGLE( CInput )->Update();
 	GET_SINGLE( CObjectManager )->Input();
+	GET_SINGLE( CSceneManager )->Input();
 }
 
 void CGameFramework::Update( DWORD dwTime )
 {
 	GET_SINGLE( CObjectManager )->Update( dwTime );
+	GET_SINGLE( CSceneManager )->Update();
 }
 
 void CGameFramework::Render()
 {
 	GET_SINGLE( CObjectManager )->Render(m_pBackBuffer->GetMemDC());
+	GET_SINGLE( CSceneManager )->Render(m_pBackBuffer->GetMemDC());
 
 	// 마지막으로 백버퍼를 화면에 그린다.
 	BitBlt( m_hDC, 0, 0, WINX, WINY, m_pBackBuffer->GetMemDC(),

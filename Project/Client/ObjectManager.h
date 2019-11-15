@@ -34,6 +34,8 @@ public:
 
 	CObj* FindObject( const string& strName );
 
+	void ClearObject();
+
 	DECLARE_SINGLE(CObjectManager)
 };
 

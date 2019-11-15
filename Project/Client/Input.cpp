@@ -29,6 +29,9 @@ bool CInput::Init(HWND hWnd)
 	CreateKey(VK_UP, "MoveUp");
 	CreateKey(VK_DOWN, "MoveDown");
 
+
+	CreateKey( VK_RETURN, "Enter" );
+
 	return true;
 }
 

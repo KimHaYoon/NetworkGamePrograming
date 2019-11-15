@@ -1,14 +1,13 @@
 #pragma once
 #include "Obj.h"
-class CEnterKeyObj :
+class CLobbyBackground :
 	public CObj
 {
 private:
-	bool m_bShow;
-
+	int		m_iColorG;
 public:
-	CEnterKeyObj();
-	~CEnterKeyObj();
+	CLobbyBackground();
+	~CLobbyBackground();
 
 
 	virtual bool Init();

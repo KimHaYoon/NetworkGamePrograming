@@ -73,3 +73,18 @@ CObj * CObjectManager::FindObject( const string & strName )
 
 	return *iter;
 }
+
+void CObjectManager::ClearObject()
+{
+
+	list<class CObj*>::iterator	iter = m_ObjList.begin();
+	list<class CObj*>::iterator	iterEnd = m_ObjList.end();
+
+	while ( iter != iterEnd )
+	{
+		SAFE_DELETE( *iter );
+		++iter;
+	}
+
+	m_ObjList.clear();
+}

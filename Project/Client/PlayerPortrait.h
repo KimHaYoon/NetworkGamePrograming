@@ -1,19 +1,22 @@
 #pragma once
 #include "Obj.h"
-class CEnterKeyObj :
+class CPlayerPortrait :
 	public CObj
 {
 private:
-	bool m_bShow;
+	int		m_iNumber;
 
 public:
-	CEnterKeyObj();
-	~CEnterKeyObj();
+	CPlayerPortrait();
+	~CPlayerPortrait();
 
 
 	virtual bool Init();
 	virtual void Input();
 	virtual void Update( DWORD dwTime );
 	virtual void Render( HDC hDC );
+
+public:
+	void SetNumber( int iNumber );
 };
 

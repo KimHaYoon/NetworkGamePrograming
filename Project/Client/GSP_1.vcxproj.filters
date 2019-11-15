@@ -31,11 +31,20 @@
     <Filter Include="02. Object\00. Rect">
       <UniqueIdentifier>{ed3de753-d0de-4dfd-8bb9-786df60ae664}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02. Object\01. 말">
-      <UniqueIdentifier>{2bbd0939-31fb-4fc2-94c3-ee764fa12c39}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02. Object\02. Logo">
       <UniqueIdentifier>{fa81a6c1-732c-44c4-a8e9-9ecbcb1417ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\03. Lobby">
+      <UniqueIdentifier>{ee02ec0a-eae2-4fe4-b375-6f0ed69f44fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\NewFilter1">
+      <UniqueIdentifier>{4bb72c9b-9189-4baa-a1bb-7b980de6a44e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\01. Player">
+      <UniqueIdentifier>{2bbd0939-31fb-4fc2-94c3-ee764fa12c39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\01. Player\00. 초상화">
+      <UniqueIdentifier>{27ea7c6d-6611-4ecc-bed1-a37a4f9dd306}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -67,7 +76,7 @@
       <Filter>02. Object\00. Rect</Filter>
     </ClCompile>
     <ClCompile Include="Circle.cpp">
-      <Filter>02. Object\01. 말</Filter>
+      <Filter>02. Object\01. Player</Filter>
     </ClCompile>
     <ClCompile Include="LogoObj.cpp">
       <Filter>02. Object\02. Logo</Filter>
@@ -77,6 +86,21 @@
     </ClCompile>
     <ClCompile Include="InputServerIP.cpp">
       <Filter>02. Object\02. Logo</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>04. Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="LogoScene.cpp">
+      <Filter>04. Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="LobbyScene.cpp">
+      <Filter>04. Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="LobbyBackground.cpp">
+      <Filter>02. Object\03. Lobby</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerPortrait.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -117,7 +141,7 @@
       <Filter>02. Object\00. Rect</Filter>
     </ClInclude>
     <ClInclude Include="Circle.h">
-      <Filter>02. Object\01. 말</Filter>
+      <Filter>02. Object\01. Player</Filter>
     </ClInclude>
     <ClInclude Include="LogoObj.h">
       <Filter>02. Object\02. Logo</Filter>
@@ -127,6 +151,21 @@
     </ClInclude>
     <ClInclude Include="InputServerIP.h">
       <Filter>02. Object\02. Logo</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>04. Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="LogoScene.h">
+      <Filter>04. Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="LobbyScene.h">
+      <Filter>04. Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="LobbyBackground.h">
+      <Filter>02. Object\03. Lobby</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerPortrait.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
