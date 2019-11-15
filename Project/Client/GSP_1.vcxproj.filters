@@ -46,6 +46,12 @@
     <Filter Include="02. Object\01. Player\00. 초상화">
       <UniqueIdentifier>{27ea7c6d-6611-4ecc-bed1-a37a4f9dd306}</UniqueIdentifier>
     </Filter>
+    <Filter Include="05. Network">
+      <UniqueIdentifier>{daa0a303-6108-4fa7-bc56-afbc16e6d6d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="05. Network\00. Protocol">
+      <UniqueIdentifier>{5c59765a-4f7b-4120-a9e3-a46017be1fc4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -99,8 +105,11 @@
     <ClCompile Include="LobbyBackground.cpp">
       <Filter>02. Object\03. Lobby</Filter>
     </ClCompile>
+    <ClCompile Include="Network.cpp">
+      <Filter>05. Network</Filter>
+    </ClCompile>
     <ClCompile Include="PlayerPortrait.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>02. Object\01. Player\00. 초상화</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -164,8 +173,14 @@
     <ClInclude Include="LobbyBackground.h">
       <Filter>02. Object\03. Lobby</Filter>
     </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>05. Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol.h">
+      <Filter>05. Network\00. Protocol</Filter>
+    </ClInclude>
     <ClInclude Include="PlayerPortrait.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>02. Object\01. Player\00. 초상화</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

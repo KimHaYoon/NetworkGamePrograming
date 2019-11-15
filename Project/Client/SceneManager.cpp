@@ -42,11 +42,3 @@ void CSceneManager::Render( HDC hDC )
 {
 	m_pCurScene->Render( hDC );
 }
-
-void CSceneManager::SceneChange( CScene * pScene )
-{
-	SAFE_DELETE( m_pCurScene );
-	GET_SINGLE( CObjectManager )->ClearObject();
-	m_pCurScene = pScene;
-	m_pCurScene->Init();
-}

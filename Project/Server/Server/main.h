@@ -1,15 +1,17 @@
 #pragma once
 
+#pragma comment(lib, "ws2_32")
+#pragma warning(disable : 4996)
+#include <winsock2.h>
+
 #include <stdio.h>
-#include <WS2tcpip.h>
-#include <map>
+#include <unordered_map>
 #include <iostream>
 #include <algorithm>
 #include <list>
 
-#pragma comment(lib, "Ws2_32.lib")
 
 #include "Define.h"
-#include "Struct.h"
+#include "Protocol.h"
 
 using namespace std;

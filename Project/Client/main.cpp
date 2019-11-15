@@ -142,7 +142,7 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 			strServerIP.pop_back();
 		}
 
-		else
+		else if( VK_RETURN != wParam )
 		{
 			strServerIP += ( char* )&wParam;
 		}

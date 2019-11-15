@@ -7,6 +7,7 @@
 #include "Input.h"
 #include "LobbyScene.h"
 #include "SceneManager.h"
+#include "Network.h"
 
 CLogoScene::CLogoScene()
 {
@@ -30,8 +31,11 @@ void CLogoScene::Input()
 {
 	if ( KEYDOWN( "Enter" ) )
 	{
-		CScene* pLobby = new CLobbyScene;
-		GET_SINGLE( CSceneManager )->SceneChange( pLobby );
+		CObj* pInputServerIP = GET_SINGLE( CObjectManager )->FindObject( "InputServerIP" );
+		//string strIP = ( ( CInputServerIP* )pInputServerIP )->GetServerIP();
+		if ( !GET_SINGLE( CNetwork )->Init( /*strIP*/ "127.0.0.1" ) )
+			return;
+		CScene* pLobby = GET_SINGLE( CSceneManager )->CreateScene<CLobbyScene>("Lobby");
 	}
 }
 

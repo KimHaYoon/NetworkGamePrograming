@@ -5,7 +5,7 @@ class CScene
 {
 public:
 	CScene();
-	~CScene();
+	virtual ~CScene();
 
 public:
 	virtual bool Init() = 0;
