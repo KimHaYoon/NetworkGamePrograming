@@ -6,6 +6,7 @@
 #include "Scene.h"
 #include "SceneManager.h"
 #include "Texture.h"
+#include "Network.h"
 
 
 CGameFramework::CGameFramework() :
@@ -22,6 +23,7 @@ CGameFramework::~CGameFramework()
 	GET_SINGLE( CResourcesManager )->DestroyInst();
 	GET_SINGLE( CInput )->DestroyInst();
 	GET_SINGLE( CSceneManager )->DestroyInst();
+	GET_SINGLE( CNetwork )->DestroyInst();
 	ReleaseDC( m_hWnd, m_hDC );
 }
 

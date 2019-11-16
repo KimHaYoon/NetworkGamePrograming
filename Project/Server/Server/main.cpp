@@ -3,6 +3,8 @@
 int		g_iClinetNumber = 1;
 unordered_map<int, PLAYERINFO>			g_Clients;
 
+DWORD WINAPI ProcessClient( LPVOID arg );
+
 int main()
 {
 	int retval;
@@ -61,27 +63,29 @@ int main()
 
 		// 접속한 클라이언트 정보 출력
 		printf( "\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa( clientaddr.sin_addr ), ntohs( clientaddr.sin_port ) );
-
+		
 		PLAYERINFO tPlayerInfo{};
 		tPlayerInfo.id = g_iClinetNumber;
-		g_Clients[g_iClinetNumber] = tPlayerInfo;
+		g_Clients[g_iClinetNumber++] = tPlayerInfo;
 
-		//send( client_sock, ( char* )&tPlayerInfo, sizeof( PLAYERINFO ), 0 );
+		send( client_sock, ( char* )&tPlayerInfo, sizeof( PLAYERINFO ), 0 );			// 초기 정보 전송
+		
+																						// 스레드 생성
+		hThread = CreateThread( NULL, 0, ProcessClient, ( LPVOID )client_sock, 0, NULL );
 
-		//// 스레드 생성
-		//hThread = CreateThread( NULL, 0, ProcessClient, ( LPVOID )client_sock, 0, NULL );
+		// closesocket() - client socket
+		if ( hThread == NULL )
+		{
+			closesocket( client_sock );
+		}
 
-		//// closesocket() - client socket
-		//if ( hThread == NULL )
-		//{
-		//	closesocket( client_sock );
-		//}
+		else
+		{
+			CloseHandle( hThread );
+		}
 
-		//else
-		//{
-		//	// 종료한 클라이언트 출력
-		//	CloseHandle( hThread );
-		//}
+		if ( g_iClinetNumber > 1 )
+			--g_iClinetNumber;
 		closesocket( client_sock );
 	}
 	// closesocket()
@@ -89,6 +93,18 @@ int main()
 
 	// 윈속 종료
 	WSACleanup();
+
+	return 0;
+}
+
+DWORD WINAPI ProcessClient( LPVOID arg )
+{
+	SOCKET client_sock = ( SOCKET )arg;
+	SOCKADDR_IN clientaddr;
+	int addrlen = sizeof( clientaddr );
+	getpeername( client_sock, ( SOCKADDR * )&clientaddr, &addrlen );
+
+	
 
 	return 0;
 }

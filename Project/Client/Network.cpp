@@ -52,9 +52,9 @@ bool CNetwork::Init( const string& strServerIP )
 		return false;
 	}
 
-	//recvn( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
+	recvn( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
 
-	//m_Players[m_tPlayerInfo.id] = m_tPlayerInfo;
+	m_Players[m_tPlayerInfo.id] = m_tPlayerInfo;
 
 	return true;
 }
