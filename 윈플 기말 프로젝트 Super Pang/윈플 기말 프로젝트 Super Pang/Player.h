@@ -4,7 +4,10 @@ class Player
 	int				m_nID;						// 1P, 2P
 
 	CImage			m_imgFace;					// 얼굴 이미지
+
 	CImage			m_imgAnimation[5];			// 애니메이션
+	int				RM_count, LM_count, S_count; // 이게 뭔지 까먹었네
+
 	CImage			m_imgLife;					// 라이프 이미지
 	CImage			m_imgDeathLife;				// 죽은 라이프 이미지
 	CImage			m_imgNumber;				// 점수판 이미지
@@ -43,8 +46,14 @@ public:
 	void			Player_Animation(HINSTANCE g_hInst, HDC memDC);
 
 	int				Update(HINSTANCE g_hInst, HDC memDC);
+	int				Move_Update();
+	int				Bullet_Update();
 	int				Render(HDC hDC);
 	int				BulletRender(HDC hDC);
+
+	void			CHEAT_Reborn();
+	void			CHEAT_MAXLIFE();
+	void			CHEAT_MAXBULLET();
 
 	void			IncreaseBulletCount();
 	void			IncreaseInvincibleTime();
@@ -62,6 +71,7 @@ public:
 	void			SetBulletHeight(int height, int index);
 	void			SetBulletImageHeight(int height, int index);
 	void			SetInvincibleTime(int time);
+	void			SetBulletCount(int bullet_count);
 
 	bool			GetPlay();
 	int				GetLife();
@@ -77,5 +87,6 @@ public:
 	int				GetBulletHeight(int index);
 	int				GetBulletImageHeight(int index);
 	int				GetInvincibleTime();
+	int				GetBulletCount();
 };
 

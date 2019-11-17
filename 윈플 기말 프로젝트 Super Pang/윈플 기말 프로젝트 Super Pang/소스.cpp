@@ -118,7 +118,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 {
 	static int logo_count = 0; // Press Enter Key 카운트
 	static RECT rcTemp = { 0, 0, 0, 0 }; //충돌전용 RECT
-	static RECT Missile_P1[5], Missile_P2[5]; // 2P니 난이도를 위해서 한발만 가지고 사용하기로
 	static CImage img, blackimg, Logo, Key, Missile, timer, Number, Number2, Alphabet, Number3, Mitem, img2, GameOver, Ending, img3, Life;
 	static HBITMAP hBit, hBlock, hBall1, hBall2, hBall3, hBrokenBlock, oldBit;
 	static HDC hdc, mem1dc, blockdc, ball1dc, ball2dc, ball3dc, brokenblockdc;
@@ -500,122 +499,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 
 			if (Start)
 			{ // 플레이어 2의 버튼
-				if (P2_Play)
+				for (int i = PLAYER_1; i < PLAYER_END; ++i)
 				{
-					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-					{
-						if (P2.left - SPEED > 0)
-						{
-							P2.left -= SPEED;
-							P2.right -= SPEED;
-							Right2 = false; // 왼쪽을 바라보게
-						}
-						Move2 = true;
-					}
-					if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-					{
-						if (P2.right + SPEED < rt.right)
-						{
-							P2.left += SPEED;
-							P2.right += SPEED;
-							Right2 = true; // 오른쪽을 바라보게
-						}
-						Move2 = true; // 애니메이션 활성화
-					}
-					if (GetAsyncKeyState(VK_NUMPAD0) & 1) // 플레이어 2가 작살발사버튼을 누를때
-					{
-						for (int i = 0; i < P2_mCount; ++i)
-						{
-							if (!M2[i])
-							{
-								Missile_P2[i].left = P2.left + 20; // 작살 그림의 폭이 30, 플레이어 그림의 폭은 70
-								Missile_P2[i].top = P2.top;
-								Missile_P2[i].right = P2.right - 20;
-								Missile_P2[i].bottom = P2.bottom;
-								M_height2[i] = Missile_P2[i].bottom - Missile_P2[i].top; // 작살의 길이
-								height2[i] = 150; // 작살 그림에서의 길이
-								M2[i] = true;
-								Shot2 = true;
-								break;
-							}
-						}
-					}
-				}
-
-				// 플레이어 1의 버튼
-				if (P1_Play)
-				{
-					if (GetAsyncKeyState('A') & 0x8000)
-					{
-						if (P1.left - SPEED > 0)
-						{
-							P1.left -= SPEED;
-							P1.right -= SPEED;
-							Right1 = false;
-						}
-						Move1 = true;
-					}
-					if (GetAsyncKeyState('D') & 0x8000)
-					{
-						if (P1.right + SPEED < rt.right)
-						{
-							P1.left += SPEED;
-							P1.right += SPEED;
-							Right1 = true;
-						}
-						Move1 = true;
-					}
-					if (GetAsyncKeyState('G') & 1) // 플레이어1이 작살발사 버튼을 누를때
-					{
-						for (int i = 0; i < P1_mCount; ++i)
-						{
-							if (!M1[i])
-							{
-								Missile_P1[i].left = P1.left + 20;
-								Missile_P1[i].top = P1.top;
-								Missile_P1[i].right = P1.right - 20;
-								Missile_P1[i].bottom = P1.bottom;
-								M_height1[i] = Missile_P1[i].bottom - Missile_P1[i].top;
-								height1[i] = 150;
-								M1[i] = true;
-								Shot1 = true;
-								break;
-							}
-						}
-					}
+					myPlayer[i].Move_Update();
 				}
 
 				// 작살 //
-				for (int i = 0; i < 5; ++i)
+				for (int i = PLAYER_1; i < PLAYER_END; ++i)
 				{
-					if (M1[i]) // 플레이어1의 작살 이동 타이머
-					{
-						M_height1[i] += SPEED; // 작살의 길이
-						Missile_P1[i].top -= SPEED; // 작살의 y1좌표의 위치
-						height1[i] += M_SPEED; // 작살 그림에서 얼마나 출력할건지
-						if (Missile_P1[i].top < 25)
-						{
-							Missile_P1[i].top = 0;
-							Missile_P1[i].left = 0;
-							Missile_P1[i].bottom = 0;
-							Missile_P1[i].right = 0;
-							M1[i] = false; // 작살 타이머 정지
-						}
-					}
-					if (M2[i]) // 플레이어 2의 작살 이동 타이머
-					{
-						M_height2[i] += SPEED;
-						Missile_P2[i].top -= SPEED;
-						height2[i] += M_SPEED;
-						if (Missile_P2[i].top < 25)
-						{
-							Missile_P2[i].top = 0;
-							Missile_P2[i].left = 0;
-							Missile_P2[i].bottom = 0;
-							Missile_P2[i].right = 0;
-							M2[i] = false;
-						}
-					}
+					myPlayer[i].Bullet_Update();
 				}
 			}
 
@@ -657,6 +549,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 
 		case 2:
 			//작살 타일충돌 + 타일프레임
+
 			for (int i = 0; i < TILECNT_ONE; ++i)
 			{
 				RECT rcTemp;
@@ -670,81 +563,49 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 
 				if ((TileOne[i].type != 0) && (TileOne[i].tFrame.NowFrame == 0))
 				{
-					for (int a = 0; a < 5; ++a)
+					for (int player = PLAYER_1; player < PLAYER_END; ++player)
 					{
-						if (IntersectRect(&rcTemp, &TileOne[i].rc, &Missile_P1[a]))
+						for (int a = 0; a < 5; ++a)
 						{
-							if (TileOne[i].type == 1)
-								TileOne[i].tFrame.NowFrame = 1;
+							RECT bullet = myPlayer[player].GetBulletPosition(a);
+							if (IntersectRect(&rcTemp, &TileOne[i].rc, &bullet))
+							{
+								if (TileOne[i].type == 1)
+									TileOne[i].tFrame.NowFrame = 1;
 
-							// 플레이어1 작살과 타일의 충돌
-							int item = rand() % 10;
-							if (item == 0 && Stop_item == false && Stop == false && TileOne[i].type == 1) // 10퍼센트 확률로 시간정지 아이템 등장
-							{// 필드에 시간정지 아이템이 없고 시간정지가 아닐때만 등장
-								timer_item.top = Missile_P1[a].top;
-								timer_item.left = Missile_P1[a].left;
-								timer_item.right = timer_item.left + 30;
-								timer_item.bottom = timer_item.top + 30;
-								Stop_item = true;
+								// 플레이어1 작살과 타일의 충돌
+								int item = rand() % 10;
+								if (item == 0 && Stop_item == false && Stop == false && TileOne[i].type == 1) // 10퍼센트 확률로 시간정지 아이템 등장
+								{// 필드에 시간정지 아이템이 없고 시간정지가 아닐때만 등장
+									timer_item.top = bullet.top;
+									timer_item.left = bullet.left;
+									timer_item.right = timer_item.left + 30;
+									timer_item.bottom = timer_item.top + 30;
+									Stop_item = true;
+								}
+								if (item >= 1 && item <= 2 && M == false && TileOne[i].type == 1) // 10퍼센트 확률로 작살갯수 추가 아이템 등장
+								{
+									Missile_item.top = bullet.top;
+									Missile_item.left = bullet.left;
+									Missile_item.right = Missile_item.left + 30;
+									Missile_item.bottom = Missile_item.top + 30;
+									M = true;
+								}
+								if (item == 3 && H == false && TileOne[i].type == 1)
+								{
+									Life_item.top = bullet.top;
+									Life_item.left = bullet.left;
+									Life_item.right = Life_item.left + 30;
+									Life_item.bottom = Life_item.top + 30;
+									H = true;
+								}
+								bullet.top = 0;
+								bullet.left = 0;
+								bullet.bottom = 0;
+								bullet.right = 0;
+								myPlayer[player].SetBulletPosition(bullet, a);
+								myPlayer[player].SetBulletShot(true, a); // 작살 타이머 정지
 							}
-							if (item >= 1 && item <= 2 && M == false && TileOne[i].type == 1) // 10퍼센트 확률로 작살갯수 추가 아이템 등장
-							{
-								Missile_item.top = Missile_P1[a].top;
-								Missile_item.left = Missile_P1[a].left;
-								Missile_item.right = Missile_item.left + 30;
-								Missile_item.bottom = Missile_item.top + 30;
-								M = true;
-							}
-							if (item == 3 && H == false && TileOne[i].type == 1)
-							{
-								Life_item.top = Missile_P2[a].top;
-								Life_item.left = Missile_P2[a].left;
-								Life_item.right = Life_item.left + 30;
-								Life_item.bottom = Life_item.top + 30;
-								H = true;
-							}
-							Missile_P1[a].top = 0;
-							Missile_P1[a].left = 0;
-							Missile_P1[a].bottom = 0;
-							Missile_P1[a].right = 0;
-							M1[a] = false; // 작살 타이머 정지
-						}
-						if (IntersectRect(&rcTemp, &TileOne[i].rc, &Missile_P2[a]))
-						{
-							if (TileOne[i].type == 1)
-								TileOne[i].tFrame.NowFrame = 1;
-
-							// 플레이어2 작살과 타일의 충돌
-							int item = rand() % 10;
-							if (item == 0 && Stop_item == false && Stop == false && TileOne[i].type == 1) // 10퍼센트 확률로 시간정지 아이템 등장
-							{// 필드에 시간정지 아이템이 없고 시간정지가 아닐때만 등장
-								timer_item.top = Missile_P2[a].top;
-								timer_item.left = Missile_P2[a].left;
-								timer_item.right = timer_item.left + 30;
-								timer_item.bottom = timer_item.top + 30;
-								Stop_item = true;
-							}
-							if (item >= 1 && item <= 2 && M == false && TileOne[i].type == 1) // 10퍼센트 확률로 작살갯수 추가 아이템 등장
-							{
-								Missile_item.top = Missile_P2[a].top;
-								Missile_item.left = Missile_P2[a].left;
-								Missile_item.right = Missile_item.left + 30;
-								Missile_item.bottom = Missile_item.top + 30;
-								M = true;
-							}
-							if (item == 3&& H == false && TileOne[i].type == 1)
-							{
-								Life_item.top = Missile_P2[a].top;
-								Life_item.left = Missile_P2[a].left;
-								Life_item.right = Life_item.left + 30;
-								Life_item.bottom = Life_item.top + 30;
-								H = true;
-							}
-							Missile_P2[a].top = 0;
-							Missile_P2[a].left = 0;
-							Missile_P2[a].bottom = 0;
-							Missile_P2[a].right = 0;
-							M2[a] = false;
 						}
 					}
 				}
@@ -823,51 +684,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 			}
 
 			//공과 플레이어 충돌
-			for (int j = 0; j < 4; ++j)
+			for (int player = PLAYER_1; player < PLAYER_END; ++player)
 			{
-				for (int i = 0; i < 4; ++i)
+				RECT player_position = myPlayer[player].GetPosition();
+				bool play = myPlayer[player].GetPlay();
+				bool attack = myPlayer[player].GetAttack();
+				int life = myPlayer[player].GetLife();
+				int score = myPlayer[player].GetScore();
+
+				for (int j = 0; j < 4; ++j)
 				{
-					RECT rcTemp;
-					if (IntersectRect(&rcTemp, &ball[j][i].rc, &P1) && P1_Play && ball[j][i].type != 4)
+					for (int i = 0; i < 4; ++i)
 					{
-						if (!P1_attack)
+						RECT rcTemp;
+						if (IntersectRect(&rcTemp, &ball[j][i].rc, &player_position) && play && ball[j][i].type != 4)
 						{
-							P1_Life--;
-							if (P1_Life == 0)
+							if (!attack)
 							{
-								P1_Play = false;
-								if (P2_Play == false)
+								myPlayer[player].SetLife(life - 1);
+								if (life == 0)
 								{
-									Gameover = true;
-									Start = false;
-									PlaySound(NULL, 0, 0);
-									PlaySound("Ending.wav", NULL, SND_ASYNC | SND_LOOP);
+									myPlayer[player].SetPlay(false);
+									if (myPlayer[(player + 1) % PLAYER_END].GetPlay() == false)
+									{
+										Gameover = true;
+										Start = false;
+										PlaySound(NULL, 0, 0);
+										PlaySound("Ending.wav", NULL, SND_ASYNC | SND_LOOP);
+									}
+									myPlayer[player].SetScore(0);
+									myPlayer[player].SetBulletCount(1);
 								}
-								score1 = 0;
-								P1_mCount = 1;
+								myPlayer[player].SetAttack(true);
 							}
-							P1_attack = true;
-						}
-					}
-					if (IntersectRect(&rcTemp, &ball[j][i].rc, &P2) && P2_Play && ball[j][i].type != 4)
-					{
-						if (!P2_attack)
-						{
-							P2_Life--;
-							if (P2_Life == 0)
-							{
-								P2_Play = false;
-								if (P1_Play == false)
-								{
-									Gameover = true;
-									Start = false;
-									PlaySound(NULL, 0, 0);
-									PlaySound("Ending.wav", NULL, SND_ASYNC | SND_LOOP);
-								}
-								score2 = 0;
-								P2_mCount = 1;
-							}
-							P2_attack = true;
 						}
 					}
 				}
@@ -875,342 +724,184 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 			
 
 			// 아이템과 플레이어 충돌
-			if(Stop == false && Stop_item == true)
+			for (int player = PLAYER_1; player < PLAYER_END; ++player)
 			{
-				RECT rcTemp;
-				if (IntersectRect(&rcTemp, &timer_item, &P1) && P1_Play)
-				{
-					Stop = true;
-					timer_item.top = 0;
-					timer_item.left = 0;
-					timer_item.right = 0;
-					timer_item.bottom = 0;
-					score1 += 200;
-					Stop_item = false;
-					T = true;
-					PlaySound(NULL, 0, 0);
-					PlaySound("Clock.wav", NULL, SND_ASYNC);
-				}
-				if (IntersectRect(&rcTemp, &timer_item, &P2) && P2_Play)
-				{
-					Stop = true;
-					timer_item.top = 0;
-					timer_item.left = 0;
-					timer_item.right = 0;
-					timer_item.bottom = 0;
-					score2 += 200;
-					Stop_item = false;
-					T = true;
-					PlaySound(NULL, 0, 0);
-					PlaySound("Clock.wav", NULL, SND_ASYNC);
-				}
-			}
-			if (M == true)
-			{
-				RECT rcTemp;
-				if (IntersectRect(&rcTemp, &Missile_item, &P1) && P1_Play)
-				{
-					M = false;
-					Missile_item.top = 0;
-					Missile_item.left = 0;
-					Missile_item.right = 0;
-					Missile_item.bottom = 0;
-					score1 += 50;
-					if (P1_mCount < 5)
-						P1_mCount++;
-				}
-				if (IntersectRect(&rcTemp, &Missile_item, &P2) && P2_Play)
-				{
-					M = false;
-					Missile_item.top = 0;
-					Missile_item.left = 0;
-					Missile_item.right = 0;
-					Missile_item.bottom = 0;
-					score2 += 50;
-					if (P2_mCount < 5)
-						P2_mCount++;
-				}
-			}
-			if (H == true)
-			{
-				RECT rcTemp;
-				if (IntersectRect(&rcTemp, &Life_item, &P1) && P1_Play)
-				{
-					H = false;
-					Life_item.top = 0;
-					Life_item.left = 0;
-					Life_item.right = 0;
-					Life_item.bottom = 0;
-					if (P1_Life < 3 && P1_Play)
-						P1_Life++;
-					score1 += 50;
-				}
-				if (IntersectRect(&rcTemp, &Life_item, &P2) && P2_Play)
-				{
-					H = false;
-					Life_item.top = 0;
-					Life_item.left = 0;
-					Life_item.right = 0;
-					Life_item.bottom = 0;
-					if (P2_Life < 3 && P2_Play)
-						P2_Life++;
-					score1 += 50;
-				}
-			}
-
-			//공과 작살 충돌
-			for (int j = 0; j < 4; ++j)
-			{
-				for (int i = 0; i < 4; ++i)
+				RECT player_position = myPlayer[player].GetPosition();
+				bool play = myPlayer[player].GetPlay();
+				int score = myPlayer[player].GetScore();
+				if (Stop == false && Stop_item == true)
 				{
 					RECT rcTemp;
-					for (int a = 0; a < 5; ++a)
+					if (IntersectRect(&rcTemp, &timer_item, &player_position) && play)
 					{
-						if (IntersectRect(&rcTemp, &ball[j][i].rc, &Missile_P1[a]) && ball[j][i].type != 4)
-						{
-							//플레이어1의 작살과 공의 충돌
-							int item = rand() % 10;
-							if (item == 0 && Stop_item == false && Stop == false) // 10퍼센트 확률로 시간정지 아이템 등장
-							{// 필드에 시간정지 아이템이 없고 시간정지가 아닐때만 등장
-								timer_item.top = ball[j][i].Y;
-								timer_item.left = ball[j][i].X;
-								timer_item.right = timer_item.left + 30;
-								timer_item.bottom = timer_item.top + 30;
-								Stop_item = true;
-							}
-							if (item >= 1 && item <= 2 && M == false) // 20퍼센트 확률로 작살갯수 추가 아이템 등장
-							{
-								Missile_item.top = ball[j][i].Y;
-								Missile_item.left = ball[j][i].X;
-								Missile_item.right = Missile_item.left + 30;
-								Missile_item.bottom = Missile_item.top + 30;
-								M = true;
-							}
-							if (item == 3 && H == false)
-							{
-								Life_item.top = ball[j][i].Y;
-								Life_item.left = ball[j][i].X;
-								Life_item.right = Life_item.left + 30;
-								Life_item.bottom = Life_item.top + 30;
-								H = true;
-							}
-							Missile_P1[a].top = 0;
-							Missile_P1[a].left = 0;
-							Missile_P1[a].bottom = 0;
-							Missile_P1[a].right = 0;
-							M1[a] = false;
-
-							score1 += 50;
-
-							switch (ball[j][i].type)
-							{
-							case 0:
-								score1 += 100;
-								ball[j][i].type = 4;
-								break;
-							case 1:
-								if (i == 0)
-								{
-									ball[j][0].X = ball[j][0].X;
-									ball[j][0].Y = ball[j][0].Y;
-									ball[j][0].R = 8;
-									ball[j][0].type = 0;
-									ball[j][0].SetRect();
-									ball[j][0].DirLR = DIR_RIGHT;
-									ball[j][0].DirUD = ball[j][0].DirUD;
-									ball[j][0].gravity = ball[j][0].gravity;
-
-									ball[j][1].X = ball[j][0].X;
-									ball[j][1].Y = ball[j][0].Y;
-									ball[j][1].R = 8;
-									ball[j][1].type = 0;
-									ball[j][1].SetRect();
-									ball[j][1].DirLR = DIR_LEFT;
-									ball[j][1].DirUD = ball[j][0].DirUD;
-									ball[j][1].gravity = ball[j][0].gravity;
-								}
-								else if (i == 2)
-								{
-									ball[j][2].X = ball[j][2].X;
-									ball[j][2].Y = ball[j][2].Y;
-									ball[j][2].R = 8;
-									ball[j][2].type = 0;
-									ball[j][2].SetRect();
-									ball[j][2].DirLR = DIR_RIGHT;
-									ball[j][2].DirUD = ball[j][2].DirUD;
-									ball[j][2].gravity = ball[j][2].gravity;
-
-									ball[j][3].X = ball[j][2].X;
-									ball[j][3].Y = ball[j][2].Y;
-									ball[j][3].R = 8;
-									ball[j][3].type = 0;
-									ball[j][3].SetRect();
-									ball[j][3].DirLR = DIR_LEFT;
-									ball[j][3].DirUD = ball[j][2].DirUD;
-									ball[j][3].gravity = ball[j][2].gravity;
-								}
-								break;
-							case 2:
-								ball[j][0].X = ball[j][0].X;
-								ball[j][0].Y = ball[j][0].Y;
-								ball[j][0].R = 15;
-								ball[j][0].type = 1;
-								ball[j][0].SetRect();
-								ball[j][0].DirLR = DIR_RIGHT;
-								ball[j][0].DirUD = ball[j][0].DirUD;
-								ball[j][0].gravity = ball[j][0].gravity;
-
-								ball[j][2].X = ball[j][0].X;
-								ball[j][2].Y = ball[j][0].Y;
-								ball[j][2].R = 15;
-								ball[j][2].type = 1;
-								ball[j][2].SetRect();
-								ball[j][2].DirLR = DIR_LEFT;
-								ball[j][2].DirUD = ball[j][0].DirUD;
-								ball[j][2].gravity = ball[j][0].gravity;
-								break;
-							}
-						}
-						if (IntersectRect(&rcTemp, &ball[j][i].rc, &Missile_P2[a]) && ball[j][i].type != 4)
-						{
-							// 플레이어 2의 작살과 공의 충돌
-							int item = rand() % 10;
-							if (item == 0 && Stop_item == false && Stop == false) // 10퍼센트 확률로 시간정지 아이템 등장
-							{// 필드에 시간정지 아이템이 없고 시간정지가 아닐때만 등장
-								timer_item.top = ball[j][i].Y;
-								timer_item.left = ball[j][i].X;
-								timer_item.right = timer_item.left + 30;
-								timer_item.bottom = timer_item.top + 30;
-								Stop_item = true;
-							}
-							if (item >= 1 && item <= 2 && M == false) // 10퍼센트 확률로 작살갯수 추가 아이템 등장
-							{
-								Missile_item.top = ball[j][i].Y;
-								Missile_item.left = ball[j][i].X;
-								Missile_item.right = Missile_item.left + 30;
-								Missile_item.bottom = Missile_item.top + 30;
-								M = true;
-							}
-							if (item == 3 && H == false)
-							{
-								Life_item.top = ball[j][i].Y;
-								Life_item.left = ball[j][i].X;
-								Life_item.right = Life_item.left + 30;
-								Life_item.bottom = Life_item.top + 30;
-								H = true;
-							}
-
-							Missile_P2[a].top = 0;
-							Missile_P2[a].left = 0;
-							Missile_P2[a].bottom = 0;
-							Missile_P2[a].right = 0;
-							M2[a] = false;
-
-							score2 += 50;
-
-							switch (ball[j][i].type)
-							{
-							case 0:
-								score2 += 100;
-								ball[j][i].type = 4;
-								break;
-							case 1:
-								if (i == 0)
-								{
-									ball[j][0].X = ball[j][0].X;
-									ball[j][0].Y = ball[j][0].Y;
-									ball[j][0].R = 8;
-									ball[j][0].type = 0;
-									ball[j][0].SetRect();
-									ball[j][0].DirLR = DIR_RIGHT;
-									ball[j][0].DirUD = ball[j][0].DirUD;
-									ball[j][0].gravity = ball[j][0].gravity;
-
-									ball[j][1].X = ball[j][0].X;
-									ball[j][1].Y = ball[j][0].Y;
-									ball[j][1].R = 8;
-									ball[j][1].type = 0;
-									ball[j][1].SetRect();
-									ball[j][1].DirLR = DIR_LEFT;
-									ball[j][1].DirUD = ball[j][0].DirUD;
-									ball[j][1].gravity = ball[j][0].gravity;
-								}
-								else if (i == 2)
-								{
-									ball[j][2].X = ball[j][2].X;
-									ball[j][2].Y = ball[j][2].Y;
-									ball[j][2].R = 8;
-									ball[j][2].type = 0;
-									ball[j][2].SetRect();
-									ball[j][2].DirLR = DIR_RIGHT;
-									ball[j][2].DirUD = ball[j][2].DirUD;
-									ball[j][2].gravity = ball[j][2].gravity;
-
-									ball[j][3].X = ball[j][2].X;
-									ball[j][3].Y = ball[j][2].Y;
-									ball[j][3].R = 8;
-									ball[j][3].type = 0;
-									ball[j][3].SetRect();
-									ball[j][3].DirLR = DIR_LEFT;
-									ball[j][3].DirUD = ball[j][2].DirUD;
-									ball[j][3].gravity = ball[j][2].gravity;
-								}
-								break;
-							case 2:
-								ball[j][0].X = ball[j][0].X;
-								ball[j][0].Y = ball[j][0].Y;
-								ball[j][0].R = 15;
-								ball[j][0].type = 1;
-								ball[j][0].SetRect();
-								ball[j][0].DirLR = DIR_RIGHT;
-								ball[j][0].DirUD = ball[j][0].DirUD;
-								ball[j][0].gravity = ball[j][0].gravity;
-
-								ball[j][2].X = ball[j][0].X;
-								ball[j][2].Y = ball[j][0].Y;
-								ball[j][2].R = 15;
-								ball[j][2].type = 1;
-								ball[j][2].SetRect();
-								ball[j][2].DirLR = DIR_LEFT;
-								ball[j][2].DirUD = ball[j][0].DirUD;
-								ball[j][2].gravity = ball[j][0].gravity;
-								break;
-							}
-						}
-
+						Stop = true;
+						timer_item.top = 0;
+						timer_item.left = 0;
+						timer_item.right = 0;
+						timer_item.bottom = 0;
+						myPlayer[player].SetScore(score + 200);
+						Stop_item = false;
+						T = true;
+						PlaySound(NULL, 0, 0);
+						PlaySound("Clock.wav", NULL, SND_ASYNC);
+					}
+				}
+				if (M == true)
+				{
+					RECT rcTemp;
+					if (IntersectRect(&rcTemp, &Missile_item, &player_position) && play)
+					{
+						M = false;
+						Missile_item.top = 0;
+						Missile_item.left = 0;
+						Missile_item.right = 0;
+						Missile_item.bottom = 0;
+						myPlayer[player].SetScore(score + 50);
+						int bullet_count = myPlayer[player].GetBulletCount();
+						if (bullet_count < 5)
+							myPlayer[player].SetBulletCount(bullet_count + 1);
+					}
+				}
+				if (H == true)
+				{
+					RECT rcTemp;
+					if (IntersectRect(&rcTemp, &Life_item, &player_position) && play)
+					{
+						H = false;
+						Life_item.top = 0;
+						Life_item.left = 0;
+						Life_item.right = 0;
+						Life_item.bottom = 0;
+						int life = myPlayer[player].GetLife();
+						if (life < 3 && play)
+							myPlayer[player].SetLife(life + 1);
+						myPlayer[player].SetScore(score + 50);
 					}
 				}
 			}
 
-			//점수 계산
-			int temp;
-			temp = score1 / 10000;
-			P1_score[0] = temp;
-			temp = score1 / 1000;
-			P1_score[1] = temp % 10;
-			temp = score1 / 100;
-			P1_score[2] = temp % 100;
-			P1_score[2] = P1_score[2] % 10;
-			temp = score1 / 10;
-			P1_score[3] = temp % 1000;
-			P1_score[3] = P1_score[3] % 100;
-			P1_score[3] = P1_score[3] % 10;
-			temp = score1 % 10;
-			P1_score[4] = temp;
+			//공과 작살 충돌
+			for (int player = PLAYER_1; player < PLAYER_END; ++player)
+			{
+				int score = myPlayer[player].GetScore();
+				for (int j = 0; j < 4; ++j)
+				{
+					for (int i = 0; i < 4; ++i)
+					{
+						RECT rcTemp;
+						for (int a = 0; a < 5; ++a)
+						{
+							RECT bullet = myPlayer[player].GetBulletPosition(a);
+							if (IntersectRect(&rcTemp, &ball[j][i].rc, &bullet) && ball[j][i].type != 4)
+							{
+								//플레이어1의 작살과 공의 충돌
+								int item = rand() % 10;
+								if (item == 0 && Stop_item == false && Stop == false) // 10퍼센트 확률로 시간정지 아이템 등장
+								{// 필드에 시간정지 아이템이 없고 시간정지가 아닐때만 등장
+									timer_item.top = ball[j][i].Y;
+									timer_item.left = ball[j][i].X;
+									timer_item.right = timer_item.left + 30;
+									timer_item.bottom = timer_item.top + 30;
+									Stop_item = true;
+								}
+								if (item >= 1 && item <= 2 && M == false) // 20퍼센트 확률로 작살갯수 추가 아이템 등장
+								{
+									Missile_item.top = ball[j][i].Y;
+									Missile_item.left = ball[j][i].X;
+									Missile_item.right = Missile_item.left + 30;
+									Missile_item.bottom = Missile_item.top + 30;
+									M = true;
+								}
+								if (item == 3 && H == false)
+								{
+									Life_item.top = ball[j][i].Y;
+									Life_item.left = ball[j][i].X;
+									Life_item.right = Life_item.left + 30;
+									Life_item.bottom = Life_item.top + 30;
+									H = true;
+								}
+								bullet.top = 0;
+								bullet.left = 0;
+								bullet.bottom = 0;
+								bullet.right = 0;
+								myPlayer[player].SetBulletPosition(bullet, a);
+								myPlayer[player].SetBulletShot(false, a);
 
-			temp = score2 / 10000;
-			P2_score[4] = temp;
-			temp = score2 / 1000;
-			P2_score[3] = temp % 10;
-			temp = score2 / 100;
-			P2_score[2] = temp % 100;
-			P2_score[2] = P2_score[2] % 10;
-			temp = score2 / 10;
-			P2_score[1] = temp % 1000;
-			P2_score[1] = P2_score[1] % 100;
-			P2_score[1] = P2_score[1] % 10;
-			temp = score2 % 10;
-			P2_score[0] = temp;
+								myPlayer[player].SetScore(score + 50);
+
+								switch (ball[j][i].type)
+								{
+								case 0:
+									myPlayer[player].SetScore(score + 100);
+									ball[j][i].type = 4;
+									break;
+								case 1:
+									if (i == 0)
+									{
+										ball[j][0].X = ball[j][0].X;
+										ball[j][0].Y = ball[j][0].Y;
+										ball[j][0].R = 8;
+										ball[j][0].type = 0;
+										ball[j][0].SetRect();
+										ball[j][0].DirLR = DIR_RIGHT;
+										ball[j][0].DirUD = ball[j][0].DirUD;
+										ball[j][0].gravity = ball[j][0].gravity;
+
+										ball[j][1].X = ball[j][0].X;
+										ball[j][1].Y = ball[j][0].Y;
+										ball[j][1].R = 8;
+										ball[j][1].type = 0;
+										ball[j][1].SetRect();
+										ball[j][1].DirLR = DIR_LEFT;
+										ball[j][1].DirUD = ball[j][0].DirUD;
+										ball[j][1].gravity = ball[j][0].gravity;
+									}
+									else if (i == 2)
+									{
+										ball[j][2].X = ball[j][2].X;
+										ball[j][2].Y = ball[j][2].Y;
+										ball[j][2].R = 8;
+										ball[j][2].type = 0;
+										ball[j][2].SetRect();
+										ball[j][2].DirLR = DIR_RIGHT;
+										ball[j][2].DirUD = ball[j][2].DirUD;
+										ball[j][2].gravity = ball[j][2].gravity;
+
+										ball[j][3].X = ball[j][2].X;
+										ball[j][3].Y = ball[j][2].Y;
+										ball[j][3].R = 8;
+										ball[j][3].type = 0;
+										ball[j][3].SetRect();
+										ball[j][3].DirLR = DIR_LEFT;
+										ball[j][3].DirUD = ball[j][2].DirUD;
+										ball[j][3].gravity = ball[j][2].gravity;
+									}
+									break;
+								case 2:
+									ball[j][0].X = ball[j][0].X;
+									ball[j][0].Y = ball[j][0].Y;
+									ball[j][0].R = 15;
+									ball[j][0].type = 1;
+									ball[j][0].SetRect();
+									ball[j][0].DirLR = DIR_RIGHT;
+									ball[j][0].DirUD = ball[j][0].DirUD;
+									ball[j][0].gravity = ball[j][0].gravity;
+
+									ball[j][2].X = ball[j][0].X;
+									ball[j][2].Y = ball[j][0].Y;
+									ball[j][2].R = 15;
+									ball[j][2].type = 1;
+									ball[j][2].SetRect();
+									ball[j][2].DirLR = DIR_LEFT;
+									ball[j][2].DirUD = ball[j][0].DirUD;
+									ball[j][2].gravity = ball[j][0].gravity;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
 
 			break;
 		case 3:
@@ -1360,8 +1051,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 					if (Stage < STAGE_LIMIT)
 					{
 						Stage++; // 스테이지 2 생성
-						P1_mCount = 1;
-						P2_mCount = 1;
+						for (int player = PLAYER_1; player < PLAYER_END; ++player)
+						{
+							myPlayer[player].SetBulletCount(1);
+						}
 						Time_count = 0;
 						Time1_count = 0;
 						if (Stage == 2)
@@ -1501,11 +1194,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 					}
 				}
 				stage_count = 0;
-
-				if (P1_Play)
-					score1 += 10;
-				if (P2_Play)
-					score2 += 10;
 			}
 
 			break;
@@ -1528,35 +1216,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 			PlaySound("Stage1.wav", NULL, SND_ASYNC | SND_LOOP);
 		}
 
-		if (Start && (wParam == 49 || wParam == VK_NUMPAD1) && !P1_Play) // 플레이어 1 추가/부활
+		if (Start && (wParam == 49 || wParam == VK_NUMPAD1) && !myPlayer[PLAYER_1].GetPlay()) // 플레이어 1 추가/부활
 		{
-			P1_Play = true;
-			P1_Life = 3;
-			P1_attack = false;
-			P1_mCount = 1;
+			myPlayer[PLAYER_1].CHEAT_Reborn();
 		}
-		else if (Start && (wParam == 50 || wParam == VK_NUMPAD2) && !P2_Play) // 플레이어 2 추가/부활
+		else if (Start && (wParam == 50 || wParam == VK_NUMPAD2) && !myPlayer[PLAYER_2].GetPlay()) // 플레이어 2 추가/부활
 		{
-			P2_Play = true;
-			P2_Life = 3;
-			P2_attack = false;
-			P2_mCount = 1;
+			myPlayer[PLAYER_2].CHEAT_Reborn();
 		}
-		else if (Start && (wParam == 51 || wParam == VK_NUMPAD3) && P1_Play) // 플레이어1 체력회복 치트
+		else if (Start && (wParam == 51 || wParam == VK_NUMPAD3) && myPlayer[PLAYER_1].GetPlay()) // 플레이어1 체력회복 치트
 		{
-			P1_Life = 3;
+			myPlayer[PLAYER_1].CHEAT_MAXLIFE();
 		}
-		else if (Start && (wParam == 52 || wParam == VK_NUMPAD4) && P2_Play) // 플레이어2 체력회복 치트
+		else if (Start && (wParam == 52 || wParam == VK_NUMPAD4) && myPlayer[PLAYER_2].GetPlay()) // 플레이어2 체력회복 치트
 		{
-			P2_Life = 3;
+			myPlayer[PLAYER_2].CHEAT_MAXLIFE();
 		}
-		else if (Start && (wParam == 53 || wParam == VK_NUMPAD5) && P1_Play) // 플레이어1 작살 치트
+		else if (Start && (wParam == 53 || wParam == VK_NUMPAD5) && myPlayer[PLAYER_1].GetPlay()) // 플레이어1 작살 치트
 		{
-			P1_mCount = 5;
+			myPlayer[PLAYER_1].CHEAT_MAXBULLET();
 		}
-		else if (Start && (wParam == 54 || wParam == VK_NUMPAD6) && P2_Play) // 플레이어2 작살 치트
+		else if (Start && (wParam == 54 || wParam == VK_NUMPAD6) && myPlayer[PLAYER_2].GetPlay()) // 플레이어2 작살 치트
 		{
-			P2_mCount = 5;
+			myPlayer[PLAYER_2].CHEAT_MAXBULLET();
 		}
 		else if (Start && (wParam == 55 || wParam == VK_NUMPAD7))
 		{
@@ -1574,120 +1256,4 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return DefWindowProc(hWnd, IMessage, wParam, lParam);
-}
-
-void P1_Animation(int x, int y, HDC mem1dc, BOOL Move, BOOL Right)
-{
-	CImage Player1[5];
-	static int RM1_count, LM1_count, S1_count;
-
-	if (Shot1)
-	{
-		S1_count++;
-		S1_count = S1_count % 2; // 쏘는 자세 애니메이션 카운트
-		Player1[0].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP15));
-		Player1[1].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP16));
-
-		Player1[S1_count].TransparentBlt(mem1dc, x, y, 70, 70, 0, 0, Player1[S1_count].GetWidth(), Player1[S1_count].GetHeight(), RGB(0, 255, 0));
-		if (S1_count % 2 == 1)
-		{
-			Shot1 = false;
-		}
-		return; // 리턴이없으면 이동애니메이션까지 작동하기때문에 여기서 끊음
-	}
-
-	if (Right) // 오른쪽이동
-	{
-		RM1_count++;
-		RM1_count = RM1_count % 5; // 오른쪽 애니메이션
-		Player1[0].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP5));
-		Player1[1].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP6));
-		Player1[2].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP7));
-		Player1[3].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP8));
-		Player1[4].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP9));
-
-		if (Move)
-		{
-			Player1[RM1_count].TransparentBlt(mem1dc, x, y, 70, 70, 0, 0, Player1[RM1_count].GetWidth(), Player1[RM1_count].GetHeight(), RGB(0, 255, 0));
-		}
-		else // 정지할때
-			Player1[0].TransparentBlt(mem1dc, x, y, 70, 70, 0, 0, Player1[RM1_count].GetWidth(), Player1[RM1_count].GetHeight(), RGB(0, 255, 0));
-	}
-	else // 왼쪽이동
-	{
-		LM1_count++;
-		LM1_count = LM1_count % 5; // 왼쪽 애니메이션
-		Player1[0].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP10));
-		Player1[1].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP11));
-		Player1[2].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP12));
-		Player1[3].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP13));
-		Player1[4].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP14));
-
-		if (Move)
-		{
-			Player1[LM1_count].TransparentBlt(mem1dc, x, y, 70, 70, 0, 0, Player1[LM1_count].GetWidth(), Player1[LM1_count].GetHeight(), RGB(0, 255, 0));
-		}
-		else // 정지할때
-		{
-			Player1[4].TransparentBlt(mem1dc, x, y, 70, 70, 0, 0, Player1[LM1_count].GetWidth(), Player1[LM1_count].GetHeight(), RGB(0, 255, 0));
-		}
-	}
-}
-
-void P2_Animation(int x, int y, HDC mem1dc, BOOL Move, BOOL Right)
-{
-	CImage Player2[5];
-	static int RM2_count, LM2_count, S2_count;
-
-	if (Shot2)
-	{
-		S2_count++;
-		S2_count = S2_count % 2;
-		Player2[0].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP27));
-		Player2[1].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP28));
-
-		Player2[S2_count].TransparentBlt(mem1dc, x, y, 70, 70, 0, 0, Player2[S2_count].GetWidth(), Player2[S2_count].GetHeight(), RGB(0, 255, 0));
-		if (S2_count % 2 == 1)
-		{
-			Shot2 = false;
-		}
-		return; // 리턴이없으면 이동애니메이션까지 작동하기때문에 여기서 끊음
-	}
-
-	if (Right) // 오른쪽이동
-	{
-		RM2_count++;
-		RM2_count = RM2_count % 5;
-		Player2[0].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP22));
-		Player2[1].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP23));
-		Player2[2].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP24));
-		Player2[3].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP25));
-		Player2[4].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP26));
-
-		if (Move)
-		{
-			Player2[RM2_count].TransparentBlt(mem1dc, x, y, 70, 70, 0, 0, Player2[RM2_count].GetWidth(), Player2[RM2_count].GetHeight(), RGB(0, 255, 0));
-		}
-		else
-			Player2[0].TransparentBlt(mem1dc, x, y, 70, 70, 0, 0, Player2[RM2_count].GetWidth(), Player2[RM2_count].GetHeight(), RGB(0, 255, 0));
-	}
-	else // 왼쪽이동
-	{
-		LM2_count++;
-		LM2_count = LM2_count % 5;
-		Player2[0].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP17));
-		Player2[1].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP18));
-		Player2[2].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP19));
-		Player2[3].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP20));
-		Player2[4].LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP21));
-
-		if (Move)
-		{
-			Player2[LM2_count].TransparentBlt(mem1dc, x, y, 70, 70, 0, 0, Player2[LM2_count].GetWidth(), Player2[LM2_count].GetHeight(), RGB(0, 255, 0));
-		}
-		else
-		{
-			Player2[4].TransparentBlt(mem1dc, x, y, 70, 70, 0, 0, Player2[LM2_count].GetWidth(), Player2[LM2_count].GetHeight(), RGB(0, 255, 0));
-		}
-	}
 }
