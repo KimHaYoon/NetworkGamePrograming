@@ -37,7 +37,7 @@ int main()
 	}
 
 	// listen()
-	retval = listen( listen_sock, SOMAXCONN );
+	retval = listen( listen_sock, 2 );			// 2명까지만 접속가능
 	if ( retval == SOCKET_ERROR )
 	{
 		cout << "listen 에러" << endl;
@@ -60,7 +60,7 @@ int main()
 			break;
 		}
 
-
+		cout << "접속한 클라이언트 수 : " << g_iClinetNumber << endl;
 		// 접속한 클라이언트 정보 출력
 		printf( "\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa( clientaddr.sin_addr ), ntohs( clientaddr.sin_port ) );
 		
@@ -84,9 +84,9 @@ int main()
 			CloseHandle( hThread );
 		}
 
-		if ( g_iClinetNumber > 1 )
-			--g_iClinetNumber;
 		closesocket( client_sock );
+
+		cout << "접속한 클라이언트 수 : " << g_iClinetNumber << endl;
 	}
 	// closesocket()
 	closesocket( listen_sock );
