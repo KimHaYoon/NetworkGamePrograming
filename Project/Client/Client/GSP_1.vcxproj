@@ -121,6 +121,7 @@
     <ClCompile Include="LobbyScene.cpp" />
     <ClCompile Include="LogoScene.cpp" />
     <ClCompile Include="Network.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerPortrait.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="EnterKeyObj.cpp" />
@@ -163,6 +164,7 @@
       </ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="ObjectManager.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerPortrait.h" />
     <ClInclude Include="Protocol.h" />
     <ClInclude Include="Rect.h" />

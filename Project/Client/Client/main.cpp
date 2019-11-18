@@ -142,13 +142,18 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 			strServerIP.pop_back();
 		}
 
-		else if( VK_RETURN != wParam && !strServerIP.empty())
+		else if ( VK_RETURN != wParam )
 		{
 			strServerIP += ( char* )&wParam;
 		}
 
+		else if ( VK_RETURN == wParam && strServerIP.empty())
+		{
+			return 0;
+		}
+
 		CObj* pObj = GET_SINGLE( CObjectManager )->FindObject( "InputServerIP" );
-		
+
 		if ( pObj )
 			( ( CInputServerIP* )pObj )->SetServerIP( strServerIP );
 	}

@@ -1,15 +1,21 @@
 #pragma once
 #include "Obj.h"
-class CStage1Background :
+class CPlayer :
 	public CObj
 {
+private:
+	PLAYERINFO m_tInfo;
+
 public:
-	CStage1Background();
-	virtual ~CStage1Background();
+	CPlayer();
+	virtual ~CPlayer();
 
 	virtual bool Init();
 	virtual void Input();
 	virtual void Update( DWORD dwTime );
 	virtual void Render( HDC hDC );
+
+public:
+	void SetPlayerInfo(const PLAYERINFO& tInfo);
 };
 

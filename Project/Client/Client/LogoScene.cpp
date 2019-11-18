@@ -32,8 +32,8 @@ void CLogoScene::Input()
 	if ( KEYDOWN( "Enter" ) )
 	{
 		CObj* pInputServerIP = GET_SINGLE( CObjectManager )->FindObject( "InputServerIP" );
-		//string strIP = ( ( CInputServerIP* )pInputServerIP )->GetServerIP();
-		if ( !GET_SINGLE( CNetwork )->Init( /*strIP*/ "127.0.0.1" ) )
+		string strIP = ( ( CInputServerIP* )pInputServerIP )->GetServerIP();
+		if ( !GET_SINGLE( CNetwork )->Init( strIP ) )
 			return;
 		CScene* pLobby = GET_SINGLE( CSceneManager )->CreateScene<CLobbyScene>("Lobby");
 	}

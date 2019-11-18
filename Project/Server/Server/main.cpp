@@ -1,9 +1,11 @@
 #include "main.h"
 
-int		g_iClinetNumber = 1;
+int		g_iClinetNumber = 0;
 unordered_map<int, PLAYERINFO>			g_Clients;
 
 DWORD WINAPI ProcessClient( LPVOID arg );
+void Init();
+void PrintPlayerInfo(const PLAYERINFO & tInfo);
 
 int main()
 {
@@ -48,6 +50,8 @@ int main()
 	SOCKADDR_IN clientaddr;
 	int addrlen;
 	HANDLE hThread;
+	
+	Init();
 
 	while ( true )
 	{
@@ -59,19 +63,16 @@ int main()
 			cout << "accept 에러" << endl;
 			break;
 		}
+		cout << "접속한 클라이언트 수 : " << g_iClinetNumber + 1 << endl;
 
-		cout << "접속한 클라이언트 수 : " << g_iClinetNumber << endl;
 		// 접속한 클라이언트 정보 출력
 		printf( "\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa( clientaddr.sin_addr ), ntohs( clientaddr.sin_port ) );
-		
-		PLAYERINFO tPlayerInfo{};
-		tPlayerInfo.id = g_iClinetNumber;
-		g_Clients[g_iClinetNumber++] = tPlayerInfo;
 
-		send( client_sock, ( char* )&tPlayerInfo, sizeof( PLAYERINFO ), 0 );			// 초기 정보 전송
-		
-																						// 스레드 생성
-		hThread = CreateThread( NULL, 0, ProcessClient, ( LPVOID )client_sock, 0, NULL );
+		send( client_sock, ( char* )&g_Clients[g_iClinetNumber], sizeof( PLAYERINFO ), 0 );			// 초기 정보 전송
+		PrintPlayerInfo( g_Clients[g_iClinetNumber] );
+		++g_iClinetNumber;
+																								
+		hThread = CreateThread( NULL, 0, ProcessClient, ( LPVOID )client_sock, 0, NULL );				// 스레드 생성
 
 		// closesocket() - client socket
 		if ( hThread == NULL )
@@ -85,8 +86,6 @@ int main()
 		}
 
 		closesocket( client_sock );
-
-		cout << "접속한 클라이언트 수 : " << g_iClinetNumber << endl;
 	}
 	// closesocket()
 	closesocket( listen_sock );
@@ -107,4 +106,29 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 	
 
 	return 0;
+}
+
+void Init()
+{
+	PLAYERINFO* tInfo = new PLAYERINFO[2];
+	tInfo[0].x = 50;
+	tInfo[0].y = 400;
+	tInfo[1].x = 50;
+	tInfo[1].y = 400;
+
+	for ( int i = 0; i < 2; ++i )
+	{
+		tInfo[i].id = i + 1;
+		tInfo[i].dir = i;
+		g_Clients[i] = tInfo[i];
+	}
+}
+
+void PrintPlayerInfo( const PLAYERINFO & tInfo )
+{
+	cout << "ID : " << tInfo.id << endl;
+	cout << "X : " << tInfo.x << ", Y : " << tInfo.y << endl;
+	cout << "Dir : " << tInfo.dir << endl;
+	cout << "HP : " << tInfo.hp << endl;
+
 }

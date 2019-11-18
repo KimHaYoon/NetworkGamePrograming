@@ -71,3 +71,8 @@ void CNetwork::SetKey( char cKey)
 {
 	//m_cKey = cKey;
 }
+
+PLAYERINFO CNetwork::GetPlayerInfo() const
+{
+	return m_tPlayerInfo;
+}

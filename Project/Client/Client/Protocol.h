@@ -30,6 +30,18 @@ typedef struct Player
 	int bulletCount;
 	bool gameStart;
 	bool moveAnimation;
+	bool shoot;
+
+
+	Player() {
+		hp = 3;
+		score = 0;
+		bulletCount = 1;
+		gameStart = true;
+		moveAnimation = false;
+		shoot = false;
+	}
+
 }PLAYERINFO;
 
 typedef struct Bullet

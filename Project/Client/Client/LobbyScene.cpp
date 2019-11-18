@@ -4,6 +4,7 @@
 #include "PlayerPortrait.h"
 #include "Stage1Scene.h"
 #include "SceneManager.h"
+#include "Input.h"
 
 CLobbyScene::CLobbyScene() : 
 	m_bGameStart(false)
@@ -29,6 +30,10 @@ bool CLobbyScene::Init()
 
 void CLobbyScene::Input()
 {
+	if ( KEYDOWN( "Enter" ) )
+	{
+		CScene* pStage1 = GET_SINGLE( CSceneManager )->CreateScene<CStage1Scene>( "Stage1" );
+	}
 }
 
 void CLobbyScene::Update()

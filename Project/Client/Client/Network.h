@@ -17,6 +17,8 @@ public:
 
 	void SetKey( char cKey );
 
+	PLAYERINFO GetPlayerInfo() const;
+
 	DECLARE_SINGLE( CNetwork )
 };
 
