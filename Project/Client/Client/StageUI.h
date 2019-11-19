@@ -9,7 +9,7 @@ public:
 
 	virtual bool Init();
 	virtual void Input();
-	virtual void Update( DWORD dwTime );
+	virtual void Update( const float& fTimeDelta );
 	virtual void Render( HDC hDC );
 };
 

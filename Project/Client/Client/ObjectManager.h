@@ -10,7 +10,7 @@ private:
 public:
 	bool Init();
 	void Input();
-	void Update( DWORD dwTime );
+	void Update( const float& fTimeDelta );
 	void Render( HDC hDC );
 
 public:

@@ -19,9 +19,9 @@ void CScore::Input()
 	CObj::Input();
 }
 
-void CScore::Update( DWORD dwTime )
+void CScore::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update( fTimeDelta );
 }
 
 void CScore::Render( HDC hDC )

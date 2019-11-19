@@ -71,7 +71,7 @@ public:
 public:
 	virtual bool Init() = 0;
 	virtual void Input() = 0;
-	virtual void Update( DWORD dwTime );
+	virtual void Update( const float& fTimeDelta );
 	virtual void Render(HDC hDC);
 };
 

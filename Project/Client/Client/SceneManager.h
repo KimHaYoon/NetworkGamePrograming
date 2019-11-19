@@ -9,7 +9,7 @@ class CSceneManager
 public:
 	bool Init();
 	void Input();
-	void Update();
+	void Update( const float& fTimeDelta );
 	void Render( HDC hDC );
 	
 	template <typename T>

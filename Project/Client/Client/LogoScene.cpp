@@ -39,7 +39,7 @@ void CLogoScene::Input()
 	}
 }
 
-void CLogoScene::Update()
+void CLogoScene::Update( const float& fTimeDelta )
 {
 }
 

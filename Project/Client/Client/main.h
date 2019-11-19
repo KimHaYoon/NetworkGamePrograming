@@ -13,7 +13,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-
+#include <conio.h>
 #include "Protocol.h"
 
 using namespace std;

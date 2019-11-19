@@ -23,9 +23,9 @@ void CStage1Background::Input()
 	CObj::Input();
 }
 
-void CStage1Background::Update( DWORD dwTime )
+void CStage1Background::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update( fTimeDelta );
 }
 
 void CStage1Background::Render( HDC hDC )

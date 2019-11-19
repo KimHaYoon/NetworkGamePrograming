@@ -23,9 +23,9 @@ void CEnterKeyObj::Input()
 	CObj::Input();
 }
 
-void CEnterKeyObj::Update( DWORD dwTime )
+void CEnterKeyObj::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update( fTimeDelta );
 		
 	m_bShow = !m_bShow;
 }

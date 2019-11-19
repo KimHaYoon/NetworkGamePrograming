@@ -22,9 +22,9 @@ void CStageUI::Input()
 	CObj::Input();
 }
 
-void CStageUI::Update( DWORD dwTime )
+void CStageUI::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update( fTimeDelta );
 }
 
 void CStageUI::Render( HDC hDC )

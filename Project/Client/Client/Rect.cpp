@@ -23,9 +23,9 @@ void CRect::Input()
 	CObj::Input();
 }
 
-void CRect::Update( DWORD dwTime )
+void CRect::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update( fTimeDelta );
 }
 
 void CRect::Render( HDC hDC )

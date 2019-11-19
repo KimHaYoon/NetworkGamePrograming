@@ -23,9 +23,9 @@ void CInputServerIP::Input()
 	CObj::Input();
 }
 
-void CInputServerIP::Update( DWORD dwTime )
+void CInputServerIP::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update( fTimeDelta );
 }
 
 void CInputServerIP::Render( HDC hDC )

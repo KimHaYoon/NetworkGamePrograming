@@ -47,9 +47,9 @@ void CCircle::Input()
 	}
 }
 
-void CCircle::Update( DWORD dwTime )
+void CCircle::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update( fTimeDelta );
 }
 
 void CCircle::Render( HDC hDC )

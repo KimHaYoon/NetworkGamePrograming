@@ -37,14 +37,14 @@ void CObjectManager::Input()
 	}
 }
 
-void CObjectManager::Update( DWORD dwTime )
+void CObjectManager::Update( const float& fTimeDelta )
 {
 	list<CObj*>::iterator	iter;
 	list<CObj*>::iterator	iterEnd = m_ObjList.end();
 
 	for ( iter = m_ObjList.begin(); iter != iterEnd;)
 	{
-		( *iter )->Update( dwTime );
+		( *iter )->Update( fTimeDelta );
 		++iter;
 	}
 }

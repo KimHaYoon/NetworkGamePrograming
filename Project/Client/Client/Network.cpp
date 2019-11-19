@@ -61,10 +61,10 @@ bool CNetwork::Init( const string& strServerIP )
 	return true;
 }
 
-void CNetwork::Update()
+void CNetwork::Update( const float& fTimeDelta )
 {
-	recvn( m_Sock, (char*)&m_bGameStart, sizeof( bool ), 0 );
-	
+	recvn(m_Sock, (char*)&m_bGameStart, sizeof(bool), 0);
+
 	RecvPlayersInfo();
 }
 

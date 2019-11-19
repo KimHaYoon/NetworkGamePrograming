@@ -14,11 +14,19 @@ CGameFramework::CGameFramework() :
 {
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	//_CrtSetBreakAlloc( 601 );
+
+	//#ifdef _DEBUG
+	//AllocConsole();
+	//#endif
 }
 
 
 CGameFramework::~CGameFramework()
 {
+	//#ifdef _DEBUG
+	//FreeConsole();
+	//#endif // _DEBUG
+
 	GET_SINGLE( CObjectManager )->DestroyInst();
 	GET_SINGLE( CResourcesManager )->DestroyInst();
 	GET_SINGLE( CInput )->DestroyInst();
@@ -27,10 +35,10 @@ CGameFramework::~CGameFramework()
 	ReleaseDC( m_hWnd, m_hDC );
 }
 
-void CGameFramework::Logic( DWORD dwTime )
+void CGameFramework::Logic( const float& fTimeDelta )
 {
 	Input();
-	Update(dwTime);
+	Update(fTimeDelta);
 	Render();
 }
 
@@ -61,12 +69,12 @@ void CGameFramework::Input()
 	GET_SINGLE( CSceneManager )->Input();
 }
 
-void CGameFramework::Update( DWORD dwTime )
+void CGameFramework::Update( const float& fTimeDelta )
 {
-	if ( GET_SINGLE( CNetwork )->GetServerOn() )
-		GET_SINGLE( CNetwork )->Update();
-	GET_SINGLE( CObjectManager )->Update( dwTime );
-	GET_SINGLE( CSceneManager )->Update();
+	if (GET_SINGLE(CNetwork)->GetServerOn())
+		GET_SINGLE(CNetwork)->Update(fTimeDelta);
+	GET_SINGLE( CObjectManager )->Update( fTimeDelta );
+	GET_SINGLE( CSceneManager )->Update( fTimeDelta );
 }
 
 void CGameFramework::Render()
@@ -74,8 +82,8 @@ void CGameFramework::Render()
 	GET_SINGLE( CObjectManager )->Render(m_pBackBuffer->GetMemDC());
 	GET_SINGLE( CSceneManager )->Render(m_pBackBuffer->GetMemDC());
 
-	if ( GET_SINGLE( CNetwork )->GetServerOn() )
-		GET_SINGLE( CNetwork )->Render(m_pBackBuffer->GetMemDC());
+	if (GET_SINGLE(CNetwork)->GetServerOn())
+		GET_SINGLE(CNetwork)->Render(m_pBackBuffer->GetMemDC());
 
 	// 마지막으로 백버퍼를 화면에 그린다.
 	BitBlt( m_hDC, 0, 0, WINX, WINY, m_pBackBuffer->GetMemDC(),

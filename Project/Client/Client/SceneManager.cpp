@@ -33,9 +33,9 @@ void CSceneManager::Input()
 	m_pCurScene->Input();
 }
 
-void CSceneManager::Update()
+void CSceneManager::Update( const float& fTimeDelta )
 {
-	m_pCurScene->Update();
+	m_pCurScene->Update(fTimeDelta);
 }
 
 void CSceneManager::Render( HDC hDC )

@@ -116,6 +116,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="LobbyBackground.cpp" />
     <ClCompile Include="LobbyScene.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="EnterKeyObj.h" />
     <ClInclude Include="InputServerIP.h" />

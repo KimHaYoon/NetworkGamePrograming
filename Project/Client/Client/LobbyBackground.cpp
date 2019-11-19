@@ -24,9 +24,9 @@ void CLobbyBackground::Input()
 	CObj::Input();
 }
 
-void CLobbyBackground::Update( DWORD dwTime )
+void CLobbyBackground::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update( fTimeDelta );
 }
 
 void CLobbyBackground::Render( HDC hDC )

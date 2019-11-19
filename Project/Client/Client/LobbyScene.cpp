@@ -31,11 +31,15 @@ bool CLobbyScene::Init()
 
 void CLobbyScene::Input()
 {
+	if ( KEYDOWN( "Enter" ) )
+	{
+		CScene* pStage1 = GET_SINGLE( CSceneManager )->CreateScene<CStage1Scene>( "Stage1" );
+	}
 }
 
-void CLobbyScene::Update()
+void CLobbyScene::Update( const float& fTimeDelta )
 {
-	m_bGameStart = GET_SINGLE( CNetwork )->GetGameStart();
+	m_bGameStart = GET_SINGLE(CNetwork)->GetGameStart();
 	if( m_bGameStart )
 		CScene* pStage1 = GET_SINGLE( CSceneManager )->CreateScene<CStage1Scene>( "Stage1" );
 }

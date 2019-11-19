@@ -37,7 +37,7 @@ void CObj::Input()
 {
 }
 
-void CObj::Update( DWORD dwTime )
+void CObj::Update( const float& fTimeDelta )
 {
 }
 

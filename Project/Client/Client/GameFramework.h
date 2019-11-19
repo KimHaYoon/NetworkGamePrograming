@@ -13,12 +13,12 @@ public:
 	~CGameFramework();
 
 public:
-	void Logic( DWORD dwTime );
+	void Logic(const float& fTimeDelta );
 	bool Init( HWND hWnd, HINSTANCE  hInst );
 
 private:
 	void Input();
-	void Update( DWORD dwTime );
+	void Update( const float& fTimeDelta );
 	void Render();
 };
 

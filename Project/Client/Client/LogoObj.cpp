@@ -24,9 +24,9 @@ void CLogoObj::Input()
 	CObj::Input();
 }
 
-void CLogoObj::Update( DWORD dwTime )
+void CLogoObj::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update( fTimeDelta );
 }
 
 void CLogoObj::Render( HDC hDC )

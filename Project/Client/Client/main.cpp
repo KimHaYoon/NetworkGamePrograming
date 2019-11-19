@@ -38,7 +38,11 @@ int APIENTRY wWinMain( _In_ HINSTANCE hInstance,
 	MSG msg;
 	msg.message = NULL;
 
-	DWORD dwTime = GetTickCount();
+	ULONGLONG ullOldTime = GetTickCount64();
+	ULONGLONG ullFrame = 10.0; // 1000.0 / 60.0
+
+	int frame = 0;
+	ULONGLONG ullOldTime2 = GetTickCount64();
 
 	while ( msg.message != WM_QUIT )
 	{
@@ -48,12 +52,33 @@ int APIENTRY wWinMain( _In_ HINSTANCE hInstance,
 			DispatchMessage( &msg );
 		}
 
-		if ( GetTickCount() - dwTime >= (1000 / 60) )
+		// 프레임을 고정한다 1초에 약 60
+		if (GetTickCount64() - ullOldTime >= ullFrame)
+		{
+			float fTimeDelta = GetTickCount64() - ullOldTime;
+			fTimeDelta = fTimeDelta / 1000.0f;
+			//_cprintf(to_string(fTimeDelta).c_str());
+			GameFramework.Logic(fTimeDelta);
+
+			frame++;
+			ullOldTime = GetTickCount64();
+		}
+		// 1초에 한번씩 FPS 값을 산출하여 화면에 출력한다
+		if (GetTickCount64() - ullOldTime2 >= 1000)
+		{
+			TCHAR szFPS[12]{};
+			wsprintf(szFPS, "FPS : %d", frame);
+			SetWindowText(g_hWnd, szFPS);
+			ullOldTime2 = GetTickCount64();
+			frame = 0;
+		}
+
+		/*if ( GetTickCount() - dwTime >= (1000 / 60) )
 		{
 			GameFramework.Logic( dwTime );
 		
 			dwTime = GetTickCount();
-		}
+		}*/
 
 	}
 

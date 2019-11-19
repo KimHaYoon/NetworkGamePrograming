@@ -24,9 +24,9 @@ void CPlayerPortrait::Input()
 	CObj::Input();
 }
 
-void CPlayerPortrait::Update( DWORD dwTime )
+void CPlayerPortrait::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update( fTimeDelta );
 }
 
 void CPlayerPortrait::Render( HDC hDC )

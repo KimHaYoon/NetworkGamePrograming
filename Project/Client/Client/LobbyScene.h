@@ -12,7 +12,7 @@ public:
 
 	virtual bool Init() override;
 	virtual void Input() override;
-	virtual void Update() override;
+	virtual void Update( const float& fTimeDelta ) override;
 	virtual void Render( HDC hDC ) override;
 };
 

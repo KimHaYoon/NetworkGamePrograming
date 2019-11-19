@@ -10,11 +10,12 @@ class CNetwork
 	PLAYERINFO			m_tOtherPlayerInfo;
 	bool				m_bGameStart;
 	bool				m_bServerOn;
+
 	unordered_map<int, PLAYERINFO> m_mapPlayers;
 
 public:
 	bool Init( const string& strServerIP = "127.0.0.1" );
-	void Update();
+	void Update( const float& fTimeDelta );
 	void Render( HDC hDC );
 
 	void SetKey( char cKey );
@@ -23,8 +24,8 @@ public:
 	PLAYERINFO GetOtherPlayerInfo() const;
 	bool	GetGameStart() const;
 	bool	GetServerOn() const;
-	void RecvPlayersInfo();
 
+	void RecvPlayersInfo();
 	DECLARE_SINGLE( CNetwork )
 };
 

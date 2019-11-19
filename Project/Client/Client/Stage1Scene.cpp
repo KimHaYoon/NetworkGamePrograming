@@ -54,7 +54,7 @@ void CStage1Scene::Input()
 {
 }
 
-void CStage1Scene::Update()
+void CStage1Scene::Update( const float& fTimeDelta )
 {
 }
 

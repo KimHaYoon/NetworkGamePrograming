@@ -28,6 +28,7 @@ bool CInput::Init(HWND hWnd)
 	CreateKey(VK_RIGHT, "MoveRight");
 	CreateKey(VK_UP, "MoveUp");
 	CreateKey(VK_DOWN, "MoveDown");
+	CreateKey(VK_SPACE, "Space");
 
 
 	CreateKey( VK_RETURN, "Enter" );
