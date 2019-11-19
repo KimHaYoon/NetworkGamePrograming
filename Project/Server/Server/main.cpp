@@ -6,6 +6,7 @@ unordered_map<int, PLAYERINFO>			g_Clients;
 DWORD WINAPI ProcessClient( LPVOID arg );
 void Init();
 void PrintPlayerInfo(const PLAYERINFO & tInfo);
+void SendPlayersInfo(const SOCKET& socket);
 
 int main()
 {
@@ -103,7 +104,10 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 	int addrlen = sizeof( clientaddr );
 	getpeername( client_sock, ( SOCKADDR * )&clientaddr, &addrlen );
 
-	
+	while ( true )
+	{
+		SendPlayersInfo(client_sock);
+	}
 
 	return 0;
 }
@@ -112,9 +116,9 @@ void Init()
 {
 	PLAYERINFO* tInfo = new PLAYERINFO[2];
 	tInfo[0].x = 50;
-	tInfo[0].y = 400;
-	tInfo[1].x = 50;
-	tInfo[1].y = 400;
+	tInfo[0].y = 360;
+	tInfo[1].x = 750;
+	tInfo[1].y = 360;
 
 	for ( int i = 0; i < 2; ++i )
 	{
@@ -130,5 +134,11 @@ void PrintPlayerInfo( const PLAYERINFO & tInfo )
 	cout << "X : " << tInfo.x << ", Y : " << tInfo.y << endl;
 	cout << "Dir : " << tInfo.dir << endl;
 	cout << "HP : " << tInfo.hp << endl;
+}
 
+void SendPlayersInfo( const SOCKET & socket )
+{
+	
+	for ( int i = 0; i < 2; ++i )
+		send( socket, ( char* )&g_Clients[i], sizeof( PLAYERINFO ), 0 );
 }

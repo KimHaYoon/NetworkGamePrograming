@@ -20,13 +20,13 @@ void CPlayer::Input()
 {
 	CObj::Input();
 
-	if ( KEYDOWN( "MoveLeft" ) )
+	if ( KEYDOWN( "MoveLeft" ) || KEYPUSH( "MoveLeft" ) )
 	{
 		if ( m_tPos.x > 10 )
 			m_tPos.x -= 10;
 	}
 
-	if ( KEYDOWN( "MoveRight" ) )
+	if ( KEYDOWN( "MoveRight" ) || KEYPUSH( "MoveRight" ) )
 	{
 		if ( m_tPos.x < 780 )
 			m_tPos.x += 10;
@@ -54,7 +54,7 @@ void CPlayer::SetPlayerInfo( const PLAYERINFO & tInfo )
 
 	else
 	{
-		SetTexture( "Player2", L"Texture/Player2/player2.left_1.bmp", true, RGB( 0, 255, 0 ) );
+		SetTexture( "Player2", L"Texture/Pslayer2/player2.left_1.bmp", true, RGB( 0, 255, 0 ) );
 	}
 
 	SetPos( m_tInfo.x, m_tInfo.y );

@@ -13,7 +13,7 @@ Player::~Player()
 {
 }
 
-HRESULT Player::Initalize(HINSTANCE g_hInst, int number)
+HRESULT Player::Initalize(	HINSTANCE g_hInst, int number)
 {
 	m_imgLife.LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP43));
 	m_imgDeathLife.LoadFromResource(g_hInst, MAKEINTRESOURCE(IDB_BITMAP44));

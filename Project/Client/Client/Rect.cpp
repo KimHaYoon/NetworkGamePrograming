@@ -13,7 +13,7 @@ CRect::~CRect()
 
 bool CRect::Init()
 {
-	m_tSize = _SIZE( 100, 100);
+	SetTexture( "Rect", L"Texture/BackBuffer.bmp" );
 
 	return true;
 }
@@ -32,13 +32,13 @@ void CRect::Render( HDC hDC )
 {
 	CObj::Render( hDC );
 
-	HBRUSH Brush, OldBrush;
-	Brush = CreateSolidBrush( m_dwColorKey );
-	OldBrush = ( HBRUSH )SelectObject( hDC, Brush );
-	Rectangle( hDC, m_tPos.x, m_tPos.y, m_tPos.x + m_tSize.x, m_tPos.y + m_tSize.y );
+	//HBRUSH Brush, OldBrush;
+	//Brush = CreateSolidBrush( m_dwColorKey );
+	//OldBrush = ( HBRUSH )SelectObject( hDC, Brush );
+	//Rectangle( hDC, m_tPos.x, m_tPos.y, m_tPos.x + m_tSize.x, m_tPos.y + m_tSize.y );
 
-	SelectObject( hDC, OldBrush );
-	DeleteObject( Brush );
+	//SelectObject( hDC, OldBrush );
+	//DeleteObject( Brush );
 }
 
 void CRect::SetColor( COLORREF dwColorKey )

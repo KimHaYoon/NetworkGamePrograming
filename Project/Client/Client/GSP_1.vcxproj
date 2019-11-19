@@ -140,8 +140,10 @@
     <ClCompile Include="Rect.cpp" />
     <ClCompile Include="ResourcesManager.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Score.cpp" />
     <ClCompile Include="Stage1Background.cpp" />
     <ClCompile Include="Stage1Scene.cpp" />
+    <ClCompile Include="StageUI.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -172,8 +174,10 @@
     <ClInclude Include="ResourcesManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="Score.h" />
     <ClInclude Include="Stage1Background.h" />
     <ClInclude Include="Stage1Scene.h" />
+    <ClInclude Include="StageUI.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>

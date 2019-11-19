@@ -54,13 +54,12 @@ bool CNetwork::Init( const string& strServerIP )
 
 	recvn( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
 
-	m_Players[m_tPlayerInfo.id] = m_tPlayerInfo;
-
 	return true;
 }
 
 void CNetwork::Update()
 {
+	RecvPlayersInfo();
 }
 
 void CNetwork::Render( HDC hDC )
@@ -75,4 +74,17 @@ void CNetwork::SetKey( char cKey)
 PLAYERINFO CNetwork::GetPlayerInfo() const
 {
 	return m_tPlayerInfo;
+}
+
+PLAYERINFO CNetwork::GetOtherPlayerInfo() const
+{
+	return m_tOtherPlayerInfo;
+}
+
+void CNetwork::RecvPlayersInfo()
+{
+	recv( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
+	cout << "1P 정보 받음" << endl;
+	recv( m_Sock, ( char* )&m_tOtherPlayerInfo, sizeof( PLAYERINFO ), 0 );
+	cout << "2P 정보 받음" << endl;
 }

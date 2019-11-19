@@ -58,8 +58,14 @@
     <Filter Include="04. Scene\02. Stage1">
       <UniqueIdentifier>{e057aeb9-5045-4d21-93ee-fe8d57516a6d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02. Object\04. Stage1">
+    <Filter Include="02. Object\04. Stage">
       <UniqueIdentifier>{c332dd0b-b9b3-4fe9-9dde-d11d6b992014}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\05. Score">
+      <UniqueIdentifier>{19ac4fc3-e025-419d-929a-728866175428}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\04. Stage\01. StageUI">
+      <UniqueIdentifier>{fcef7383-aab0-4ab4-8c1b-c580053427fa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -127,7 +133,13 @@
       <Filter>02. Object\01. Player</Filter>
     </ClCompile>
     <ClCompile Include="Stage1Background.cpp">
-      <Filter>02. Object\04. Stage1</Filter>
+      <Filter>02. Object\04. Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Score.cpp">
+      <Filter>02. Object\05. Score</Filter>
+    </ClCompile>
+    <ClCompile Include="StageUI.cpp">
+      <Filter>02. Object\04. Stage\01. StageUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -207,7 +219,13 @@
       <Filter>02. Object\01. Player</Filter>
     </ClInclude>
     <ClInclude Include="Stage1Background.h">
-      <Filter>02. Object\04. Stage1</Filter>
+      <Filter>02. Object\04. Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Score.h">
+      <Filter>02. Object\05. Score</Filter>
+    </ClInclude>
+    <ClInclude Include="StageUI.h">
+      <Filter>02. Object\04. Stage\01. StageUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
