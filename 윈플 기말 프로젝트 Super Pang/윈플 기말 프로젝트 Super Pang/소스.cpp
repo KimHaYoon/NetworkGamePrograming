@@ -2,6 +2,7 @@
 #include "resource.h"
 #include "Player.h"
 #include "Define.h"
+#include "Ball.h"
 
 static RECT rt; // 윈도우 사이즈
 
@@ -49,18 +50,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevinstance, LPSTR lpszCmdPa
 	return Message.wParam;
 }
 
-typedef enum DirOne
-{
-	DIR_LEFT,
-	DIR_RIGHT,
-	DIR1_END
-}DIR_ONE;
-typedef enum DirTwo
-{
-	DIR_UP,
-	DIR_DOWN,
-	DIR2_END
-}DIR_TWO;
+//typedef enum DirOne
+//{
+//	DIR_LEFT,
+//	DIR_RIGHT,
+//	DIR1_END
+//}DIR_ONE;
+//typedef enum DirTwo
+//{
+//	DIR_UP,
+//	DIR_DOWN,
+//	DIR2_END
+//}DIR_TWO;
 
 typedef struct tagFrame
 {
@@ -90,28 +91,28 @@ typedef struct tagTile   //타일
 	}
 }TILE;
 
-typedef struct tagBall
-{
-	int X; // X좌표
-	int Y; // Y좌표
-
-	int R; //반지름 
-	int type; // 볼의타입(0 R:15 / 1 R:30 / 2 R:50)
-	int gravity;
-
-	DIR_ONE DirLR;
-	DIR_TWO DirUD;
-
-	RECT rc;
-
-	void SetRect(void)  // 타이머에서 움직일 때마다 갱신해주려고 씀
-	{
-		rc.left = X - (R - 3);
-		rc.top = Y - (R - 3);
-		rc.right = X + (R - 3);
-		rc.bottom = Y + (R - 3);
-	}
-}BALL;
+//typedef struct tagBall
+//{
+//	int X; // X좌표
+//	int Y; // Y좌표
+//
+//	int R; //반지름 
+//	int type; // 볼의타입(0 R:15 / 1 R:30 / 2 R:50)
+//	int gravity;
+//
+//	DIR_ONE DirLR;
+//	DIR_TWO DirUD;
+//
+//	RECT rc;
+//
+//	void SetRect(void)  // 타이머에서 움직일 때마다 갱신해주려고 씀
+//	{
+//		rc.left = X - (R - 3);
+//		rc.top = Y - (R - 3);
+//		rc.right = X + (R - 3);
+//		rc.bottom = Y + (R - 3);
+//	}
+//}BALL;
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
@@ -144,7 +145,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 	static TILE TileOne[TILECNT_ONE];
 
 	//볼
-	static BALL ball[4][4];
+	static Ball ball[4][4];
 
 	switch (IMessage)
 	{
@@ -207,28 +208,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 		{
 			for (int i = 0; i < 4; ++i)
 			{
-				ball[j][i].type = 4;
+				ball[j][i].Initialize();
 			}
 		}
 
 		//볼(사이즈 50, 30, 15)
-		ball[0][0].X = 200;
-		ball[0][0].Y = 250;
-		ball[0][0].R = 25;
-		ball[0][0].type = 2;
-		ball[0][0].SetRect();
-		ball[0][0].DirLR = DIR_RIGHT;
-		ball[0][0].DirUD = DIR_DOWN;
-		ball[0][0].gravity = 0;
-
-		ball[1][0].X = 800;
-		ball[1][0].Y = 250;
-		ball[1][0].R = 25;
-		ball[1][0].type = 2;
-		ball[1][0].SetRect();
-		ball[1][0].DirLR = DIR_RIGHT;
-		ball[1][0].DirUD = DIR_DOWN;
-		ball[1][0].gravity = 0;
+		ball[0][0].Initialize(200, 250, 25, 2, DIR_RIGHT, DIR_DOWN);
+		ball[1][0].Initialize(800, 250, 25, 2, DIR_RIGHT, DIR_DOWN);
 
 		PlaySound("Opening.wav", NULL, SND_ASYNC | SND_LOOP);
 		break;
@@ -400,16 +386,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 				{
 					for (int i = 0; i < 4; ++i)
 					{
-						switch (ball[j][i].type)
+						RECT rc = ball[j][i].GetCollisionBox();
+						int r = ball[j][i].GetRadius();
+						switch (ball[j][i].GetType())
 						{
 						case 0:
 							if (Stop)
 							{
-								Ellipse(mem1dc, ball[j][i].rc.left, ball[j][i].rc.top, ball[j][i].rc.left + 16, ball[j][i].rc.top + 16);
+								Ellipse(mem1dc, rc.left, rc.top, rc.left + 16, rc.top + 16);
 							}
 							TransparentBlt(mem1dc,
-								ball[j][i].rc.left, ball[j][i].rc.top,
-								2 * ball[j][i].R, 2 * ball[j][i].R,
+								rc.left, rc.top,
+								2 * r, 2 * r,
 								ball3dc,
 								0, 0,
 								15, 15,
@@ -418,11 +406,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 						case 1:
 							if (Stop)
 							{
-								Ellipse(mem1dc, ball[j][i].rc.left, ball[j][i].rc.top, ball[j][i].rc.left + 31, ball[j][i].rc.top + 31);
+								Ellipse(mem1dc, rc.left, rc.top, rc.left + 31, rc.top + 31);
 							}
 							TransparentBlt(mem1dc,
-								ball[j][i].rc.left, ball[j][i].rc.top,
-								2 * ball[j][i].R, 2 * ball[j][i].R,
+								rc.left, rc.top,
+								2 * r, 2 * r,
 								ball2dc,
 								0, 0,
 								30, 30,
@@ -431,11 +419,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 						case 2:
 							if (Stop)
 							{
-								Ellipse(mem1dc, ball[j][i].rc.left, ball[j][i].rc.top, ball[j][i].rc.left + 51, ball[j][i].rc.top + 51);
+								Ellipse(mem1dc, rc.left, rc.top, rc.left + 51, rc.top + 51);
 							}
 							TransparentBlt(mem1dc,
-								ball[j][i].rc.left, ball[j][i].rc.top,
-								2 * ball[j][i].R, 2 * ball[j][i].R,
+								rc.left, rc.top,
+								2 * r, 2 * r,
 								ball1dc,
 								0, 0,
 								50, 50,
@@ -621,60 +609,82 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 						//충돌하는 타일일때만
 						if ((TileOne[j].type != 0) && (TileOne[j].tFrame.NowFrame == 0))
 						{
-							float fDistanceX = fabs((float)TileOne[j].X - (float)ball[a][i].X);
-							float fDistanceY = fabs((float)TileOne[j].Y - (float)ball[a][i].Y);
+							float fDistanceX = fabs((float)TileOne[j].X - (float)ball[a][i].GetX());
+							float fDistanceY = fabs((float)TileOne[j].Y - (float)ball[a][i].GetY());
 
 							//충돌
-							if ((fDistanceX < (TileOne[j].CX / 2 + ball[a][i].R)) && (fDistanceY < (TileOne[j].CY / 2 + ball[a][i].R)))
+							int r = ball[a][i].GetRadius();
+							if ((fDistanceX < (TileOne[j].CX / 2 + r)) && (fDistanceY < (TileOne[j].CY / 2 + r)))
 							{
-								if (fabs(TileOne[j].CX / 2 + ball[a][i].R - fDistanceX) == fabs(TileOne[j].CY / 2 + ball[a][i].R - fDistanceY))
+								if (fabs(TileOne[j].CX / 2 + r - fDistanceX) == fabs(TileOne[j].CY / 2 + r - fDistanceY))
 								{
-									if (ball[a][i].DirUD == DIR_UP)
+									DIR_ONE DirLR = ball[a][i].GetDirLR();
+									DIR_TWO DirUD = ball[a][i].GetDirUD();
+
+									if (DirUD == DIR_UP)
 									{
-										ball[a][i].Y += (int)(TileOne[j].CY / 2 + ball[a][i].R - fDistanceY);
-										ball[a][i].DirUD = DIR_DOWN;
+										int y = ball[a][i].GetY();
+										y += (int)(TileOne[j].CY / 2 + r - fDistanceY);
+										ball[a][i].SetY(y);
+										ball[a][i].SetDirUD(DIR_DOWN);
 									}
-									else if (ball[a][i].DirUD == DIR_DOWN)
+									else if (DirUD == DIR_DOWN)
 									{
-										ball[a][i].Y -= (int)(TileOne[j].CY / 2 + ball[a][i].R - fDistanceY);
-										ball[a][i].DirUD = DIR_UP;
+										int y = ball[a][i].GetY();
+										y -= (int)(TileOne[j].CY / 2 + r - fDistanceY);
+										ball[a][i].SetY(y);
+										ball[a][i].SetDirUD(DIR_UP);
 									}
 
-									if (ball[a][i].DirLR == DIR_LEFT)
+									if (DirLR == DIR_LEFT)
 									{
-										ball[a][i].X += (int)(TileOne[j].CX / 2 + ball[a][i].R - fDistanceX);
-										ball[a][i].DirLR = DIR_RIGHT;
+										int x = ball[a][i].GetX();
+										x += (int)(TileOne[j].CX / 2 + r - fDistanceX);
+										ball[a][i].SetX(x);
+										ball[a][i].SetDirLR(DIR_RIGHT);
 									}
-									else if (ball[a][i].DirLR == DIR_RIGHT)
+									else if (DirLR == DIR_RIGHT)
 									{
-										ball[a][i].X -= (int)(TileOne[j].CX / 2 + ball[a][i].R - fDistanceX);
-										ball[a][i].DirLR = DIR_LEFT;
-									}
-								}
-								else if (fabs(TileOne[j].CX / 2 + ball[a][i].R - fDistanceX) < fabs(TileOne[j].CY / 2 + ball[a][i].R - fDistanceY))
-								{
-									if (ball[a][i].DirLR == DIR_LEFT)
-									{
-										ball[a][i].X += (int)(TileOne[j].CX / 2 + ball[a][i].R - fDistanceX);
-										ball[a][i].DirLR = DIR_RIGHT;
-									}
-									else if (ball[a][i].DirLR == DIR_RIGHT)
-									{
-										ball[a][i].X -= (int)(TileOne[j].CX / 2 + ball[a][i].R - fDistanceX);
-										ball[a][i].DirLR = DIR_LEFT;
+										int x = ball[a][i].GetX();
+										x -= (int)(TileOne[j].CX / 2 + r - fDistanceX);
+										ball[a][i].SetX(x);
+										ball[a][i].SetDirLR(DIR_LEFT);
 									}
 								}
-								else if (fabs(TileOne[j].CX / 2 + ball[a][i].R - fDistanceX) > fabs(TileOne[j].CY / 2 + ball[a][i].R - fDistanceY))
+								else if (fabs(TileOne[j].CX / 2 + r - fDistanceX) < fabs(TileOne[j].CY / 2 + r - fDistanceY))
 								{
-									if (ball[a][i].DirUD == DIR_UP)
+									DIR_ONE DirLR = ball[a][i].GetDirLR();
+									if (DirLR == DIR_LEFT)
 									{
-										ball[a][i].Y += (int)(TileOne[j].CY / 2 + ball[a][i].R - fDistanceY);
-										ball[a][i].DirUD = DIR_DOWN;
+										int x = ball[a][i].GetX();
+										x += (int)(TileOne[j].CX / 2 + r - fDistanceX);
+										ball[a][i].SetX(x);
+										ball[a][i].SetDirLR(DIR_RIGHT);
 									}
-									else if (ball[a][i].DirUD == DIR_DOWN)
+									else if (DirLR == DIR_RIGHT)
 									{
-										ball[a][i].Y -= (int)(TileOne[j].CY / 2 + ball[a][i].R - fDistanceY);
-										ball[a][i].DirUD = DIR_UP;
+										int x = ball[a][i].GetX();
+										x -= (int)(TileOne[j].CX / 2 + r - fDistanceX);
+										ball[a][i].SetX(x);
+										ball[a][i].SetDirLR(DIR_LEFT);
+									}
+								}
+								else if (fabs(TileOne[j].CX / 2 + r - fDistanceX) > fabs(TileOne[j].CY / 2 + r - fDistanceY))
+								{
+									DIR_TWO DirUD = ball[a][i].GetDirUD();
+									if (DirUD == DIR_UP)
+									{
+										int y = ball[a][i].GetY();
+										y += (int)(TileOne[j].CY / 2 + r - fDistanceY);
+										ball[a][i].SetY(y);
+										ball[a][i].SetDirUD(DIR_DOWN);
+									}
+									else if (DirUD == DIR_DOWN)
+									{
+										int y = ball[a][i].GetY();
+										y -= (int)(TileOne[j].CY / 2 + r - fDistanceY);
+										ball[a][i].SetY(y);
+										ball[a][i].SetDirUD(DIR_UP);
 									}
 								}
 							}
@@ -697,7 +707,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 					for (int i = 0; i < 4; ++i)
 					{
 						RECT rcTemp;
-						if (IntersectRect(&rcTemp, &ball[j][i].rc, &player_position) && play && ball[j][i].type != 4)
+						if (IntersectRect(&rcTemp, &ball[j][i].GetCollisionBox(), &player_position) && play && ball[j][i].GetType() != 4)
 						{
 							if (!attack)
 							{
@@ -792,30 +802,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 						for (int a = 0; a < 5; ++a)
 						{
 							RECT bullet = myPlayer[player].GetBulletPosition(a);
-							if (IntersectRect(&rcTemp, &ball[j][i].rc, &bullet) && ball[j][i].type != 4)
+							if (IntersectRect(&rcTemp, &ball[j][i].GetCollisionBox(), &bullet) && ball[j][i].GetType() != 4)
 							{
 								//플레이어1의 작살과 공의 충돌
 								int item = rand() % 10;
 								if (item == 0 && Stop_item == false && Stop == false) // 10퍼센트 확률로 시간정지 아이템 등장
 								{// 필드에 시간정지 아이템이 없고 시간정지가 아닐때만 등장
-									timer_item.top = ball[j][i].Y;
-									timer_item.left = ball[j][i].X;
+									timer_item.top = ball[j][i].GetY();
+									timer_item.left = ball[j][i].GetX();
 									timer_item.right = timer_item.left + 30;
 									timer_item.bottom = timer_item.top + 30;
 									Stop_item = true;
 								}
 								if (item >= 1 && item <= 2 && M == false) // 20퍼센트 확률로 작살갯수 추가 아이템 등장
 								{
-									Missile_item.top = ball[j][i].Y;
-									Missile_item.left = ball[j][i].X;
+									Missile_item.top = ball[j][i].GetY();
+									Missile_item.left = ball[j][i].GetX();
 									Missile_item.right = Missile_item.left + 30;
 									Missile_item.bottom = Missile_item.top + 30;
 									M = true;
 								}
 								if (item == 3 && H == false)
 								{
-									Life_item.top = ball[j][i].Y;
-									Life_item.left = ball[j][i].X;
+									Life_item.top = ball[j][i].GetY();
+									Life_item.left = ball[j][i].GetX();
 									Life_item.right = Life_item.left + 30;
 									Life_item.bottom = Life_item.top + 30;
 									H = true;
@@ -829,72 +839,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 
 								myPlayer[player].SetScore(score + 50);
 
-								switch (ball[j][i].type)
+								switch (ball[j][i].GetType())
 								{
 								case 0:
 									myPlayer[player].SetScore(score + 100);
-									ball[j][i].type = 4;
+									ball[j][i].SetType(4);
 									break;
 								case 1:
 									if (i == 0)
 									{
-										ball[j][0].X = ball[j][0].X;
-										ball[j][0].Y = ball[j][0].Y;
-										ball[j][0].R = 8;
-										ball[j][0].type = 0;
-										ball[j][0].SetRect();
-										ball[j][0].DirLR = DIR_RIGHT;
-										ball[j][0].DirUD = ball[j][0].DirUD;
-										ball[j][0].gravity = ball[j][0].gravity;
+										ball[j][0].SetPosition(ball[j][0].GetX(), ball[j][0].GetY(), 8, 0, ball[j][0].GetGravity(), DIR_RIGHT, ball[i][j].GetDirUD());
 
-										ball[j][1].X = ball[j][0].X;
-										ball[j][1].Y = ball[j][0].Y;
-										ball[j][1].R = 8;
-										ball[j][1].type = 0;
-										ball[j][1].SetRect();
-										ball[j][1].DirLR = DIR_LEFT;
-										ball[j][1].DirUD = ball[j][0].DirUD;
-										ball[j][1].gravity = ball[j][0].gravity;
+										ball[j][1].SetPosition(ball[j][0].GetX(), ball[j][0].GetY(), 8, 0, ball[j][0].GetGravity(), DIR_LEFT, ball[i][j].GetDirUD());
 									}
 									else if (i == 2)
 									{
-										ball[j][2].X = ball[j][2].X;
-										ball[j][2].Y = ball[j][2].Y;
-										ball[j][2].R = 8;
-										ball[j][2].type = 0;
-										ball[j][2].SetRect();
-										ball[j][2].DirLR = DIR_RIGHT;
-										ball[j][2].DirUD = ball[j][2].DirUD;
-										ball[j][2].gravity = ball[j][2].gravity;
+										ball[j][2].SetPosition(ball[j][2].GetX(), ball[j][2].GetY(), 8, 0, ball[j][2].GetGravity(), DIR_RIGHT, ball[j][2].GetDirUD());
 
-										ball[j][3].X = ball[j][2].X;
-										ball[j][3].Y = ball[j][2].Y;
-										ball[j][3].R = 8;
-										ball[j][3].type = 0;
-										ball[j][3].SetRect();
-										ball[j][3].DirLR = DIR_LEFT;
-										ball[j][3].DirUD = ball[j][2].DirUD;
-										ball[j][3].gravity = ball[j][2].gravity;
+										ball[j][3].SetPosition(ball[j][2].GetX(), ball[j][2].GetY(), 8, 0, ball[j][2].GetGravity(), DIR_LEFT, ball[j][2].GetDirUD());
 									}
 									break;
 								case 2:
-									ball[j][0].X = ball[j][0].X;
-									ball[j][0].Y = ball[j][0].Y;
-									ball[j][0].R = 15;
-									ball[j][0].type = 1;
-									ball[j][0].SetRect();
-									ball[j][0].DirLR = DIR_RIGHT;
-									ball[j][0].DirUD = ball[j][0].DirUD;
-									ball[j][0].gravity = ball[j][0].gravity;
+									ball[j][0].SetPosition(ball[j][0].GetX(), ball[j][0].GetY(), 15, 1, ball[j][0].GetGravity(), DIR_RIGHT, ball[j][0].GetDirUD());
 
-									ball[j][2].X = ball[j][0].X;
-									ball[j][2].Y = ball[j][0].Y;
-									ball[j][2].R = 15;
-									ball[j][2].type = 1;
-									ball[j][2].SetRect();
-									ball[j][2].DirLR = DIR_LEFT;
-									ball[j][2].DirUD = ball[j][0].DirUD;
-									ball[j][2].gravity = ball[j][0].gravity;
+									ball[j][2].SetPosition(ball[j][0].GetX(), ball[j][0].GetY(), 15, 1, ball[j][0].GetGravity(), DIR_LEFT, ball[j][0].GetDirUD());
 									break;
 								}
 							}
@@ -913,41 +881,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 					for (int i = 0; i < 4; ++i)
 					{
 						//중력
-						if (ball[j][i].R != 0 && Start)
+						if (ball[j][i].GetRadius() != 0 && Start)
 						{
-							ball[j][i].gravity = (ball[j][i].Y - 140) / 10; // 낙하속도
-
-							if (ball[j][i].DirLR == DIR_LEFT)
-							{
-								ball[j][i].X -= 4;
-
-								if (ball[j][i].X - ball[j][i].R < 30) // 왼쪽 벽에 충돌
-									ball[j][i].DirLR = DIR_RIGHT;
-							}
-							else if (ball[j][i].DirLR == DIR_RIGHT)
-							{
-								ball[j][i].X += 4;
-
-								if (ball[j][i].X + ball[j][i].R > rt.right - 30) // 오른쪽 벽에 충돌
-									ball[j][i].DirLR = DIR_LEFT;
-							}
-
-							if (ball[j][i].DirUD == DIR_DOWN)
-							{
-								ball[j][i].Y += ball[j][i].gravity;
-
-								if (ball[j][i].Y + ball[j][i].R > STAGE_Y - 25) // 바닥에 충돌
-									ball[j][i].DirUD = DIR_UP;
-							}
-							else if (ball[j][i].DirUD == DIR_UP)
-							{
-								ball[j][i].Y -= ball[j][i].gravity;
-
-								if (ball[j][i].Y - ball[j][i].R < 150) // 최대 높이 값
-									ball[j][i].DirUD = DIR_DOWN;
-							}
-
-							ball[j][i].SetRect();
+							ball[j][i].Update();
 						}
 					}
 				}
@@ -1040,7 +976,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 				{
 					for (int i = 0; i < 4; ++i)
 					{
-						if (ball[j][i].type != 4)
+						if (ball[j][i].GetType() != 4)
 						{
 							stage_count++;
 						}
@@ -1059,41 +995,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 						Time1_count = 0;
 						if (Stage == 2)
 						{
-							ball[0][0].X = 200;
-							ball[0][0].Y = 200;
-							ball[0][0].R = 25;
-							ball[0][0].type = 2;
-							ball[0][0].SetRect();
-							ball[0][0].DirLR = DIR_RIGHT;
-							ball[0][0].DirUD = DIR_DOWN;
-							ball[0][0].gravity = 0;
+							ball[0][0].SetPosition(200, 200, 25, 2, 0, DIR_RIGHT, DIR_DOWN);
 
-							ball[1][0].X = 800;
-							ball[1][0].Y = 200;
-							ball[1][0].R = 25;
-							ball[1][0].type = 2;
-							ball[1][0].SetRect();
-							ball[1][0].DirLR = DIR_LEFT;
-							ball[1][0].DirUD = DIR_DOWN;
-							ball[1][0].gravity = 0;
+							ball[1][0].SetPosition(800, 200, 25, 2, 0, DIR_LEFT, DIR_DOWN);
+							
+							ball[2][0].SetPosition(400, 250, 25, 2, 0, DIR_RIGHT, DIR_DOWN);
 
-							ball[2][0].X = 400;
-							ball[2][0].Y = 250;
-							ball[2][0].R = 25;
-							ball[2][0].type = 2;
-							ball[2][0].SetRect();
-							ball[2][0].DirLR = DIR_RIGHT;
-							ball[2][0].DirUD = DIR_DOWN;
-							ball[2][0].gravity = 0;
-
-							ball[3][0].X = 600;
-							ball[3][0].Y = 250;
-							ball[3][0].R = 25;
-							ball[3][0].type = 2;
-							ball[3][0].SetRect();
-							ball[3][0].DirLR = DIR_LEFT;
-							ball[3][0].DirUD = DIR_DOWN;
-							ball[3][0].gravity = 0;
+							ball[3][0].SetPosition(600, 250, 25, 2, 0, DIR_LEFT, DIR_DOWN);
 
 							TileOne[0].X = 250;
 							TileOne[0].Y = 300;
@@ -1129,41 +1037,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT IMessage, WPARAM wParam, LPARAM lParam)
 						}
 						else if (Stage == 3)
 						{
-							ball[0][0].X = 200;
-							ball[0][0].Y = 200;
-							ball[0][0].R = 25;
-							ball[0][0].type = 2;
-							ball[0][0].SetRect();
-							ball[0][0].DirLR = DIR_RIGHT;
-							ball[0][0].DirUD = DIR_DOWN;
-							ball[0][0].gravity = 0;
+							ball[0][0].SetPosition(200, 200, 25, 2, 0, DIR_RIGHT, DIR_DOWN);
 
-							ball[1][0].X = 800;
-							ball[1][0].Y = 200;
-							ball[1][0].R = 25;
-							ball[1][0].type = 2;
-							ball[1][0].SetRect();
-							ball[1][0].DirLR = DIR_LEFT;
-							ball[1][0].DirUD = DIR_DOWN;
-							ball[1][0].gravity = 0;
+							ball[1][0].SetPosition(800, 200, 25, 2, 0, DIR_LEFT, DIR_DOWN);
 
-							ball[2][0].X = 400;
-							ball[2][0].Y = 250;
-							ball[2][0].R = 25;
-							ball[2][0].type = 2;
-							ball[2][0].SetRect();
-							ball[2][0].DirLR = DIR_RIGHT;
-							ball[2][0].DirUD = DIR_DOWN;
-							ball[2][0].gravity = 0;
+							ball[2][0].SetPosition(400, 250, 25, 2, 0, DIR_RIGHT, DIR_DOWN);
 
-							ball[3][0].X = 600;
-							ball[3][0].Y = 250;
-							ball[3][0].R = 25;
-							ball[3][0].type = 2;
-							ball[3][0].SetRect();
-							ball[3][0].DirLR = DIR_LEFT;
-							ball[3][0].DirUD = DIR_DOWN;
-							ball[3][0].gravity = 0;
+							ball[3][0].SetPosition(600, 250, 25, 2, 0, DIR_LEFT, DIR_DOWN);
 
 							TileOne[0].X = 200;
 							TileOne[0].Y = 350;
