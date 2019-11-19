@@ -1,17 +1,23 @@
 #include "main.h"
 
 int		g_iClinetNumber = 0;
+bool	g_bGameStart = false;
 unordered_map<int, PLAYERINFO>			g_Clients;
 
 DWORD WINAPI ProcessClient( LPVOID arg );
 void Init();
 void PrintPlayerInfo(const PLAYERINFO & tInfo);
+
 void SendPlayersInfo(const SOCKET& socket);
+void SendGameStart(const SOCKET& socket);
+
+CRITICAL_SECTION g_CS;
 
 int main()
 {
+	InitializeCriticalSection( &g_CS );
 	int retval;
-
+	
 	// 윈속 초기화
 	WSADATA	wsa;
 	if ( WSAStartup( MAKEWORD( 2, 2 ), &wsa ) != 0 )
@@ -94,6 +100,8 @@ int main()
 	// 윈속 종료
 	WSACleanup();
 
+	DeleteCriticalSection( &g_CS );
+
 	return 0;
 }
 
@@ -106,6 +114,9 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 
 	while ( true )
 	{
+		
+		SendGameStart( client_sock );
+
 		SendPlayersInfo(client_sock);
 	}
 
@@ -130,15 +141,30 @@ void Init()
 
 void PrintPlayerInfo( const PLAYERINFO & tInfo )
 {
+	EnterCriticalSection( &g_CS );
 	cout << "ID : " << tInfo.id << endl;
 	cout << "X : " << tInfo.x << ", Y : " << tInfo.y << endl;
 	cout << "Dir : " << tInfo.dir << endl;
 	cout << "HP : " << tInfo.hp << endl;
+	LeaveCriticalSection( &g_CS );
 }
 
 void SendPlayersInfo( const SOCKET & socket )
-{
-	
+{	
+	EnterCriticalSection( &g_CS );
 	for ( int i = 0; i < 2; ++i )
 		send( socket, ( char* )&g_Clients[i], sizeof( PLAYERINFO ), 0 );
+	LeaveCriticalSection( &g_CS );
+}
+
+void SendGameStart( const SOCKET& socket )
+{
+	EnterCriticalSection( &g_CS );
+	if ( g_iClinetNumber == 2 )
+	{
+		g_bGameStart = true;
+	}
+	send( socket, ( char* )&g_bGameStart, sizeof( bool ), 0 );
+	cout << "Send GameStart : " << g_bGameStart << endl;
+	LeaveCriticalSection( &g_CS );
 }

@@ -10,6 +10,8 @@ DEFINITION_SINGLE( CNetwork )
 
 CNetwork::CNetwork()
 {
+	m_bGameStart = false;
+	m_bServerOn = false;
 	//m_cKey = 0;
 }
 
@@ -52,6 +54,8 @@ bool CNetwork::Init( const string& strServerIP )
 		return false;
 	}
 
+	m_bServerOn = true;
+
 	recvn( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
 
 	return true;
@@ -59,6 +63,8 @@ bool CNetwork::Init( const string& strServerIP )
 
 void CNetwork::Update()
 {
+	recvn( m_Sock, (char*)&m_bGameStart, sizeof( bool ), 0 );
+	
 	RecvPlayersInfo();
 }
 
@@ -79,6 +85,16 @@ PLAYERINFO CNetwork::GetPlayerInfo() const
 PLAYERINFO CNetwork::GetOtherPlayerInfo() const
 {
 	return m_tOtherPlayerInfo;
+}
+
+bool CNetwork::GetGameStart() const
+{
+	return m_bGameStart;
+}
+
+bool CNetwork::GetServerOn() const
+{
+	return m_bServerOn;
 }
 
 void CNetwork::RecvPlayersInfo()

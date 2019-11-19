@@ -63,6 +63,8 @@ void CGameFramework::Input()
 
 void CGameFramework::Update( DWORD dwTime )
 {
+	if ( GET_SINGLE( CNetwork )->GetServerOn() )
+		GET_SINGLE( CNetwork )->Update();
 	GET_SINGLE( CObjectManager )->Update( dwTime );
 	GET_SINGLE( CSceneManager )->Update();
 }
@@ -71,6 +73,9 @@ void CGameFramework::Render()
 {
 	GET_SINGLE( CObjectManager )->Render(m_pBackBuffer->GetMemDC());
 	GET_SINGLE( CSceneManager )->Render(m_pBackBuffer->GetMemDC());
+
+	if ( GET_SINGLE( CNetwork )->GetServerOn() )
+		GET_SINGLE( CNetwork )->Render(m_pBackBuffer->GetMemDC());
 
 	// 마지막으로 백버퍼를 화면에 그린다.
 	BitBlt( m_hDC, 0, 0, WINX, WINY, m_pBackBuffer->GetMemDC(),

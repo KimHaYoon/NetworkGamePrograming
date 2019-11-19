@@ -129,9 +129,6 @@
     <ClCompile Include="Stage1Scene.cpp">
       <Filter>04. Scene\02. Stage1</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>02. Object\01. Player</Filter>
-    </ClCompile>
     <ClCompile Include="Stage1Background.cpp">
       <Filter>02. Object\04. Stage</Filter>
     </ClCompile>
@@ -140,6 +137,9 @@
     </ClCompile>
     <ClCompile Include="StageUI.cpp">
       <Filter>02. Object\04. Stage\01. StageUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>02. Object\01. Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
