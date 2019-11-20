@@ -7,8 +7,7 @@
 #include "Input.h"
 #include "Network.h"
 
-CLobbyScene::CLobbyScene() : 
-	m_bGameStart(false)
+CLobbyScene::CLobbyScene() 
 {
 }
 
@@ -33,14 +32,13 @@ void CLobbyScene::Input()
 {
 	if ( KEYDOWN( "Enter" ) )
 	{
-		CScene* pStage1 = GET_SINGLE( CSceneManager )->CreateScene<CStage1Scene>( "Stage1" );
+		//CScene* pStage1 = GET_SINGLE( CSceneManager )->CreateScene<CStage1Scene>( "Stage1" );
 	}
 }
 
 void CLobbyScene::Update( const float& fTimeDelta )
 {
-	m_bGameStart = GET_SINGLE(CNetwork)->GetGameStart();
-	if( m_bGameStart )
+	if( GET_SINGLE( CNetwork )->GetGameState() == GAME_START )
 		CScene* pStage1 = GET_SINGLE( CSceneManager )->CreateScene<CStage1Scene>( "Stage1" );
 }
 

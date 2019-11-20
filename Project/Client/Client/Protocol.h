@@ -5,14 +5,18 @@
 #define RIGHT			'MOVE_RIGHT'
 #define ATTACK			'BULLET_ATTACK'
 
-// 장면
-#define SCENE_LOGO		'LogoScene'
-#define SCENE_STAGE1	'Stage1Scene'
-#define SCENE_STAGE2	'Stage2Scene'
-#define SCENE_STAGE3	'Stage3Scene'
-
 // 서버에서 게임 제한시간을 받을 때 사용
 typedef float GAMETIME;
+
+enum GAME_STATE
+{
+	GAME_WAIT,
+	GAME_START,
+	GAME_STAGE1,
+	GAME_STAGE2,
+	GAME_STAGE3,
+	GAME_END
+};
 
 // 게임 제한시간
 #define LIMIT_GAMETIME 70;

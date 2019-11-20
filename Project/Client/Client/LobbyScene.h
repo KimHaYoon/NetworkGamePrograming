@@ -4,7 +4,7 @@ class CLobbyScene :
 	public CScene
 {
 private:
-	bool	m_bGameStart;
+	GAME_STATE	m_eGameState;
 public:
 	CLobbyScene();
 	virtual ~CLobbyScene();

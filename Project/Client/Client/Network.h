@@ -8,7 +8,7 @@ class CNetwork
 
 	PLAYERINFO			m_tPlayerInfo;
 	PLAYERINFO			m_tOtherPlayerInfo;
-	bool				m_bGameStart;
+	GAME_STATE			m_eGameState;
 	bool				m_bServerOn;
 
 	unordered_map<int, PLAYERINFO> m_mapPlayers;
@@ -22,7 +22,7 @@ public:
 
 	PLAYERINFO GetPlayerInfo() const;
 	PLAYERINFO GetOtherPlayerInfo() const;
-	bool	GetGameStart() const;
+	GAME_STATE	GetGameState() const;
 	bool	GetServerOn() const;
 
 	void RecvPlayersInfo();

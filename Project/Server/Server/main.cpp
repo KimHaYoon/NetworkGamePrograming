@@ -12,6 +12,7 @@ void SendPlayersInfo(const SOCKET& socket);
 void SendGameStart(const SOCKET& socket);
 
 CRITICAL_SECTION g_CS;
+GAME_STATE g_eState;
 
 int main()
 {
@@ -137,6 +138,8 @@ void Init()
 		tInfo[i].dir = i;
 		g_Clients[i] = tInfo[i];
 	}
+
+	g_eState = GAME_WAIT;
 }
 
 void PrintPlayerInfo( const PLAYERINFO & tInfo )
@@ -159,12 +162,12 @@ void SendPlayersInfo( const SOCKET & socket )
 
 void SendGameStart( const SOCKET& socket )
 {
-	EnterCriticalSection( &g_CS );
 	if ( g_iClinetNumber == 2 )
 	{
-		g_bGameStart = true;
+		g_eState = GAME_START;
 	}
-	send( socket, ( char* )&g_bGameStart, sizeof( bool ), 0 );
-	cout << "Send GameStart : " << g_bGameStart << endl;
+	send( socket, ( char* )&g_eState, sizeof( GAME_STATE), 0 );
+	EnterCriticalSection( &g_CS );
+	cout << "Send GameStart : " << g_eState << endl;
 	LeaveCriticalSection( &g_CS );
 }
