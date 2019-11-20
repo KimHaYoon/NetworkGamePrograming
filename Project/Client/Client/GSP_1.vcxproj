@@ -116,6 +116,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="LobbyBackground.cpp" />
@@ -146,8 +147,10 @@
     <ClCompile Include="Stage1Scene.cpp" />
     <ClCompile Include="StageUI.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ball.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="EnterKeyObj.h" />
@@ -182,6 +185,7 @@
     <ClInclude Include="StageUI.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Tile.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GSP_1.rc" />

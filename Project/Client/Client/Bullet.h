@@ -9,7 +9,7 @@ class CBullet :
 	bool m_bShot = false;
 public:
 	CBullet();
-	~CBullet();
+	virtual ~CBullet();
 
 	// CObj을(를) 통해 상속됨
 	virtual bool Init() override;

@@ -70,6 +70,12 @@
     <Filter Include="02. Object\06. Bullet">
       <UniqueIdentifier>{7e49b354-c9a6-411e-abb9-8934c586f699}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02. Object\07. Ball">
+      <UniqueIdentifier>{9f6ba650-ac0f-404c-83db-4f973eace2c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\07. Tile">
+      <UniqueIdentifier>{42508a3c-2477-4e4b-a686-f8d4cfc964c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -146,6 +152,12 @@
     </ClCompile>
     <ClCompile Include="Bullet.cpp">
       <Filter>02. Object\06. Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Ball.cpp">
+      <Filter>02. Object\07. Ball</Filter>
+    </ClCompile>
+    <ClCompile Include="Tile.cpp">
+      <Filter>02. Object\07. Tile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -235,6 +247,12 @@
     </ClInclude>
     <ClInclude Include="Bullet.h">
       <Filter>02. Object\06. Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Ball.h">
+      <Filter>02. Object\07. Ball</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
+      <Filter>02. Object\07. Tile</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
