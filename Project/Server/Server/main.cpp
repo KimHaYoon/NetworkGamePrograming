@@ -1,18 +1,29 @@
 #include "main.h"
 
-int		g_iClinetNumber = 0;
-bool	g_bGameStart = false;
-unordered_map<int, PLAYERINFO>			g_Clients;
+static int		g_iClientNumber = 0;
+static int		g_iState = GAME_WAIT;
+unordered_map<int, SERVERPLAYER>		g_Clients;
+CRITICAL_SECTION g_CS;
+
 
 DWORD WINAPI ProcessClient( LPVOID arg );
 void Init();
 void PrintPlayerInfo(const PLAYERINFO & tInfo);
 
 void SendPlayersInfo(const SOCKET& socket);
-void SendGameStart(const SOCKET& socket);
-
-CRITICAL_SECTION g_CS;
-GAME_STATE g_eState;
+void SendGameState(int clientnum);
+// 소켓 함수 오류 출력
+void err_display( const char *msg )
+{
+	LPVOID lpMsgBuf;
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, WSAGetLastError(),
+		MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ),
+		( LPTSTR )&lpMsgBuf, 0, NULL );
+	printf( "[%s] %s", msg, ( char * )lpMsgBuf );
+	LocalFree( lpMsgBuf );
+}
 
 int main()
 {
@@ -47,7 +58,7 @@ int main()
 	}
 
 	// listen()
-	retval = listen( listen_sock, 2 );			// 2명까지만 접속가능
+	retval = listen( listen_sock, SOMAXCONN );			// 2명까지만 접속가능
 	if ( retval == SOCKET_ERROR )
 	{
 		cout << "listen 에러" << endl;
@@ -71,16 +82,16 @@ int main()
 			cout << "accept 에러" << endl;
 			break;
 		}
-		cout << "접속한 클라이언트 수 : " << g_iClinetNumber + 1 << endl;
+		cout << "접속한 클라이언트 수 : " << g_iClientNumber + 1 << ", 접속한 클라이언트 소켓 : " << client_sock << endl;
 
 		// 접속한 클라이언트 정보 출력
 		printf( "\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa( clientaddr.sin_addr ), ntohs( clientaddr.sin_port ) );
-
-		send( client_sock, ( char* )&g_Clients[g_iClinetNumber], sizeof( PLAYERINFO ), 0 );			// 초기 정보 전송
-		PrintPlayerInfo( g_Clients[g_iClinetNumber] );
-		++g_iClinetNumber;
-																								
-		hThread = CreateThread( NULL, 0, ProcessClient, ( LPVOID )client_sock, 0, NULL );				// 스레드 생성
+		
+		g_Clients[g_iClientNumber].socket = client_sock;
+		send( g_Clients[g_iClientNumber].socket, ( char* )&g_Clients[g_iClientNumber].info, sizeof( PLAYERINFO ), 0 );			// 초기 정보 전송
+		PrintPlayerInfo( g_Clients[g_iClientNumber].info );		
+		
+		hThread = CreateThread( NULL, 0, ProcessClient, NULL, 0, NULL );				// 스레드 생성
 
 		// closesocket() - client socket
 		if ( hThread == NULL )
@@ -108,17 +119,16 @@ int main()
 
 DWORD WINAPI ProcessClient( LPVOID arg )
 {
-	SOCKET client_sock = ( SOCKET )arg;
+	int clientnum = g_iClientNumber;
+	++g_iClientNumber;
+
 	SOCKADDR_IN clientaddr;
 	int addrlen = sizeof( clientaddr );
-	getpeername( client_sock, ( SOCKADDR * )&clientaddr, &addrlen );
+	getpeername( g_Clients[clientnum].socket, ( SOCKADDR * )&clientaddr, &addrlen );
 
 	while ( true )
 	{
-		
-		SendGameStart( client_sock );
-
-		SendPlayersInfo(client_sock);
+		SendGameState( clientnum );
 	}
 
 	return 0;
@@ -136,10 +146,10 @@ void Init()
 	{
 		tInfo[i].id = i + 1;
 		tInfo[i].dir = i;
-		g_Clients[i] = tInfo[i];
+		g_Clients[i].info = tInfo[i];
 	}
 
-	g_eState = GAME_WAIT;
+	g_iState = GAME_WAIT;
 }
 
 void PrintPlayerInfo( const PLAYERINFO & tInfo )
@@ -154,20 +164,29 @@ void PrintPlayerInfo( const PLAYERINFO & tInfo )
 
 void SendPlayersInfo( const SOCKET & socket )
 {	
-	EnterCriticalSection( &g_CS );
+	//EnterCriticalSection( &g_CS );
 	for ( int i = 0; i < 2; ++i )
 		send( socket, ( char* )&g_Clients[i], sizeof( PLAYERINFO ), 0 );
-	LeaveCriticalSection( &g_CS );
+
+	
+	//LeaveCriticalSection( &g_CS );
 }
 
-void SendGameStart( const SOCKET& socket )
+void SendGameState( int clientnum )
 {
-	if ( g_iClinetNumber == 2 )
+	if ( g_iClientNumber == 2 )
 	{
-		g_eState = GAME_START;
+		g_iState = GAME_START;
 	}
-	send( socket, ( char* )&g_eState, sizeof( GAME_STATE), 0 );
-	EnterCriticalSection( &g_CS );
-	cout << "Send GameStart : " << g_eState << endl;
-	LeaveCriticalSection( &g_CS );
+
+	int ret = send( g_Clients[clientnum].socket, ( char* )&g_iState, sizeof( int ), 0 );
+
+	if ( ret == SOCKET_ERROR )
+	{
+		err_display( "send()" );
+		cout << g_Clients[clientnum].socket << " send fail!" << endl;
+	}
+
+	else 
+		cout << g_Clients[clientnum].socket << " send GameState : " << g_iState << endl;
 }

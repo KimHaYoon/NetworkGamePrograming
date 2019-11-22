@@ -48,6 +48,12 @@ typedef struct Player
 
 }PLAYERINFO;
 
+typedef struct ServerPlayerInfo
+{
+	PLAYERINFO info;
+	SOCKET socket;
+}SERVERPLAYER;
+
 typedef struct Bullet
 {
 	int id;

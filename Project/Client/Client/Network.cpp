@@ -55,16 +55,21 @@ bool CNetwork::Init( const string& strServerIP )
 
 	m_bServerOn = true;
 
-	recvn( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
+	retval = recvn( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
+	if ( retval == SOCKET_ERROR )
+		return false;
+
 
 	return true;
 }
 
 void CNetwork::Update( const float& fTimeDelta )
 {
-	recvn(m_Sock, (char*)&m_eGameState, sizeof(GAME_STATE), 0);
-
-	RecvPlayersInfo();
+	int ret = recv(m_Sock, (char*)&m_iGameState, sizeof(int), 0);
+	if ( ret == SOCKET_ERROR )
+		return;
+	
+	//RecvPlayersInfo();
 }
 
 void CNetwork::Render( HDC hDC )
@@ -86,9 +91,9 @@ PLAYERINFO CNetwork::GetOtherPlayerInfo() const
 	return m_tOtherPlayerInfo;
 }
 
-GAME_STATE CNetwork::GetGameState() const
+int CNetwork::GetGameState() const
 {
-	return m_eGameState;
+	return m_iGameState;
 }
 
 bool CNetwork::GetServerOn() const
