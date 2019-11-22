@@ -20,6 +20,7 @@ bool CPlayer::Init()
 	}
 	m_nMaxFrame = 5;
 	m_nNowFrame = 0;
+	m_fFrame = 0.f;
 
 	return true;
 }
@@ -33,6 +34,7 @@ void CPlayer::Input()
 		if ( m_tPos.x > 10 )
 			m_tPos.x -= 10;
 		m_tInfo.moveAnimation = true;
+		m_tInfo.dir = DIR_LEFT;
 	}
 
 	if ( KEYDOWN( "MoveRight" ) || KEYPUSH( "MoveRight" ) )
@@ -40,24 +42,40 @@ void CPlayer::Input()
 		if ( m_tPos.x < 730 )
 			m_tPos.x += 10;
 		m_tInfo.moveAnimation = true;
+		m_tInfo.dir = DIR_RIGHT;
 
 	}
 
 	if (KEYUP("MoveRight") || KEYUP("MoveLeft"))
 	{
 		m_tInfo.moveAnimation = false;
+		m_nMaxFrame = 5;
+		m_nNowFrame = 0;
+		m_fFrame = 0.f;
 	}
 
 	if ( KEYDOWN( "Space" ) )
 	{
 		BulletShot();
 		m_tInfo.shoot = true;
+		m_tInfo.moveAnimation = true;
+		m_nMaxFrame = 3;
+		m_nNowFrame = 0;
+		m_fFrame = 0.f;
+	}
+	if (KEYUP("Space"))
+	{
+		m_tInfo.shoot = false;
+		m_tInfo.moveAnimation = false;
+		m_nMaxFrame = 5;
+		m_nNowFrame = 0;
+		m_fFrame = 0.f;
 	}
 }
 
-void CPlayer::Update( DWORD dwTime )
+void CPlayer::Update( const float& fTimeDelta )
 {
-	CObj::Update( dwTime );
+	CObj::Update(fTimeDelta);
 
 	if (m_tInfo.moveAnimation)
 	{
@@ -65,13 +83,18 @@ void CPlayer::Update( DWORD dwTime )
 		{
 			if (m_tInfo.dir == DIR_LEFT)
 			{
-				wstring str = L"Texture/Player1/Player.left_" + to_wstring(m_nNowFrame) + L".bmp";
-				SetTexture("Player_Left" + to_string(m_nNowFrame), str.c_str());
+				wstring str = L"Texture/Player1/Player.left_" + to_wstring(m_nNowFrame + 1) + L".bmp";
+				SetTexture("Player_Left" + to_string(m_nNowFrame + 1), str.c_str());
 			}
 			else if (m_tInfo.dir == DIR_RIGHT)
 			{
-				wstring str = L"Texture/Player1/Player.right_" + to_wstring(m_nNowFrame) + L".bmp";
-				SetTexture("Player_Right" + to_string(m_nNowFrame), str.c_str());
+				wstring str = L"Texture/Player1/Player.right_" + to_wstring(m_nNowFrame + 1) + L".bmp";
+				SetTexture("Player_Right" + to_string(m_nNowFrame + 1), str.c_str());
+			}
+			if (m_tInfo.shoot)
+			{
+				wstring str = L"Texture/Player1/Player.stand_" + to_wstring(m_nNowFrame + 1) + L".bmp";
+				SetTexture("Player_Shoot" + to_string(m_nNowFrame + 1), str.c_str());
 			}
 		}
 
@@ -79,20 +102,29 @@ void CPlayer::Update( DWORD dwTime )
 		{
 			if (m_tInfo.dir == DIR_LEFT)
 			{
-				wstring str = L"Texture/Player2/player2.left_" + to_wstring(m_nNowFrame) + L".bmp";
-				SetTexture("Player2_Left" + to_string(m_nNowFrame), str.c_str());
+				wstring str = L"Texture/Player2/player2.left_" + to_wstring(m_nNowFrame + 1) + L".bmp";
+				SetTexture("Player2_Left" + to_string(m_nNowFrame + 1), str.c_str());
 			}
 			else if (m_tInfo.dir == DIR_RIGHT)
 			{
-				wstring str = L"Texture/Player2/player2.right_" + to_wstring(m_nNowFrame) + L".bmp";
-				SetTexture("Player2_Right" + to_string(m_nNowFrame), str.c_str());
+				wstring str = L"Texture/Player2/player2.right_" + to_wstring(m_nNowFrame + 1) + L".bmp";
+				SetTexture("Player2_Right" + to_string(m_nNowFrame + 1), str.c_str());
+			}
+			if (m_tInfo.shoot)
+			{
+				wstring str = L"Texture/Player2/player2.stand_" + to_wstring(m_nNowFrame + 1) + L".bmp";
+				SetTexture("Player2_Shoot" + to_string(m_nNowFrame + 1), str.c_str());
 			}
 		}
-
-		m_nNowFrame++;
-		m_nNowFrame = m_nNowFrame % m_nMaxFrame;
+		// ¹è¼Ó
+		m_fFrame += (fTimeDelta * 15.f);
+		if (m_fFrame > 1.f)
+		{
+			m_nNowFrame++;;
+			m_nNowFrame = m_nNowFrame % m_nMaxFrame;
+			m_fFrame = 0.f;
+		}
 	}
-
 }
 
 void CPlayer::Render( HDC hDC )
@@ -108,6 +140,7 @@ void CPlayer::SetPlayerInfo( const PLAYERINFO & tInfo )
 	{
 		SetTexture("Player_Shoot1", L"Texture/Player1/Player.stand_1.bmp", true, RGB(0, 255, 0));
 		SetTexture("Player_Shoot2", L"Texture/Player1/Player.stand_2.bmp", true, RGB(0, 255, 0));
+		SetTexture("Player_Shoot3", L"Texture/Player1/Player.stand_3.bmp", true, RGB(0, 255, 0));
 
 		SetTexture("Player_Left1", L"Texture/Player1/Player.left_1.bmp", true, RGB(0, 255, 0));
 		SetTexture("Player_Left2", L"Texture/Player1/Player.left_2.bmp", true, RGB(0, 255, 0));
@@ -126,7 +159,8 @@ void CPlayer::SetPlayerInfo( const PLAYERINFO & tInfo )
 	{
 		SetTexture("Player2_Shoot1", L"Texture/Player2/player2.stand_1.bmp", true, RGB(0, 255, 0));
 		SetTexture("Player2_Shoot2", L"Texture/Player2/player2.stand_2.bmp", true, RGB(0, 255, 0));
-						  
+		SetTexture("Player2_Shoot3", L"Texture/Player2/player2.stand_3.bmp", true, RGB(0, 255, 0));
+
 		SetTexture("Player2_Left1", L"Texture/Player2/player2.right_1.bmp", true, RGB(0, 255, 0));
 		SetTexture("Player2_Left2", L"Texture/Player2/player2.right_2.bmp", true, RGB(0, 255, 0));
 		SetTexture("Player2_Left3", L"Texture/Player2/player2.right_3.bmp", true, RGB(0, 255, 0));

@@ -128,8 +128,8 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 
 	while ( true )
 	{
-		//SendGameState( clientnum );
-		SendPlayersInfo(g_Clients[clientnum].socket);
+		SendGameState( clientnum );
+		//SendPlayersInfo(g_Clients[clientnum].socket);
 	}
 
 	return 0;

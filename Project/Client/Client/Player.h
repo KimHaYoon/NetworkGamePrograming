@@ -16,6 +16,7 @@ private:
 
 	int m_nMaxFrame;
 	int m_nNowFrame;
+	float m_fFrame;
 
 	RECT m_rcCollisionBox;
 
@@ -25,7 +26,7 @@ public:
 
 	virtual bool Init();
 	virtual void Input();
-	virtual void Update( DWORD dwTime );
+	virtual void Update( const float& fTimeDelta );
 	virtual void Render( HDC hDC );
 
 public:
