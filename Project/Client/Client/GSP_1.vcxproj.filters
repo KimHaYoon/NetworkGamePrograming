@@ -76,6 +76,9 @@
     <Filter Include="02. Object\07. Tile">
       <UniqueIdentifier>{42508a3c-2477-4e4b-a686-f8d4cfc964c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02. Object\08. Item">
+      <UniqueIdentifier>{f5e62810-ca06-49bf-96e6-3ea99f4604ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -158,6 +161,9 @@
     </ClCompile>
     <ClCompile Include="Tile.cpp">
       <Filter>02. Object\07. Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>02. Object\08. Item</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -253,6 +259,9 @@
     </ClInclude>
     <ClInclude Include="Tile.h">
       <Filter>02. Object\07. Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>02. Object\08. Item</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

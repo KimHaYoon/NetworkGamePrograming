@@ -32,7 +32,7 @@ void CLobbyScene::Input()
 {
 	if ( KEYDOWN( "Enter" ) )
 	{
-		//CScene* pStage1 = GET_SINGLE( CSceneManager )->CreateScene<CStage1Scene>( "Stage1" );
+		CScene* pStage1 = GET_SINGLE( CSceneManager )->CreateScene<CStage1Scene>( "Stage1" );
 	}
 }
 

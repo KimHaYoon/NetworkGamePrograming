@@ -119,6 +119,7 @@
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Circle.cpp" />
+    <ClCompile Include="Item.cpp" />
     <ClCompile Include="LobbyBackground.cpp" />
     <ClCompile Include="LobbyScene.cpp" />
     <ClCompile Include="LogoScene.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="Circle.h" />
     <ClInclude Include="EnterKeyObj.h" />
     <ClInclude Include="InputServerIP.h" />
+    <ClInclude Include="Item.h" />
     <ClInclude Include="LobbyBackground.h" />
     <ClInclude Include="LobbyScene.h" />
     <ClInclude Include="LogoObj.h" />
