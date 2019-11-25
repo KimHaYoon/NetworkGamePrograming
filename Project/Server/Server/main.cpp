@@ -104,8 +104,10 @@ int main()
 			CloseHandle( hThread );
 		}
 
-		closesocket( client_sock );
+		//closesocket( client_sock );
 	}
+	closesocket(client_sock);
+
 	// closesocket()
 	closesocket( listen_sock );
 
