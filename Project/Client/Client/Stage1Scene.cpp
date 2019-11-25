@@ -82,6 +82,7 @@ bool CStage1Scene::Init()
 	blockInfo.maxFrame = 5;
 	blockInfo.nowFrame = 0;
 	blockInfo.type = 2;
+	blockInfo.color = 0;
 	blockInfo.cx = 100;
 	blockInfo.cy = 40;
 	dynamic_cast<CTile*>(pBlock1)->SetTileInfo(blockInfo);
