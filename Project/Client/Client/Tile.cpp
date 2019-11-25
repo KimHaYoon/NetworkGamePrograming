@@ -34,6 +34,7 @@ void CTile::Render(HDC hDC)
 void CTile::SetTileInfo(TILEINFO tInfo)
 {
 	m_tInfo = tInfo;
+	m_fFrame = 0.f;
 
 	if (m_tInfo.color == 0) // Blue
 	{
@@ -51,19 +52,6 @@ void CTile::SetTileInfo(TILEINFO tInfo)
 		SetTexture("YellowBlock4", L"Texture/Block/YellowBlock/YellowBlock_4.bmp", true, RGB(0, 0, 0));
 		SetTexture("YellowBlock0", L"Texture/Block/YellowBlock/YellowBlock_0.bmp", true, RGB(0, 0, 0));
 	}
-
-	//if (m_tInfo.type == 0) //
-	//{
-
-	//}
-	//else if (m_tInfo.type == 1) // ºÎ¼­Áü
-	//{
-	//	SetTexture("BrokenBlock", L"Texture/Block/YellowBlock.bmp", true, RGB(0, 0, 0));
-	//}
-	//else if (m_tInfo.type == 2) // ¾ÈºÎ¼­Áü
-	//{
-	//	SetTexture("UnBroken", L"Texture/Block/UnBroken.bmp", true, RGB(0, 0, 0));
-	//}
 	SetRect();
 	SetSize(m_tInfo.cx, m_tInfo.cy);
 	SetPos(m_tInfo.x, m_tInfo.y);

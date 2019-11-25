@@ -22,6 +22,8 @@ class CTile :
 {
 	TILEINFO m_tInfo;
 
+	float m_fFrame;
+
 	RECT m_rcCollisionBox;
 public:
 	CTile();
