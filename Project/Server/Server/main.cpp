@@ -103,8 +103,6 @@ int main()
 		{
 			CloseHandle( hThread );
 		}
-
-		//closesocket( client_sock );
 	}
 	closesocket(client_sock);
 
@@ -121,15 +119,36 @@ int main()
 
 DWORD WINAPI ProcessClient( LPVOID arg )
 {
-	int clientnum = g_iClientNumber;
-	++g_iClientNumber;
+	int clientnum = g_iClientNumber++;
 
 	SOCKADDR_IN clientaddr;
 	int addrlen = sizeof( clientaddr );
 	getpeername( g_Clients[clientnum].socket, ( SOCKADDR * )&clientaddr, &addrlen );
 
+	ULONGLONG ullOldTime = GetTickCount64();
+
+	float iTime = 0.f;
+
+	DWORD dwTime = GetTickCount64();
+
 	while ( true )
 	{
+		/*if ( GetTickCount64() - ullOldTime < 10.f )
+		{
+			continue;
+		}
+
+		ullOldTime = GetTickCount64();*/
+
+		DWORD dwNow = GetTickCount64();
+
+		if ( dwTime + 16 > dwNow )
+		{
+			continue;
+		}
+
+		dwTime = dwNow;
+
 		SendGameState( clientnum );
 		//SendPlayersInfo(g_Clients[clientnum].socket);
 	}
@@ -177,19 +196,23 @@ void SendPlayersInfo( const SOCKET & socket )
 
 void SendGameState( int clientnum )
 {
-	if ( g_iClientNumber == 2 )
-	{
+	if ( g_iClientNumber == 1 )
 		g_iState = GAME_START;
-	}
+	else if( g_iClientNumber == 2 )
+		g_iState = GAME_STAGE1;
 
-	int ret = send( g_Clients[clientnum].socket, ( char* )&g_iState, sizeof( int ), 0 );
-
+	int ret = send( g_Clients[clientnum].socket, ( char* )&g_iState, sizeof( g_iState ), 0 );
+	
+	EnterCriticalSection( &g_CS );
 	if ( ret == SOCKET_ERROR )
 	{
 		err_display( "send()" );
 		cout << g_Clients[clientnum].socket << " send fail!" << endl;
 	}
 
-	else 
+	else
+	{
 		cout << g_Clients[clientnum].socket << " send GameState : " << g_iState << endl;
+	}
+	LeaveCriticalSection( &g_CS );
 }

@@ -10,6 +10,7 @@ HINSTANCE hInst;                                // 현재 인스턴스입니다.
 
 //추가 전역 변수
 HWND g_hWnd;
+bool g_bActive = true;
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM                MyRegisterClass( HINSTANCE hInstance );
@@ -43,6 +44,7 @@ int APIENTRY wWinMain( _In_ HINSTANCE hInstance,
 
 	int frame = 0;
 	ULONGLONG ullOldTime2 = GetTickCount64();
+	DWORD dwTime = GetTickCount64();
 
 	while ( msg.message != WM_QUIT )
 	{
@@ -52,34 +54,37 @@ int APIENTRY wWinMain( _In_ HINSTANCE hInstance,
 			DispatchMessage( &msg );
 		}
 
-		// 프레임을 고정한다 1초에 약 60
-		if (GetTickCount64() - ullOldTime >= ullFrame)
-		{
-			float fTimeDelta = GetTickCount64() - ullOldTime;
-			fTimeDelta = fTimeDelta / 1000.0f;
-			//_cprintf(to_string(fTimeDelta).c_str());
-			GameFramework.Logic(fTimeDelta);
+		//// 프레임을 고정한다 1초에 약 60
+		//if (GetTickCount64() - ullOldTime >= ullFrame)
+		//{
+		//	float fTimeDelta = GetTickCount64() - ullOldTime;
+		//	fTimeDelta = fTimeDelta / 1000.0f;
+		//	//_cprintf(to_string(fTimeDelta).c_str());
+		//	GameFramework.Logic(fTimeDelta, g_bActive);
 
-			frame++;
-			ullOldTime = GetTickCount64();
+		//	frame++;
+		//	ullOldTime = GetTickCount64();
+		//}
+		//// 1초에 한번씩 FPS 값을 산출하여 화면에 출력한다
+		//if (GetTickCount64() - ullOldTime2 >= 1000)
+		//{
+		//	TCHAR szFPS[12]{};
+		//	wsprintf(szFPS, "FPS : %d", frame);
+		//	SetWindowText(g_hWnd, szFPS);
+		//	ullOldTime2 = GetTickCount64();
+		//	frame = 0;
+		//}
+
+		DWORD dwNow = GetTickCount64();
+
+		if ( dwTime + 16 > dwNow )
+		{
+			continue;
 		}
-		// 1초에 한번씩 FPS 값을 산출하여 화면에 출력한다
-		if (GetTickCount64() - ullOldTime2 >= 1000)
-		{
-			TCHAR szFPS[12]{};
-			wsprintf(szFPS, "FPS : %d", frame);
-			SetWindowText(g_hWnd, szFPS);
-			ullOldTime2 = GetTickCount64();
-			frame = 0;
-		}
 
-		/*if ( GetTickCount() - dwTime >= (1000 / 60) )
-		{
-			GameFramework.Logic( dwTime );
-		
-			dwTime = GetTickCount();
-		}*/
+		dwTime = dwNow;
 
+		GameFramework.Logic( 0.016f, g_bActive );
 	}
 
 	return ( int )msg.wParam;
@@ -160,6 +165,15 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 	switch ( message )
 	{
+	case WM_ACTIVATE:
+	{
+		/*if ( wParam == WA_INACTIVE )
+			g_bActive = false;
+
+		else
+			g_bActive = true;*/
+	}
+		break;
 	case WM_CHAR:
 	{
 		if ( VK_BACK == wParam )

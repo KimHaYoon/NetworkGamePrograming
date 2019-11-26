@@ -13,7 +13,7 @@ public:
 	~CGameFramework();
 
 public:
-	void Logic(const float& fTimeDelta );
+	void Logic(const float& fTimeDelta, bool bActive );
 	bool Init( HWND hWnd, HINSTANCE  hInst );
 
 private:

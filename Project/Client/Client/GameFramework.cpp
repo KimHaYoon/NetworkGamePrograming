@@ -15,17 +15,17 @@ CGameFramework::CGameFramework() :
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	//_CrtSetBreakAlloc( 601 );
 
-	//#ifdef _DEBUG
-	//AllocConsole();
-	//#endif
+#ifdef _DEBUG
+	AllocConsole();
+#endif
 }
 
 
 CGameFramework::~CGameFramework()
 {
-	//#ifdef _DEBUG
-	//FreeConsole();
-	//#endif // _DEBUG
+#ifdef _DEBUG
+	FreeConsole();
+#endif // _DEBUG
 
 	GET_SINGLE( CObjectManager )->DestroyInst();
 	GET_SINGLE( CResourcesManager )->DestroyInst();
@@ -35,8 +35,9 @@ CGameFramework::~CGameFramework()
 	ReleaseDC( m_hWnd, m_hDC );
 }
 
-void CGameFramework::Logic( const float& fTimeDelta )
+void CGameFramework::Logic( const float& fTimeDelta, bool bActive )
 {
+	
 	Input();
 	Update(fTimeDelta);
 	Render();

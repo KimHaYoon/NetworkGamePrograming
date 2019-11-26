@@ -58,6 +58,7 @@ bool CNetwork::Init( const string& strServerIP )
 	retval = recvn( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
 	if ( retval == SOCKET_ERROR )
 		return false;
+	_cprintf( "Client ID : %d \n", m_tPlayerInfo.id );
 
 
 	return true;
@@ -68,7 +69,8 @@ void CNetwork::Update( const float& fTimeDelta )
 	int ret = recv(m_Sock, (char*)&m_iGameState, sizeof(int), 0);
 	if ( ret == SOCKET_ERROR )
 		return;
-	
+
+	_cprintf( "Client ID : %d, GameState : %d \n", m_tPlayerInfo.id, m_iGameState );
 	//RecvPlayersInfo();
 }
 
