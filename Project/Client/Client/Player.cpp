@@ -161,11 +161,11 @@ void CPlayer::SetPlayerInfo( const PLAYERINFO & tInfo )
 		SetTexture("Player2_Shoot2", L"Texture/Player2/player2.stand_2.bmp", true, RGB(0, 255, 0));
 		SetTexture("Player2_Shoot3", L"Texture/Player2/player2.stand_3.bmp", true, RGB(0, 255, 0));
 
-		SetTexture("Player2_Left1", L"Texture/Player2/player2.right_1.bmp", true, RGB(0, 255, 0));
-		SetTexture("Player2_Left2", L"Texture/Player2/player2.right_2.bmp", true, RGB(0, 255, 0));
-		SetTexture("Player2_Left3", L"Texture/Player2/player2.right_3.bmp", true, RGB(0, 255, 0));
-		SetTexture("Player2_Left4", L"Texture/Player2/player2.right_4.bmp", true, RGB(0, 255, 0));
-		SetTexture("Player2_Left5", L"Texture/Player2/player2.right_5.bmp", true, RGB(0, 255, 0));
+		SetTexture("Player2_Left1", L"Texture/Player2/player2.left_1.bmp", true, RGB(0, 255, 0));
+		SetTexture("Player2_Left2", L"Texture/Player2/player2.left_2.bmp", true, RGB(0, 255, 0));
+		SetTexture("Player2_Left3", L"Texture/Player2/player2.left_3.bmp", true, RGB(0, 255, 0));
+		SetTexture("Player2_Left4", L"Texture/Player2/player2.left_4.bmp", true, RGB(0, 255, 0));
+		SetTexture("Player2_Left5", L"Texture/Player2/player2.left_5.bmp", true, RGB(0, 255, 0));
 						  
 		SetTexture("Player2_Right2", L"Texture/Player2/player2.right_2.bmp", true, RGB(0, 255, 0));
 		SetTexture("Player2_Right3", L"Texture/Player2/player2.right_3.bmp", true, RGB(0, 255, 0));

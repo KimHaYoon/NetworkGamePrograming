@@ -67,11 +67,11 @@ bool CNetwork::Init( const string& strServerIP )
 void CNetwork::Update( const float& fTimeDelta )
 {
 	int ret = recv(m_Sock, (char*)&m_iGameState, sizeof(int), 0);
-	if ( ret == SOCKET_ERROR )
+	if (ret == SOCKET_ERROR)
 		return;
 
 	_cprintf( "Client ID : %d, GameState : %d \n", m_tPlayerInfo.id, m_iGameState );
-	//RecvPlayersInfo();
+	RecvPlayersInfo();
 }
 
 void CNetwork::Render( HDC hDC )
