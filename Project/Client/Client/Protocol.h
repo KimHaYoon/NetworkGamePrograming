@@ -36,11 +36,15 @@ typedef struct Player
 	bool moveAnimation;
 	bool shoot;
 
+	int maxFrame;
+	int nowFrame;
 
 	Player() {
 		hp = 3;
 		score = 0;
 		bulletCount = 1;
+		maxFrame = 5;
+		nowFrame = 0;
 		gameStart = true;
 		moveAnimation = false;
 		shoot = false;
@@ -53,6 +57,12 @@ typedef struct Bullet
 	int id;
 	int x;
 	int y;
+	bool shot;
+
+	Bullet()
+	{
+		shot = false;
+	}
 }BULLETINFO;
 
 typedef struct Ball

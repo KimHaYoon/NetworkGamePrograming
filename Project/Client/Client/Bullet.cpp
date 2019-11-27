@@ -1,5 +1,5 @@
 #include "Bullet.h"
-
+#include "Network.h"
 
 
 CBullet::CBullet()
@@ -14,7 +14,6 @@ CBullet::~CBullet()
 bool CBullet::Init()
 {
 	SetTexture("Bullet", L"Texture/Missle/Missle.bmp", true, RGB(0, 0, 0));
-	//SetTexture("Player1", L"Texture/Player1/Player.right_1.bmp", true, RGB(0, 255, 0));
 	return true;
 }
 
@@ -25,33 +24,57 @@ void CBullet::Input()
 
 void CBullet::Update(const float& fTimeDelta)
 {
-	if (m_bShot)
+	CObj::Update(fTimeDelta);
+	//if (m_tInfo.id > 30 || m_tInfo.id < 0)
+	//	return;
+	if (m_tInfo.id != GET_SINGLE(CNetwork)->GetBulletInfo((m_tInfo.id / 10), (m_tInfo.id % 10)).id)
 	{
-		CObj::Update(fTimeDelta);
+		m_tInfo = GET_SINGLE(CNetwork)->GetBulletInfo(m_tInfo.id / 10, m_tInfo.id % 10);
+		SetPos(m_tInfo.x, m_tInfo.y);
+		return;
+	}
+	else
+	{
+		m_tInfo.x = m_tPos.x;
+		m_tInfo.y = m_tPos.y;
+		GET_SINGLE(CNetwork)->SetBulletInfo(m_tInfo.id / 10, m_tInfo.id % 10, m_tInfo);
+	}
+
+	if (m_tInfo.shot)
+	{
 		m_tPos.y -= (200.f * fTimeDelta);
 		m_tSize.y += (200.f * fTimeDelta);
 
 		m_rcCollisionBox.top -= (200.f * fTimeDelta);
 
 		if (m_tPos.y < 25.f)
-			m_bShot = false;
+			m_tInfo.shot = false;
+
+		m_tInfo.x = m_tPos.x;
+		m_tInfo.y = m_tPos.y;
+
+		GET_SINGLE(CNetwork)->SetBulletInfo(m_tInfo.id / 10, m_tInfo.id % 10, m_tInfo);
 	}
 }
 
 void CBullet::Render(HDC hDC)
 {
-	if(m_bShot)
+	if(m_tInfo.shot)
 		CObj::Render(hDC);
 }
 
-void CBullet::Shot()
+void CBullet::Shot(int x, int y)
 {
-	m_bShot = true;
+	m_tInfo.x = x + 15;
+	m_tInfo.y = y;
+	SetPos(m_tInfo.x, m_tInfo.y);
+
+	m_tInfo.shot = true;
 }
 
 void CBullet::SetShot(bool shot)
 {
-	m_bShot = shot;
+	m_tInfo.shot = shot;
 }
 
 void CBullet::SetBulletInfo(BULLETINFO tInfo)
@@ -71,5 +94,5 @@ void CBullet::SetBulletInfo(BULLETINFO tInfo)
 
 bool CBullet::GetShot()
 {
-	return m_bShot;
+	return m_tInfo.shot;
 }

@@ -6,7 +6,6 @@ class CBullet :
 {
 	BULLETINFO m_tInfo;
 	RECT m_rcCollisionBox;
-	bool m_bShot = false;
 public:
 	CBullet();
 	virtual ~CBullet();
@@ -17,7 +16,7 @@ public:
 	virtual void Update(const float& fTimeDelta);
 	virtual void Render(HDC hDC);
 
-	void Shot();
+	void Shot(int x, int y);
 
 	void SetShot(bool shot);
 	void SetBulletInfo(BULLETINFO tInfo);

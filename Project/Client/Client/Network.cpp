@@ -60,6 +60,16 @@ bool CNetwork::Init( const string& strServerIP )
 		return false;
 	_cprintf( "Client ID : %d \n", m_tPlayerInfo.id );
 
+	for (int id = 0; id < 2; ++id)
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			m_tBulletInfo[id][i].id = ((id + 1) * 10) + i;
+			m_tBulletInfo[id][i].x = 0;
+			m_tBulletInfo[id][i].y = 0;
+			m_tBulletInfo[id][i].shot = false;
+		}
+	}
 
 	return true;
 }
@@ -71,8 +81,12 @@ void CNetwork::Update( const float& fTimeDelta )
 		return;
 
 	_cprintf( "Client ID : %d, GameState : %d \n", m_tPlayerInfo.id, m_iGameState );
-	if(m_iGameState >= GAME_STAGE1)
+	if (m_iGameState >= GAME_STAGE1) 
+	{
 		RecvPlayersInfo();
+
+		RecvBulletsInfo();
+	}
 
 
 }
@@ -86,6 +100,16 @@ void CNetwork::SetKey( char cKey)
 	//m_cKey = cKey;
 }
 
+void CNetwork::SetPlayerInfo(PLAYERINFO tInfo)
+{
+	m_tPlayerInfo = tInfo;
+}
+
+void CNetwork::SetBulletInfo(int playerid, int index, BULLETINFO tInfo)
+{
+	m_tBulletInfo[playerid][index] = tInfo;
+}
+
 PLAYERINFO CNetwork::GetPlayerInfo() const
 {
 	return m_tPlayerInfo;
@@ -94,6 +118,11 @@ PLAYERINFO CNetwork::GetPlayerInfo() const
 PLAYERINFO CNetwork::GetOtherPlayerInfo() const
 {
 	return m_tOtherPlayerInfo;
+}
+
+BULLETINFO CNetwork::GetBulletInfo(int playerid, int index) const
+{
+	return m_tBulletInfo[playerid][index];
 }
 
 int CNetwork::GetGameState() const
@@ -110,6 +139,20 @@ void CNetwork::RecvPlayersInfo()
 {
 	send( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
 	cout << "1P 정보 받음" << endl;
-	recvn( m_Sock, ( char* )&m_tOtherPlayerInfo, sizeof( PLAYERINFO ), 0 );
+	recv( m_Sock, ( char* )&m_tOtherPlayerInfo, sizeof( PLAYERINFO ), 0 );
 	cout << "2P 정보 받음" << endl;
+}
+
+void CNetwork::RecvBulletsInfo()
+{
+	int id = m_tPlayerInfo.id;
+
+	for (int i = 0; i < 5; ++i)
+	{
+		send(m_Sock, (char *)&m_tBulletInfo[id][i], sizeof(BULLETINFO), 0);
+	}
+	for (int i = 0; i < 5; ++i)
+	{
+		recv(m_Sock, (char *)&m_tBulletInfo[(id + 1) % 2][i], sizeof(BULLETINFO), 0);
+	}
 }

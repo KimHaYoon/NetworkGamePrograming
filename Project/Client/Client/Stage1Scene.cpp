@@ -27,10 +27,12 @@ bool CStage1Scene::Init()
 	PLAYERINFO tPlayerInfo = GET_SINGLE( CNetwork )->GetPlayerInfo();
 	CObj* pPlayer = GET_SINGLE( CObjectManager )->CreateObject<CPlayer>( "Player" + to_string(tPlayerInfo.id));
 	( ( CPlayer* )pPlayer )->SetPlayerInfo( tPlayerInfo );
+	( ( CPlayer* )pPlayer )->CreateBullets( tPlayerInfo.id );
 
 	tPlayerInfo = GET_SINGLE( CNetwork )->GetOtherPlayerInfo();
 	pPlayer = GET_SINGLE( CObjectManager )->CreateObject<CPlayer>( "Player" + to_string( tPlayerInfo.id ) );
 	( ( CPlayer* )pPlayer )->SetPlayerInfo( tPlayerInfo );
+	( ( CPlayer* )pPlayer )->CreateBullets( tPlayerInfo.id );
 	
 	CObj* pPortrait = GET_SINGLE( CObjectManager )->CreateObject<CPlayerPortrait>( "PlayerPortrait1");
 	( ( CPlayerPortrait* )pPortrait )->SetNumber( 1 );

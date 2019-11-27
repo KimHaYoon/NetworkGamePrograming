@@ -14,8 +14,6 @@ private:
 
 	int m_nInvincible_Time; // 피격 판정 무적시간
 
-	int m_nMaxFrame;
-	int m_nNowFrame;
 	float m_fFrame;
 
 	RECT m_rcCollisionBox;
@@ -31,6 +29,8 @@ public:
 
 public:
 	void SetPlayerInfo(const PLAYERINFO& tInfo);
+
+	void CreateBullets(int id);
 
 	void BulletShot();
 };

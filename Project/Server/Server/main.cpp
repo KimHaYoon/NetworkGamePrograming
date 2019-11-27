@@ -3,6 +3,9 @@
 static int		g_iClientNumber = 0;
 static int		g_iState = GAME_WAIT;
 unordered_map<int, SERVERPLAYER>		g_Clients;
+
+BULLETINFO		g_tBulletInfo[2][5];
+
 CRITICAL_SECTION g_CS;
 
 
@@ -10,8 +13,9 @@ DWORD WINAPI ProcessClient( LPVOID arg );
 void Init();
 void PrintPlayerInfo(const PLAYERINFO & tInfo);
 
-void SendPlayersInfo(const SOCKET& socket);
+void SendPlayersInfo(int clientnum);
 void SendGameState(int clientnum);
+void SendBulletsInfo(int clientnum);
 // 소켓 함수 오류 출력
 void err_display( const char *msg )
 {
@@ -150,7 +154,14 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 		dwTime = dwNow;
 
 		SendGameState( clientnum );
-		//SendPlayersInfo(g_Clients[clientnum].socket);
+
+
+		if (g_iState >= GAME_STAGE1) // 스테이지1 이상부터
+		{
+			SendPlayersInfo(clientnum);
+
+			SendBulletsInfo(clientnum);
+		}
 	}
 
 	return 0;
@@ -171,6 +182,17 @@ void Init()
 		g_Clients[i].info = tInfo[i];
 	}
 
+	for (int id = 0; id < 2; ++id)
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			g_tBulletInfo[id][i].id = ((id + 1) * 10) + i;
+			g_tBulletInfo[id][i].x = 0;
+			g_tBulletInfo[id][i].y = 0;
+			g_tBulletInfo[id][i].shot = false;
+		}
+	}
+
 	g_iState = GAME_WAIT;
 }
 
@@ -184,14 +206,26 @@ void PrintPlayerInfo( const PLAYERINFO & tInfo )
 	LeaveCriticalSection( &g_CS );
 }
 
-void SendPlayersInfo( const SOCKET & socket )
+void SendPlayersInfo(int clientnum)
 {	
-	//EnterCriticalSection( &g_CS );
-	for ( int i = 0; i < 2; ++i )
-		send( socket, ( char* )&g_Clients[i], sizeof( PLAYERINFO ), 0 );
+	EnterCriticalSection(&g_CS);
+	//////////////////////////////////////////////////////////////
+		// 현재 클라이언트넘버의 플레이어정보와 다른 클라이언트의 플레이어 정보 전송
+	int ret = recv(g_Clients[clientnum].socket, (char *)&g_Clients[clientnum].info, sizeof(PLAYERINFO), 0);
+	if (ret == SOCKET_ERROR)
+	{
+		err_display("send()");
+		cout << g_Clients[clientnum].socket << " send fail!" << endl;
+	}
 
-	
-	//LeaveCriticalSection( &g_CS );
+	ret = send(g_Clients[clientnum].socket, (char *)&g_Clients[(clientnum + 1) % 2].info, sizeof(PLAYERINFO), 0);
+	if (ret == SOCKET_ERROR)
+	{
+		err_display("send()");
+		cout << g_Clients[clientnum].socket << " send fail!" << endl;
+	}
+	/////////////////////////////////////////////////////////////
+	LeaveCriticalSection(&g_CS);
 }
 
 void SendGameState( int clientnum )
@@ -218,26 +252,23 @@ void SendGameState( int clientnum )
 		cout << g_Clients[clientnum].socket << " send GameState : " << g_iState << endl;
 	}
 	LeaveCriticalSection(&g_CS);
+}
 
-	if (g_iState >= GAME_STAGE1) // 스테이지1 이상부터
-	{ 
-		//////////////////////////////////////////////////////////////
-		// 현재 클라이언트넘버의 플레이어정보와 다른 클라이언트의 플레이어 정보 전송
-		ret = recv(g_Clients[clientnum].socket, (char *)&g_Clients[clientnum].info, sizeof(PLAYERINFO), 0);
-		if (ret == SOCKET_ERROR)
-		{
-			err_display("send()");
-			cout << g_Clients[clientnum].socket << " send fail!" << endl;
-		}
-		ret = send(g_Clients[clientnum].socket, (char *)&g_Clients[(clientnum + 1) % 2].info, sizeof(PLAYERINFO), 0);
-		if (ret == SOCKET_ERROR)
-		{
-			err_display("send()");
-			cout << g_Clients[clientnum].socket << " send fail!" << endl;
-		}
-		/////////////////////////////////////////////////////////////
-
-
-
+void SendBulletsInfo(int clientnum)
+{
+	EnterCriticalSection(&g_CS);
+	for (int i = 0; i < 5; ++i)
+	{
+		int ret = recv(g_Clients[clientnum].socket, 
+			(char *)&g_tBulletInfo[clientnum][i], sizeof(BULLETINFO), 0);
 	}
+	LeaveCriticalSection(&g_CS);
+
+	EnterCriticalSection(&g_CS);
+	for (int i = 0; i < 5; ++i)
+	{
+		int ret = send(g_Clients[clientnum].socket,
+			(char *)&g_tBulletInfo[(clientnum + 1) % 2][i], sizeof(BULLETINFO), 0);
+	}
+	LeaveCriticalSection(&g_CS);
 }

@@ -36,6 +36,8 @@ typedef struct Player
 	bool moveAnimation;
 	bool shoot;
 
+	int maxFrame;
+	int nowFrame;
 
 	Player() {
 		hp = 3;
@@ -59,6 +61,12 @@ typedef struct Bullet
 	int id;
 	int x;
 	int y;
+	bool shot;
+
+	Bullet()
+	{
+		shot = false;
+	}
 }BULLETINFO;
 
 typedef struct Ball
