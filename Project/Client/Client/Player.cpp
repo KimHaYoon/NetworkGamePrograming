@@ -2,6 +2,7 @@
 #include "Input.h"
 #include "Bullet.h"
 #include "ObjectManager.h"
+#include "Network.h"
 
 CPlayer::CPlayer()
 {
@@ -27,6 +28,11 @@ bool CPlayer::Init()
 
 void CPlayer::Input()
 {
+	if (GET_SINGLE(CNetwork)->GetPlayerInfo().id != m_tInfo.id)
+	{
+		return;
+	}
+
 	CObj::Input();
 
 	if ( KEYDOWN( "MoveLeft" ) || KEYPUSH( "MoveLeft" ) )
@@ -76,6 +82,12 @@ void CPlayer::Input()
 void CPlayer::Update( const float& fTimeDelta )
 {
 	CObj::Update(fTimeDelta);
+
+	if (GET_SINGLE(CNetwork)->GetPlayerInfo().id != m_tInfo.id)
+	{
+		m_tInfo = GET_SINGLE(CNetwork)->GetOtherPlayerInfo();
+		SetPos(m_tInfo.x, m_tInfo.y);
+	}
 
 	if (m_tInfo.moveAnimation)
 	{

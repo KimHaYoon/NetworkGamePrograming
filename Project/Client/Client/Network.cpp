@@ -71,7 +71,10 @@ void CNetwork::Update( const float& fTimeDelta )
 		return;
 
 	_cprintf( "Client ID : %d, GameState : %d \n", m_tPlayerInfo.id, m_iGameState );
-	RecvPlayersInfo();
+	if(m_iGameState >= GAME_STAGE1)
+		RecvPlayersInfo();
+
+
 }
 
 void CNetwork::Render( HDC hDC )
@@ -105,8 +108,8 @@ bool CNetwork::GetServerOn() const
 
 void CNetwork::RecvPlayersInfo()
 {
-	recv( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
+	send( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
 	cout << "1P 정보 받음" << endl;
-	recv( m_Sock, ( char* )&m_tOtherPlayerInfo, sizeof( PLAYERINFO ), 0 );
+	recvn( m_Sock, ( char* )&m_tOtherPlayerInfo, sizeof( PLAYERINFO ), 0 );
 	cout << "2P 정보 받음" << endl;
 }
