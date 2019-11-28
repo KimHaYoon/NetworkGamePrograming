@@ -52,6 +52,12 @@ typedef struct Player
 
 }PLAYERINFO;
 
+typedef struct ServerPlayerInfo
+{
+	PLAYERINFO info;
+	SOCKET socket;
+}SERVERPLAYER;
+
 typedef struct Bullet
 {
 	int id;
@@ -70,10 +76,16 @@ typedef struct Ball
 {
 	int x;
 	int y;
-	int dir;
 	char type;
 	int radius;
 }BALLINFO;
+
+typedef struct ServerBallInfo
+{
+	BALLINFO info;
+	bool	xDir;
+	bool	yDir;
+}SERVERBALLINFO;
 
 typedef struct Item
 {
@@ -82,5 +94,20 @@ typedef struct Item
 	char type;
 }ITEMINFO;
 
+typedef struct Tile
+{
+	int id;
+	int x;
+	int y;
+
+	int cx; // 가로폭
+	int cy; // 세로폭
+
+	int type; // 0 없음 1 부서짐 2 안부서짐
+	int color; // 0 블루 1 옐로우
+
+	int nowFrame;
+	int maxFrame;
+}TILEINFO;
 
 #pragma pack (pop)  // 위에 선언한 패킹상태를 원상태로 돌리는것

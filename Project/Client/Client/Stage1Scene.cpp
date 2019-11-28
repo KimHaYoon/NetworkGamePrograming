@@ -75,32 +75,15 @@ bool CStage1Scene::Init()
 	dynamic_cast<CBall*>(pBall2)->SetBallInfo(ballInfo);
 	// =====================================================//
 
-	// Block ===============================================//
-	CObj *pBlock1 = GET_SINGLE(CObjectManager)->CreateObject<CTile>("Block1");
-	TILEINFO blockInfo;
-	blockInfo.id = 0;
-	blockInfo.x = 100;
-	blockInfo.y = 250;
-	blockInfo.maxFrame = 5;
-	blockInfo.nowFrame = 0;
-	blockInfo.type = 2;
-	blockInfo.color = 0;
-	blockInfo.cx = 100;
-	blockInfo.cy = 40;
-	dynamic_cast<CTile*>(pBlock1)->SetTileInfo(blockInfo);
+	// Block ===============================================//		191128 ¼öÁ¤
+	TILEINFO* pTiles = GET_SINGLE( CNetwork )->GetTilesInfo();
+	int iTilesSize = GET_SINGLE( CNetwork )->GetTilesSize();
+	for ( int i = 0; i < iTilesSize; ++i )
+	{
+		CObj* pBlock = GET_SINGLE( CObjectManager )->CreateObject<CTile>( "Block" + to_string( i ) );
+		dynamic_cast< CTile* >( pBlock )->SetTileInfo( pTiles[i] );
+	}
 
-	CObj *pBlock2 = GET_SINGLE(CObjectManager)->CreateObject<CTile>("Block2");
-	blockInfo.id = 1;
-	blockInfo.x = 600;
-	blockInfo.y = 250;
-	dynamic_cast<CTile*>(pBlock2)->SetTileInfo(blockInfo);
-
-	CObj *pBlock3 = GET_SINGLE(CObjectManager)->CreateObject<CTile>("Block3");
-	blockInfo.id = 2;
-	blockInfo.x = 350;
-	blockInfo.y = 150;
-	dynamic_cast<CTile*>(pBlock3)->SetTileInfo(blockInfo);
-	// =====================================================//
 
 	return true;
 }

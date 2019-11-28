@@ -17,6 +17,7 @@ CNetwork::CNetwork()
 
 CNetwork::~CNetwork()
 {
+	SAFE_DELETE_ARRAY( m_pTiles );
 	closesocket( m_Sock );
 	WSACleanup();
 }
@@ -84,7 +85,7 @@ void CNetwork::Update( const float& fTimeDelta )
 	if (m_iGameState >= GAME_STAGE1) 
 	{
 		RecvPlayersInfo();
-
+		RecvTilesInfo();
 		RecvBulletsInfo();
 	}
 
@@ -135,6 +136,16 @@ bool CNetwork::GetServerOn() const
 	return m_bServerOn;
 }
 
+TILEINFO * CNetwork::GetTilesInfo() const
+{
+	return m_pTiles;
+}
+
+int CNetwork::GetTilesSize() const
+{
+	return m_iTilesSize;
+}
+
 void CNetwork::RecvPlayersInfo()
 {
 	send( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
@@ -154,5 +165,16 @@ void CNetwork::RecvBulletsInfo()
 	for (int i = 0; i < 5; ++i)
 	{
 		recv(m_Sock, (char *)&m_tBulletInfo[(id + 1) % 2][i], sizeof(BULLETINFO), 0);
+	}
+}
+
+void CNetwork::RecvTilesInfo()
+{
+	recvn( m_Sock, ( char* )&m_iTilesSize, sizeof( m_iTilesSize ), 0 );
+
+	m_pTiles = new TILEINFO[m_iTilesSize];
+	for ( int i = 0; i < m_iTilesSize; ++i )
+	{
+		recvn( m_Sock, ( char* )&m_pTiles[i], sizeof( TILEINFO ), 0 );
 	}
 }

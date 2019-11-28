@@ -1,22 +1,6 @@
 #pragma once
 #include "Obj.h"
 
-typedef struct Tile
-{
-	int id;
-	int x;
-	int y;
-
-	int cx; // 啊肺气
-	int cy; // 技肺气
-
-	int type; // 0 绝澜 1 何辑咙 2 救何辑咙
-	int color; // 0 喉风 1 炕肺快
-
-	int nowFrame;
-	int maxFrame;
-}TILEINFO;
-
 class CTile :
 	public CObj
 {
