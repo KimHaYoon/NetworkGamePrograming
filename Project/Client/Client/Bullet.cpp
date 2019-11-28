@@ -25,18 +25,27 @@ void CBullet::Input()
 void CBullet::Update(const float& fTimeDelta)
 {
 	CObj::Update(fTimeDelta);
-	//if (m_tInfo.id > 30 || m_tInfo.id < 0)
+	//if (m_tInfo.id > 30 || m_tInfo.id < 10)
 	//	return;
-	if (m_tInfo.id != GET_SINGLE(CNetwork)->GetBulletInfo((m_tInfo.id / 10), (m_tInfo.id % 10)).id)
+	if (m_tInfo.id / 10 != GET_SINGLE(CNetwork)->GetPlayerInfo().id)
 	{
 		m_tInfo = GET_SINGLE(CNetwork)->GetBulletInfo(m_tInfo.id / 10, m_tInfo.id % 10);
 		SetPos(m_tInfo.x, m_tInfo.y);
+
+		if (m_tInfo.shot)
+		{
+			m_tSize.y = m_tInfo.height;
+
+			m_rcCollisionBox.top -= (200.f * fTimeDelta);
+		}
+
 		return;
 	}
 	else
 	{
 		m_tInfo.x = m_tPos.x;
 		m_tInfo.y = m_tPos.y;
+		m_tInfo.height = m_tSize.y;
 		GET_SINGLE(CNetwork)->SetBulletInfo(m_tInfo.id / 10, m_tInfo.id % 10, m_tInfo);
 	}
 
@@ -47,11 +56,17 @@ void CBullet::Update(const float& fTimeDelta)
 
 		m_rcCollisionBox.top -= (200.f * fTimeDelta);
 
-		if (m_tPos.y < 25.f)
+		if (m_tPos.y < 25.f) 
+		{
 			m_tInfo.shot = false;
+			m_tSize.y = 70.f;
+			m_tSize.x = 30.f;
+			m_tInfo.height = m_tSize.y;
+		}
 
 		m_tInfo.x = m_tPos.x;
 		m_tInfo.y = m_tPos.y;
+		m_tInfo.height = m_tSize.y;
 
 		GET_SINGLE(CNetwork)->SetBulletInfo(m_tInfo.id / 10, m_tInfo.id % 10, m_tInfo);
 	}
@@ -80,9 +95,9 @@ void CBullet::SetShot(bool shot)
 void CBullet::SetBulletInfo(BULLETINFO tInfo)
 {
 	m_tInfo = tInfo;
-	m_tInfo.x += 15.f;
 	m_tSize.y = 70.f;
 	m_tSize.x = 30.f;
+	m_tInfo.height = m_tSize.y;
 
 	m_rcCollisionBox.left = tInfo.x - 15.f;
 	m_rcCollisionBox.right = tInfo.x + 15.f;

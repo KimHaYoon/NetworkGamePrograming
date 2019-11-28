@@ -57,6 +57,7 @@ typedef struct Bullet
 	int id;
 	int x;
 	int y;
+	int height;
 	bool shot;
 
 	Bullet()

@@ -107,7 +107,7 @@ void CNetwork::SetPlayerInfo(PLAYERINFO tInfo)
 
 void CNetwork::SetBulletInfo(int playerid, int index, BULLETINFO tInfo)
 {
-	m_tBulletInfo[playerid][index] = tInfo;
+	m_tBulletInfo[playerid - 1][index] = tInfo;
 }
 
 PLAYERINFO CNetwork::GetPlayerInfo() const
@@ -122,7 +122,7 @@ PLAYERINFO CNetwork::GetOtherPlayerInfo() const
 
 BULLETINFO CNetwork::GetBulletInfo(int playerid, int index) const
 {
-	return m_tBulletInfo[playerid][index];
+	return m_tBulletInfo[playerid - 1][index];
 }
 
 int CNetwork::GetGameState() const
@@ -145,7 +145,7 @@ void CNetwork::RecvPlayersInfo()
 
 void CNetwork::RecvBulletsInfo()
 {
-	int id = m_tPlayerInfo.id;
+	int id = m_tPlayerInfo.id - 1;
 
 	for (int i = 0; i < 5; ++i)
 	{

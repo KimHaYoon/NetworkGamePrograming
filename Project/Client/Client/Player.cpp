@@ -16,6 +16,11 @@ bool CPlayer::Init()
 {
 	m_fFrame = 0.f;
 
+	for (int i = 0; i < 5; ++i)
+	{
+		m_Bullet[i] = NULL;
+	}
+
 	return true;
 }
 
@@ -195,15 +200,7 @@ void CPlayer::CreateBullets(int id)
 	for (int i = 0; i < 5; ++i)
 	{
 		BULLETINFO tInfo;
-		if (id == GET_SINGLE(CNetwork)->GetPlayerInfo().id)
-		{
-			tInfo = GET_SINGLE(CNetwork)->GetBulletInfo(id, i);
-		}
-		else
-		{
-			tInfo = GET_SINGLE(CNetwork)->GetBulletInfo((id + 1) % 2, i);
-			//GET_SINGLE(CNetwork)->SetBulletInfo((id + 1) % 2, i, tInfo);
-		}
+		tInfo = GET_SINGLE(CNetwork)->GetBulletInfo(id, i);
 		m_Bullet[i] = GET_SINGLE(CObjectManager)->CreateObject<CBullet>("Bullet" + to_string(i + 1 + ((id - 1) * 5)));
 		dynamic_cast<CBullet*>(m_Bullet[i])->SetBulletInfo(tInfo);
 	}
