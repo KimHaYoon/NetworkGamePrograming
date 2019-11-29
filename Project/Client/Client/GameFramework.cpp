@@ -73,9 +73,18 @@ void CGameFramework::Input()
 void CGameFramework::Update( const float& fTimeDelta )
 {
 	if (GET_SINGLE(CNetwork)->GetServerOn())
+	{
 		GET_SINGLE(CNetwork)->Update(fTimeDelta);
-	GET_SINGLE( CObjectManager )->Update( fTimeDelta );
-	GET_SINGLE( CSceneManager )->Update( fTimeDelta );
+		float fPing = GET_SINGLE(CNetwork)->GetServerTime();
+
+		GET_SINGLE(CObjectManager)->Update(fPing);
+		GET_SINGLE(CSceneManager)->Update(fPing);
+	}
+	else
+	{
+		GET_SINGLE(CObjectManager)->Update(fTimeDelta);
+		GET_SINGLE(CSceneManager)->Update(fTimeDelta);
+	}
 }
 
 void CGameFramework::Render()

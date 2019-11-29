@@ -81,11 +81,17 @@ void CNetwork::Update( const float& fTimeDelta )
 	if (ret == SOCKET_ERROR)
 		return;
 
+	RecvServerTime();
+
 	_cprintf( "Client ID : %d, GameState : %d \n", m_tPlayerInfo.id, m_iGameState );
 	if (m_iGameState >= GAME_STAGE1) 
 	{
+		SendKeysInfo();
+
 		RecvPlayersInfo();
+
 		RecvTilesInfo();
+
 		RecvBulletsInfo();
 	}
 
@@ -136,6 +142,24 @@ bool CNetwork::GetServerOn() const
 	return m_bServerOn;
 }
 
+// 191129 추가 서버 업데이트 쓰레드
+
+void CNetwork::RecvServerTime()
+{
+	recv(m_Sock, (char*)&m_fServerTime, sizeof(float), 0);
+}
+
+float CNetwork::GetServerTime()
+{
+	return m_fServerTime;
+}
+
+void CNetwork::SendKeysInfo()
+{
+	send(m_Sock, (char*)&m_bKey, sizeof(bool), 0);
+	m_bKey = false;
+}
+
 TILEINFO * CNetwork::GetTilesInfo() const
 {
 	return m_pTiles;
@@ -160,7 +184,7 @@ void CNetwork::RecvBulletsInfo()
 
 	for (int i = 0; i < 5; ++i)
 	{
-		send(m_Sock, (char *)&m_tBulletInfo[id][i], sizeof(BULLETINFO), 0);
+		recv(m_Sock, (char *)&m_tBulletInfo[id][i], sizeof(BULLETINFO), 0);
 	}
 	for (int i = 0; i < 5; ++i)
 	{

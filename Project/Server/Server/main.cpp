@@ -2,6 +2,12 @@
 
 static int		g_iClientNumber = 0;
 static int		g_iState = GAME_WAIT;
+
+static ULONGLONG g_ullFrame = 1000.0 / 60.0; // 10.0;
+static float	g_fTimeDelta[2] = { 0.f, 0.f };
+
+bool			g_bKey[2];
+
 unordered_map<int, SERVERPLAYER>		g_Clients;
 
 BULLETINFO		g_tBulletInfo[2][5];
@@ -14,9 +20,12 @@ CRITICAL_SECTION g_CS;
 
 
 DWORD WINAPI ProcessClient( LPVOID arg );
+DWORD WINAPI ProcessUpdate(LPVOID arg);
+void Update(const float& fTimeDelta);
 void Init();
 void PrintPlayerInfo(const PLAYERINFO & tInfo);
 
+void RecvKeysInfo(int clientnum);
 void SendPlayersInfo(int clientnum);
 void SendGameState(int clientnum);
 void SendBulletsInfo(int clientnum);
@@ -67,6 +76,16 @@ int main()
 	if ( listen_sock == INVALID_SOCKET )
 	{
 		cout << "socket 에러" << endl;
+	}
+
+	//Update Thread
+	HANDLE hUpdateThread;
+	cout << "Create Update Thread" << endl;
+	hUpdateThread = CreateThread(NULL, 0, ProcessUpdate, NULL, 0, NULL);
+
+	if (hUpdateThread != NULL)
+	{
+		CloseHandle(hUpdateThread);
 	}
 
 	// bind()
@@ -174,16 +193,86 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 		dwTime = dwNow;
 
 		SendGameState( clientnum );
+
+		send(g_Clients[clientnum].socket, (char *)&g_fTimeDelta[clientnum], sizeof(float), 0);
 		
 		if (g_iState >= GAME_STAGE1) // 스테이지1 이상부터
 		{
+			RecvKeysInfo(clientnum);
+
 			SendPlayersInfo(clientnum);
+
 			SendTileInfo( clientnum, ( GAME_STATE )g_iState );
+
 			SendBulletsInfo(clientnum);
 		}
 	}
 
 	return 0;
+}
+
+
+DWORD WINAPI ProcessUpdate(LPVOID arg)
+{
+	int clientnum = -1;
+
+	ULONGLONG ullOldTime = GetTickCount64();
+
+	int frame = 0;
+	ULONGLONG ullOldTime2 = GetTickCount64();
+	float fTimeDelta = 0.f;
+
+	DWORD dwTime = GetTickCount64();
+
+	while (true)
+	{
+		// 프레임을 고정한다 1초에 약 60
+		if (GetTickCount64() - ullOldTime >= g_ullFrame)
+		{
+			fTimeDelta = GetTickCount64() - ullOldTime;
+			fTimeDelta = fTimeDelta / 1000.0f;
+			g_fTimeDelta[0] = g_fTimeDelta[1] = fTimeDelta;
+
+			Update(fTimeDelta);
+
+			frame++;
+			ullOldTime = GetTickCount64();
+		}
+		// 1초에 한번씩 FPS 값을 산출하여 화면에 출력한다
+		if (GetTickCount64() - ullOldTime2 >= 1000)
+		{
+			cout << "FPS : " << frame << endl;
+			ullOldTime2 = GetTickCount64();
+			frame = 0;
+		}
+	}
+
+	return 0;
+}
+
+
+void Update(const float& fTimeDelta)
+{
+	EnterCriticalSection(&g_CS);
+	for (int id = 0; id < 2; ++id)
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			if (g_tBulletInfo[id][i].shot == true)
+			{
+				float height = 200.f * fTimeDelta;
+				g_tBulletInfo[id][i].y -= height;
+				g_tBulletInfo[id][i].height += (height * 1.25f);
+
+				if (g_tBulletInfo[id][i].y < 10.f)
+				{
+					g_tBulletInfo[id][i].shot = false;
+					g_tBulletInfo[id][i].height = 70.f;
+				}
+			}
+		}
+	}
+	LeaveCriticalSection(&g_CS);
 }
 
 void Init()
@@ -208,6 +297,7 @@ void Init()
 			g_tBulletInfo[id][i].id = ((id + 1) * 10) + i;
 			g_tBulletInfo[id][i].x = 0;
 			g_tBulletInfo[id][i].y = 0;
+			g_tBulletInfo[id][i].height = 70.f;
 			g_tBulletInfo[id][i].shot = false;
 		}
 	}
@@ -225,6 +315,36 @@ void PrintPlayerInfo( const PLAYERINFO & tInfo )
 	cout << "Dir : " << tInfo.dir << endl;
 	cout << "HP : " << tInfo.hp << endl;
 	LeaveCriticalSection( &g_CS );
+}
+
+
+void RecvKeysInfo(int clientnum)
+{
+	EnterCriticalSection(&g_CS);
+	int ret = recv(g_Clients[clientnum].socket, (char *)&g_bKey[clientnum], sizeof(bool), 0);
+	if (ret == SOCKET_ERROR)
+	{
+		err_display("send()");
+		cout << g_Clients[clientnum].socket << " send fail!" << endl;
+	}
+	LeaveCriticalSection(&g_CS);
+
+	EnterCriticalSection(&g_CS);
+	if (g_bKey[clientnum] == true)
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			if (g_tBulletInfo[clientnum][i].shot == false)
+			{
+				g_tBulletInfo[clientnum][i].shot = true;
+				g_tBulletInfo[clientnum][i].x = g_Clients[clientnum].info.x + 15;
+				g_tBulletInfo[clientnum][i].y = g_Clients[clientnum].info.y;
+				g_bKey[clientnum] = false;
+				break;
+			}
+		}
+	}
+	LeaveCriticalSection(&g_CS);
 }
 
 void SendPlayersInfo(int clientnum)
@@ -270,7 +390,7 @@ void SendGameState( int clientnum )
 
 	else
 	{
-		cout << g_Clients[clientnum].socket << " send GameState : " << g_iState << endl;
+		//cout << g_Clients[clientnum].socket << " send GameState : " << g_iState << endl;
 	}
 	LeaveCriticalSection(&g_CS);
 }
@@ -280,7 +400,7 @@ void SendBulletsInfo(int clientnum)
 	EnterCriticalSection(&g_CS);
 	for (int i = 0; i < 5; ++i)
 	{
-		int ret = recv(g_Clients[clientnum].socket, 
+		int ret = send(g_Clients[clientnum].socket, 
 			(char *)&g_tBulletInfo[clientnum][i], sizeof(BULLETINFO), 0);
 	}
 	LeaveCriticalSection(&g_CS);

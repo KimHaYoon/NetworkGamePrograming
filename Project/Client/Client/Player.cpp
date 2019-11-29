@@ -62,7 +62,8 @@ void CPlayer::Input()
 
 	if ( KEYDOWN( "Space" ) )
 	{
-		BulletShot();
+		GET_SINGLE(CNetwork)->m_bKey = true;
+
 		m_tInfo.shoot = true;
 		m_tInfo.moveAnimation = true;
 		m_tInfo.maxFrame = 3;
