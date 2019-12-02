@@ -22,29 +22,32 @@ void CScore::Input()
 void CScore::Update( const float& fTimeDelta )
 {
 	CObj::Update( fTimeDelta );
+
+	m_fScore += (10 * fTimeDelta);
+	if (m_fScore >= 99999.f)
+		m_fScore = 0.f;
 }
 
 void CScore::Render( HDC hDC )
 {
 	CObj::Render( hDC );
 
-	m_iScore = ++m_iScore % 99999;
-
 	string strScore{ };
 
-	int temp = m_iScore / 10000;
+	int Score = (int)m_fScore;
+	int temp = Score / 10000;
 	int tempScore[5]{};
 	tempScore[0] = temp;
-	temp = m_iScore / 1000;
+	temp = Score / 1000;
 	tempScore[1] = (temp % 10);
-	temp = m_iScore / 100;
+	temp = Score / 100;
 	tempScore[2] = temp % 100;
 	tempScore[2] = (tempScore[2] % 10);
-	temp = m_iScore / 10;
+	temp = Score / 10;
 	tempScore[3] = temp % 1000;
 	tempScore[3] = tempScore[3] % 100;
 	tempScore[3] = (tempScore[3] % 10);
-	temp = m_iScore % 10;
+	temp = Score % 10;
 	tempScore[4] = temp;
 
 	for(int i = 0; i < 5; ++i )
@@ -61,5 +64,5 @@ void CScore::Render( HDC hDC )
 
 void CScore::SetScore( int iScore )
 {
-	m_iScore = iScore;
+	m_fScore = (float)iScore;
 }

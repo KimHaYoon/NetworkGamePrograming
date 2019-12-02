@@ -61,11 +61,6 @@ void CBullet::SetBulletInfo(BULLETINFO tInfo)
 	m_tSize.x = 30.f;
 	m_tInfo.height = m_tSize.y;
 
-	m_rcCollisionBox.left = tInfo.x - 15.f;
-	m_rcCollisionBox.right = tInfo.x + 15.f;
-	m_rcCollisionBox.top = tInfo.y;
-	m_rcCollisionBox.bottom = tInfo.y;
-
 	SetPos(m_tInfo.x, m_tInfo.y);
 }
 

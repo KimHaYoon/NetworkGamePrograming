@@ -146,6 +146,7 @@
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="Stage1Background.cpp" />
     <ClCompile Include="Stage1Scene.cpp" />
+    <ClCompile Include="StageTime.cpp" />
     <ClCompile Include="StageUI.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Tile.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="Score.h" />
     <ClInclude Include="Stage1Background.h" />
     <ClInclude Include="Stage1Scene.h" />
+    <ClInclude Include="StageTime.h" />
     <ClInclude Include="StageUI.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="Texture.h" />

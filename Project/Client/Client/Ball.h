@@ -19,7 +19,6 @@ class CBall :
 	bool m_bDirUD;
 
 	int m_nGravity; // ³«ÇÏ¼Óµµ
-	RECT m_rcCollisionBox;
 
 public:
 	CBall();
@@ -33,14 +32,11 @@ public:
 
 	void SetBallInfo(BALLINFO tInfo);
 	void SetGravity(int nGravity);
-	void SetCollisionBox(RECT rc);
-	void SetRect();
 	void SetDirLR(bool LR);
 	void SetDirUD(bool UD);
 
 	BALLINFO GetBallInfo();
 	int GetGravity();
-	RECT GetCollisionBox();
 	bool GetDirLR();
 	bool GetDirUD();
 };

@@ -71,6 +71,8 @@ bool CNetwork::Init( const string& strServerIP )
 			m_tBulletInfo[id][i].shot = false;
 		}
 	}
+	// 클라이언트 시간
+	m_fTime = 0.f;
 
 	return true;
 }
@@ -83,7 +85,7 @@ void CNetwork::Update( const float& fTimeDelta )
 
 	RecvServerTime();
 
-	_cprintf( "Client ID : %d, GameState : %d \n", m_tPlayerInfo.id, m_iGameState );
+	//_cprintf( "Client ID : %d, GameState : %d \n", m_tPlayerInfo.id, m_iGameState );
 	if (m_iGameState >= GAME_STAGE1) 
 	{
 		SendKeysInfo();
@@ -167,11 +169,17 @@ bool CNetwork::GetServerOn() const
 void CNetwork::RecvServerTime()
 {
 	recv(m_Sock, (char*)&m_fServerTime, sizeof(float), 0);
+	m_fTime += m_fServerTime;
 }
 
 float CNetwork::GetServerTime()
 {
 	return m_fServerTime;
+}
+
+float CNetwork::GetTotalTime()
+{
+	return m_fTime;
 }
 
 void CNetwork::SendKeysInfo()

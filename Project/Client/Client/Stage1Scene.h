@@ -1,8 +1,12 @@
 #pragma once
 #include "Scene.h"
+
+class CObj;
+
 class CStage1Scene :
 	public CScene
 {
+	CObj* m_StageLimitTime;
 public:
 	CStage1Scene();
 	virtual ~CStage1Scene();

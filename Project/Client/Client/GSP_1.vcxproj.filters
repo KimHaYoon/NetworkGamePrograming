@@ -79,6 +79,9 @@
     <Filter Include="02. Object\08. Item">
       <UniqueIdentifier>{f5e62810-ca06-49bf-96e6-3ea99f4604ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02. Object\04. Stage\02. StageTime">
+      <UniqueIdentifier>{dd1f29b7-4d80-4d34-9ddf-1c0aab865402}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -164,6 +167,9 @@
     </ClCompile>
     <ClCompile Include="Item.cpp">
       <Filter>02. Object\08. Item</Filter>
+    </ClCompile>
+    <ClCompile Include="StageTime.cpp">
+      <Filter>02. Object\04. Stage\02. StageTime</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -262,6 +268,9 @@
     </ClInclude>
     <ClInclude Include="Item.h">
       <Filter>02. Object\08. Item</Filter>
+    </ClInclude>
+    <ClInclude Include="StageTime.h">
+      <Filter>02. Object\04. Stage\02. StageTime</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

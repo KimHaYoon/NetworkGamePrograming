@@ -7,8 +7,6 @@ class CTile :
 	TILEINFO m_tInfo;
 
 	float m_fFrame;
-
-	RECT m_rcCollisionBox;
 public:
 	CTile();
 	virtual ~CTile();
@@ -20,10 +18,7 @@ public:
 	virtual void Render(HDC hDC);
 
 	void SetTileInfo(TILEINFO tInfo);
-	void SetCollisionBox(RECT rc);
-	void SetRect();
 	
 	TILEINFO GetTileInfo();
-	RECT GetCollisionBox();
 };
 

@@ -59,8 +59,6 @@ void CBall::Update(const float & fTimeDelta)
 		if (m_tInfo.y - m_tInfo.radius < 150) // 최대 높이 값
 			m_bDirUD = DIR_DOWN;
 	}
-
-	SetRect();
 }
 
 void CBall::Render(HDC hDC)
@@ -92,26 +90,12 @@ void CBall::SetBallInfo(BALLINFO tInfo)
 		SetTexture("SmallBall", L"Texture/Ball/Ball3.bmp", true, RGB(0, 0, 0));
 		//m_tSize.x = m_tSize.y = 15;
 	}
-	SetRect();
 	SetPos(m_tInfo.x, m_tInfo.y);
 }
 
 void CBall::SetGravity(int nGravity)
 {
 	m_nGravity = nGravity;
-}
-
-void CBall::SetCollisionBox(RECT rc)
-{
-	m_rcCollisionBox = rc;
-}
-
-void CBall::SetRect()
-{
-	m_rcCollisionBox.left = m_tInfo.x - (m_tInfo.radius - 3);
-	m_rcCollisionBox.top = m_tInfo.y - (m_tInfo.radius - 3);
-	m_rcCollisionBox.right = m_tInfo.x + (m_tInfo.radius - 3);
-	m_rcCollisionBox.bottom = m_tInfo.y + (m_tInfo.radius - 3);
 }
 
 void CBall::SetDirLR(bool LR)
@@ -132,11 +116,6 @@ BALLINFO CBall::GetBallInfo()
 int CBall::GetGravity()
 {
 	return m_nGravity;
-}
-
-RECT CBall::GetCollisionBox()
-{
-	return m_rcCollisionBox;
 }
 
 bool CBall::GetDirLR()

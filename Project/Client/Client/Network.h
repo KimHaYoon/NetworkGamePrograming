@@ -19,6 +19,8 @@ private:
 
 	// 191129 서버의 Update Thread로부터 받아오는 델타타임
 	float				m_fServerTime;
+	// 191202 클라이언트의 총 접속시간
+	float				m_fTime;
 
 	unordered_map<int, PLAYERINFO> m_mapPlayers;
 
@@ -51,6 +53,8 @@ public:
 	// 191129 서버 업데이트 쓰레드로 인해 추가
 	void RecvServerTime();
 	float GetServerTime();
+	// 191202 클라이언트 총 시간 추가
+	float GetTotalTime();
 	// 191129 플레이어 스페이스키
 	void SendKeysInfo();
 

@@ -1,13 +1,12 @@
 #pragma once
 #include "Obj.h"
-
-class CBullet :
+class CStageTime :
 	public CObj
 {
-	BULLETINFO m_tInfo;
+	float m_fTime;
 public:
-	CBullet();
-	virtual ~CBullet();
+	CStageTime();
+	virtual ~CStageTime();
 
 	// CObj을(를) 통해 상속됨
 	virtual bool Init() override;
@@ -15,11 +14,8 @@ public:
 	virtual void Update(const float& fTimeDelta);
 	virtual void Render(HDC hDC);
 
-	void Shot(int x, int y);
-
-	void SetShot(bool shot);
-	void SetBulletInfo(BULLETINFO tInfo);
-
-	bool GetShot();
+	void SetTime(float LimitTime);
+	float GetTime() const;
+	bool CheckTime();
 };
 

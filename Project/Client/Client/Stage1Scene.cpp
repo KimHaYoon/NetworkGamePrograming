@@ -9,6 +9,7 @@
 #include "StageUI.h"
 #include "Ball.h"
 #include "Tile.h"
+#include "StageTime.h"
 
 
 CStage1Scene::CStage1Scene()
@@ -85,6 +86,10 @@ bool CStage1Scene::Init()
 	}
 
 
+	// Stage1_LimitTime
+	m_StageLimitTime = GET_SINGLE(CObjectManager)->CreateObject<CStageTime>("Time : ");
+	dynamic_cast<CStageTime*>(m_StageLimitTime)->SetTime(70.f);
+
 	return true;
 }
 
@@ -94,6 +99,7 @@ void CStage1Scene::Input()
 
 void CStage1Scene::Update( const float& fTimeDelta )
 {
+	
 }
 
 void CStage1Scene::Render( HDC hDC )

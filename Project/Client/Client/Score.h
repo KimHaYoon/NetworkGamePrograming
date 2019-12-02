@@ -4,7 +4,7 @@ class CScore :
 	public CObj
 {
 private:
-	int m_iScore;
+	float m_fScore;
 
 public:
 	CScore();

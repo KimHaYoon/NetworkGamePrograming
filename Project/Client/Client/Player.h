@@ -15,8 +15,6 @@ private:
 
 	int m_nInvincible_Time; // 피격 판정 무적시간
 
-	RECT m_rcCollisionBox;
-
 	int maxFrame;
 	int nowFrame;
 	float fFrame;

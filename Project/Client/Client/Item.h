@@ -4,8 +4,6 @@ class CItem :
 	public CObj
 {
 	ITEMINFO m_tInfo;
-
-	RECT m_rcCollisionBox;
 public:
 	CItem();
 	virtual ~CItem();
@@ -16,11 +14,6 @@ public:
 	virtual void Update(const float& fTimeDelta);
 	virtual void Render(HDC hDC);
 
-	void SetRect();
-
 	void SetItemInfo(ITEMINFO tInfo);
-	void SetCollisionBox(RECT rc);
-
-	RECT GetCollisionBox();
 };
 
