@@ -1,8 +1,9 @@
 #pragma once
 #include "Obj.h"
 
-#define DIR_LEFT  1
-#define DIR_RIGHT  0
+#define DIR_LEFT  true
+#define DIR_RIGHT  false
+
 class CPlayer :
 	public CObj
 {
@@ -14,9 +15,15 @@ private:
 
 	int m_nInvincible_Time; // 피격 판정 무적시간
 
-	float m_fFrame;
-
 	RECT m_rcCollisionBox;
+
+	int maxFrame;
+	int nowFrame;
+	float fFrame;
+
+	bool m_bMoveAnimation;
+	bool m_bShoot;
+	bool m_bDir;
 
 public:
 	CPlayer();

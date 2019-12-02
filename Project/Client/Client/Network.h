@@ -5,14 +5,14 @@ class CNetwork
 {
 	SOCKET m_Sock;
 	//char	m_cKey;
-public:
-	// 플레이어의 스페이스 키
-	bool  m_bKey; // 임시
 private:
 
 	PLAYERINFO			m_tPlayerInfo;
 	PLAYERINFO			m_tOtherPlayerInfo;
 	BULLETINFO			m_tBulletInfo[2][5];
+
+	// 플레이어의 조작키 프로토콜
+	PLAYERKEYINFO		m_tPlayerKeyInfo;
 
 	int					m_iGameState;
 	bool				m_bServerOn;
@@ -37,7 +37,10 @@ public:
 
 	void SetPlayerInfo(PLAYERINFO tInfo);
 	void SetBulletInfo(int playerid, int index, BULLETINFO tInfo);
-
+	void SetKeyInfo(PLAYERKEYINFO tKey);
+	void LeftKeyOn();
+	void RightKeyOn();
+	void SpaceKeyOn();
 public:
 	PLAYERINFO GetPlayerInfo() const;
 	PLAYERINFO GetOtherPlayerInfo() const;

@@ -117,6 +117,26 @@ void CNetwork::SetBulletInfo(int playerid, int index, BULLETINFO tInfo)
 	m_tBulletInfo[playerid - 1][index] = tInfo;
 }
 
+void CNetwork::SetKeyInfo(PLAYERKEYINFO tKey)
+{
+	m_tPlayerKeyInfo = tKey;
+}
+
+void CNetwork::LeftKeyOn()
+{
+	m_tPlayerKeyInfo.left = true;
+}
+
+void CNetwork::RightKeyOn()
+{
+	m_tPlayerKeyInfo.right = true;
+}
+
+void CNetwork::SpaceKeyOn()
+{
+	m_tPlayerKeyInfo.space = true;
+}
+
 PLAYERINFO CNetwork::GetPlayerInfo() const
 {
 	return m_tPlayerInfo;
@@ -156,8 +176,10 @@ float CNetwork::GetServerTime()
 
 void CNetwork::SendKeysInfo()
 {
-	send(m_Sock, (char*)&m_bKey, sizeof(bool), 0);
-	m_bKey = false;
+	send(m_Sock, (char*)&m_tPlayerKeyInfo, sizeof(PLAYERKEYINFO), 0);
+	m_tPlayerKeyInfo.space = false;
+	m_tPlayerKeyInfo.right = false;
+	m_tPlayerKeyInfo.left = false;
 }
 
 TILEINFO * CNetwork::GetTilesInfo() const
@@ -172,7 +194,7 @@ int CNetwork::GetTilesSize() const
 
 void CNetwork::RecvPlayersInfo()
 {
-	send( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
+	recv( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
 	cout << "1P 정보 받음" << endl;
 	recv( m_Sock, ( char* )&m_tOtherPlayerInfo, sizeof( PLAYERINFO ), 0 );
 	cout << "2P 정보 받음" << endl;

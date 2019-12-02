@@ -28,26 +28,19 @@ typedef struct Player
 	int id;
 	int x;
 	int y;
-	int dir;
 	int hp;
 	int score;
 	int bulletCount;
 	bool gameStart;
-	bool moveAnimation;
-	bool shoot;
 
 	int maxFrame;
-	int nowFrame;
 
 	Player() {
 		hp = 3;
 		score = 0;
 		bulletCount = 1;
 		maxFrame = 5;
-		nowFrame = 0;
 		gameStart = true;
-		moveAnimation = false;
-		shoot = false;
 	}
 
 }PLAYERINFO;
@@ -110,4 +103,17 @@ typedef struct Tile
 	int maxFrame;
 }TILEINFO;
 
+typedef struct Keys
+{
+	int playerid;
+	bool left;
+	bool right;
+	bool space;
+
+	Keys() {
+		left = false;
+		right = false;
+		space = false;
+	}
+}PLAYERKEYINFO;
 #pragma pack (pop)  // 위에 선언한 패킹상태를 원상태로 돌리는것

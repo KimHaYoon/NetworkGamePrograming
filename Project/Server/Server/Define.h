@@ -9,3 +9,6 @@
 
 #define MAX_BUFFER 1024
 #define SERVER_PORT 3500
+
+#define DIR_LEFT  1
+#define DIR_RIGHT  0

@@ -14,7 +14,16 @@ CPlayer::~CPlayer()
 
 bool CPlayer::Init()
 {
-	m_fFrame = 0.f;
+	PLAYERKEYINFO tKeys;
+	tKeys.playerid = GET_SINGLE(CNetwork)->GetPlayerInfo().id;
+	tKeys.left = false;
+	tKeys.right = false;
+	tKeys.space = false;
+
+	m_bMoveAnimation = false;
+	m_bShoot = false;
+	m_bDir = rand() % 2;
+	GET_SINGLE(CNetwork)->SetKeyInfo(tKeys);
 
 	for (int i = 0; i < 5; ++i)
 	{
@@ -26,57 +35,46 @@ bool CPlayer::Init()
 
 void CPlayer::Input()
 {
-	if (GET_SINGLE(CNetwork)->GetPlayerInfo().id != m_tInfo.id)
-	{
-		return;
-	}
-
 	CObj::Input();
 
 	if ( KEYDOWN( "MoveLeft" ) || KEYPUSH( "MoveLeft" ) )
 	{
-		if ( m_tPos.x > 10 )
-			m_tPos.x -= 10;
-
-		m_tInfo.moveAnimation = true;
-		m_tInfo.dir = DIR_LEFT;
+		if (GET_SINGLE(CNetwork)->GetPlayerInfo().id == m_tInfo.id)
+			GET_SINGLE(CNetwork)->LeftKeyOn();
+		m_bMoveAnimation = true;
+		m_bDir = DIR_LEFT;
 	}
 
 	if ( KEYDOWN( "MoveRight" ) || KEYPUSH( "MoveRight" ) )
 	{
-		if ( m_tPos.x < 730 )
-			m_tPos.x += 10;
-
-		m_tInfo.moveAnimation = true;
-		m_tInfo.dir = DIR_RIGHT;
-
+		if (GET_SINGLE(CNetwork)->GetPlayerInfo().id == m_tInfo.id)
+			GET_SINGLE(CNetwork)->RightKeyOn();
+		m_bMoveAnimation = true;
+		m_bDir = DIR_RIGHT;
 	}
 
 	if (KEYUP("MoveRight") || KEYUP("MoveLeft"))
 	{
-		m_tInfo.moveAnimation = false;
-		m_tInfo.maxFrame = 5;
-		m_tInfo.nowFrame = 0;
-		m_fFrame = 0.f;
+		nowFrame = 0;
+		fFrame = 0.f;
+		m_bMoveAnimation = false;
 	}
 
 	if ( KEYDOWN( "Space" ) )
 	{
-		GET_SINGLE(CNetwork)->m_bKey = true;
-
-		m_tInfo.shoot = true;
-		m_tInfo.moveAnimation = true;
-		m_tInfo.maxFrame = 3;
-		m_tInfo.nowFrame = 0;
-		m_fFrame = 0.f;
+		if (GET_SINGLE(CNetwork)->GetPlayerInfo().id == m_tInfo.id)
+			GET_SINGLE(CNetwork)->SpaceKeyOn();
+		nowFrame = 0;
+		fFrame = 0.f;
+		m_bMoveAnimation = true;
+		m_bShoot = true;
 	}
 	if (KEYUP("Space"))
 	{
-		m_tInfo.shoot = false;
-		m_tInfo.moveAnimation = false;
-		m_tInfo.maxFrame = 5;
-		m_tInfo.nowFrame = 0;
-		m_fFrame = 0.f;
+		nowFrame = 0;
+		fFrame = 0.f;
+		m_bMoveAnimation = false;
+		m_bShoot = false;
 	}
 }
 
@@ -91,57 +89,56 @@ void CPlayer::Update( const float& fTimeDelta )
 	}
 	else
 	{
-		m_tInfo.x = m_tPos.x;
-		m_tInfo.y = m_tPos.y;
-		GET_SINGLE(CNetwork)->SetPlayerInfo(m_tInfo);
+		m_tInfo = GET_SINGLE(CNetwork)->GetPlayerInfo();
+		SetPos(m_tInfo.x, m_tInfo.y);
 	}
 
-	if (m_tInfo.moveAnimation)
+	if (m_bMoveAnimation)
 	{
 		if (m_tInfo.id == 1)
 		{
-			if (m_tInfo.dir == DIR_LEFT)
+			if (m_bDir == DIR_LEFT)
 			{
-				wstring str = L"Texture/Player1/Player.left_" + to_wstring(m_tInfo.nowFrame + 1) + L".bmp";
-				SetTexture("Player_Left" + to_string(m_tInfo.nowFrame + 1), str.c_str());
+				wstring str = L"Texture/Player1/Player.left_" + to_wstring(nowFrame + 1) + L".bmp";
+				SetTexture("Player_Left" + to_string(nowFrame + 1), str.c_str());
 			}
-			else if (m_tInfo.dir == DIR_RIGHT)
+			else if (m_bDir == DIR_RIGHT)
 			{
-				wstring str = L"Texture/Player1/Player.right_" + to_wstring(m_tInfo.nowFrame + 1) + L".bmp";
-				SetTexture("Player_Right" + to_string(m_tInfo.nowFrame + 1), str.c_str());
+				wstring str = L"Texture/Player1/Player.right_" + to_wstring(nowFrame + 1) + L".bmp";
+				SetTexture("Player_Right" + to_string(nowFrame + 1), str.c_str());
 			}
-			if (m_tInfo.shoot)
+			if (m_bShoot)
 			{
-				wstring str = L"Texture/Player1/Player.stand_" + to_wstring(m_tInfo.nowFrame + 1) + L".bmp";
-				SetTexture("Player_Shoot" + to_string(m_tInfo.nowFrame + 1), str.c_str());
+				wstring str = L"Texture/Player1/Player.stand_" + to_wstring(nowFrame + 1) + L".bmp";
+				SetTexture("Player_Shoot" + to_string(nowFrame + 1), str.c_str());
 			}
 		}
 
 		else if (m_tInfo.id == 2)
 		{
-			if (m_tInfo.dir == DIR_LEFT)
+			if (m_bDir == DIR_LEFT)
 			{
-				wstring str = L"Texture/Player2/player2.left_" + to_wstring(m_tInfo.nowFrame + 1) + L".bmp";
-				SetTexture("Player2_Left" + to_string(m_tInfo.nowFrame + 1), str.c_str());
+				wstring str = L"Texture/Player2/player2.left_" + to_wstring(nowFrame + 1) + L".bmp";
+				SetTexture("Player2_Left" + to_string(nowFrame + 1), str.c_str());
 			}
-			else if (m_tInfo.dir == DIR_RIGHT)
+			else if (m_bDir == DIR_RIGHT)
 			{
-				wstring str = L"Texture/Player2/player2.right_" + to_wstring(m_tInfo.nowFrame + 1) + L".bmp";
-				SetTexture("Player2_Right" + to_string(m_tInfo.nowFrame + 1), str.c_str());
+				wstring str = L"Texture/Player2/player2.right_" + to_wstring(nowFrame + 1) + L".bmp";
+				SetTexture("Player2_Right" + to_string(nowFrame + 1), str.c_str());
 			}
-			if (m_tInfo.shoot)
+			if (m_bShoot)
 			{
-				wstring str = L"Texture/Player2/player2.stand_" + to_wstring(m_tInfo.nowFrame + 1) + L".bmp";
-				SetTexture("Player2_Shoot" + to_string(m_tInfo.nowFrame + 1), str.c_str());
+				wstring str = L"Texture/Player2/player2.stand_" + to_wstring(nowFrame + 1) + L".bmp";
+				SetTexture("Player2_Shoot" + to_string(nowFrame + 1), str.c_str());
 			}
 		}
-		// ¹è¼Ó
-		m_fFrame += (fTimeDelta * 15.f);
-		if (m_fFrame > 1.f)
+
+		fFrame += (fTimeDelta * 15.f);
+		if (fFrame > 1.f)
 		{
-			m_tInfo.nowFrame++;;
-			m_tInfo.nowFrame = m_tInfo.nowFrame % m_tInfo.maxFrame;
-			m_fFrame = 0.f;
+			nowFrame++;
+			nowFrame = nowFrame % m_tInfo.maxFrame;
+			fFrame = 0.f;
 		}
 	}
 }

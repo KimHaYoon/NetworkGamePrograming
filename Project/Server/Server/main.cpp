@@ -6,8 +6,6 @@ static int		g_iState = GAME_WAIT;
 static ULONGLONG g_ullFrame = 1000.0 / 60.0; // 10.0;
 static float	g_fTimeDelta[2] = { 0.f, 0.f };
 
-bool			g_bKey[2];
-
 unordered_map<int, SERVERPLAYER>		g_Clients;
 
 BULLETINFO		g_tBulletInfo[2][5];
@@ -185,7 +183,7 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 
 		DWORD dwNow = GetTickCount64();
 
-		if ( dwTime + 16 > dwNow )
+		if ( dwTime + 25 > dwNow )
 		{
 			continue;
 		}
@@ -256,6 +254,29 @@ void Update(const float& fTimeDelta)
 	EnterCriticalSection(&g_CS);
 	for (int id = 0; id < 2; ++id)
 	{
+		// 플레이어의 이동
+		// 왼쪽 방향키
+		if (g_Clients[id].keys.left == true)
+		{
+			if(g_Clients[id].info.x > 10)
+				g_Clients[id].info.x -= (300.f * fTimeDelta);
+			g_Clients[id].info.maxFrame = 5;
+		}
+		// 오른쪽 방향키
+		else if (g_Clients[id].keys.right == true)
+		{
+			if(g_Clients[id].info.x < 730)
+				g_Clients[id].info.x += (300.f * fTimeDelta);
+			g_Clients[id].info.maxFrame = 5;
+		}
+
+		// 스페이스 키
+		if (g_Clients[id].keys.space == true)
+		{
+			g_Clients[id].info.maxFrame = 3;
+		}
+
+		// 총알의 움직임
 		for (int i = 0; i < 5; ++i)
 		{
 			if (g_tBulletInfo[id][i].shot == true)
@@ -286,7 +307,6 @@ void Init()
 	for ( int i = 0; i < 2; ++i )
 	{
 		tInfo[i].id = i + 1;
-		tInfo[i].dir = i;
 		g_Clients[i].info = tInfo[i];
 	}
 
@@ -312,7 +332,6 @@ void PrintPlayerInfo( const PLAYERINFO & tInfo )
 	EnterCriticalSection( &g_CS );
 	cout << "ID : " << tInfo.id << endl;
 	cout << "X : " << tInfo.x << ", Y : " << tInfo.y << endl;
-	cout << "Dir : " << tInfo.dir << endl;
 	cout << "HP : " << tInfo.hp << endl;
 	LeaveCriticalSection( &g_CS );
 }
@@ -321,7 +340,7 @@ void PrintPlayerInfo( const PLAYERINFO & tInfo )
 void RecvKeysInfo(int clientnum)
 {
 	EnterCriticalSection(&g_CS);
-	int ret = recv(g_Clients[clientnum].socket, (char *)&g_bKey[clientnum], sizeof(bool), 0);
+	int ret = recv(g_Clients[clientnum].socket, (char *)&g_Clients[clientnum].keys, sizeof(PLAYERKEYINFO), 0);
 	if (ret == SOCKET_ERROR)
 	{
 		err_display("send()");
@@ -330,7 +349,7 @@ void RecvKeysInfo(int clientnum)
 	LeaveCriticalSection(&g_CS);
 
 	EnterCriticalSection(&g_CS);
-	if (g_bKey[clientnum] == true)
+	if (g_Clients[clientnum].keys.space == true)
 	{
 		for (int i = 0; i < 5; ++i)
 		{
@@ -339,7 +358,7 @@ void RecvKeysInfo(int clientnum)
 				g_tBulletInfo[clientnum][i].shot = true;
 				g_tBulletInfo[clientnum][i].x = g_Clients[clientnum].info.x + 15;
 				g_tBulletInfo[clientnum][i].y = g_Clients[clientnum].info.y;
-				g_bKey[clientnum] = false;
+				g_Clients[clientnum].keys.space = false;
 				break;
 			}
 		}
@@ -352,7 +371,7 @@ void SendPlayersInfo(int clientnum)
 	EnterCriticalSection(&g_CS);
 	//////////////////////////////////////////////////////////////
 		// 현재 클라이언트넘버의 플레이어정보와 다른 클라이언트의 플레이어 정보 전송
-	int ret = recv(g_Clients[clientnum].socket, (char *)&g_Clients[clientnum].info, sizeof(PLAYERINFO), 0);
+	int ret = send(g_Clients[clientnum].socket, (char *)&g_Clients[clientnum].info, sizeof(PLAYERINFO), 0);
 	if (ret == SOCKET_ERROR)
 	{
 		err_display("send()");
