@@ -47,9 +47,11 @@ bool CStage1Scene::Init()
 
 	CObj* pScore = GET_SINGLE( CObjectManager )->CreateObject<CScore>( "PlayerScore1" );
 	pScore->SetPos( 150, 450 );
+	((CScore*)pScore)->SetPlayer(1);
 
 	pScore = GET_SINGLE( CObjectManager )->CreateObject<CScore>( "PlayerScore2" );
 	pScore->SetPos( 550, 450 );
+	((CScore*)pScore)->SetPlayer(2);
 
 	CObj* pStageUI = GET_SINGLE( CObjectManager )->CreateObject<CStageUI>( "Stage1" );
 

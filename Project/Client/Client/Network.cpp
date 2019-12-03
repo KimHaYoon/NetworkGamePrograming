@@ -88,6 +88,8 @@ void CNetwork::Update( const float& fTimeDelta )
 	//_cprintf( "Client ID : %d, GameState : %d \n", m_tPlayerInfo.id, m_iGameState );
 	if (m_iGameState >= GAME_STAGE1) 
 	{
+		RecvStageLimitTime();
+
 		SendKeysInfo();
 
 		RecvPlayersInfo();
@@ -182,6 +184,11 @@ float CNetwork::GetTotalTime()
 	return m_fTime;
 }
 
+float CNetwork::GetStageLimitTime()
+{
+	return m_fStageLimitTime;
+}
+
 void CNetwork::SendKeysInfo()
 {
 	send(m_Sock, (char*)&m_tPlayerKeyInfo, sizeof(PLAYERKEYINFO), 0);
@@ -198,6 +205,11 @@ TILEINFO * CNetwork::GetTilesInfo() const
 int CNetwork::GetTilesSize() const
 {
 	return m_iTilesSize;
+}
+
+void CNetwork::RecvStageLimitTime()
+{
+	recv(m_Sock, (char *)&m_fStageLimitTime, sizeof(float), 0);
 }
 
 void CNetwork::RecvPlayersInfo()

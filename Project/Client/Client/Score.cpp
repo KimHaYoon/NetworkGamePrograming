@@ -1,4 +1,5 @@
 #include "Score.h"
+#include "Network.h"
 
 CScore::CScore()
 {
@@ -23,9 +24,10 @@ void CScore::Update( const float& fTimeDelta )
 {
 	CObj::Update( fTimeDelta );
 
-	m_fScore += (10 * fTimeDelta);
-	if (m_fScore >= 99999.f)
-		m_fScore = 0.f;
+	if (m_iID = 1)
+		m_iScore = GET_SINGLE(CNetwork)->GetPlayerInfo().score;
+	else
+		m_iScore = GET_SINGLE(CNetwork)->GetOtherPlayerInfo().score;
 }
 
 void CScore::Render( HDC hDC )
@@ -34,7 +36,7 @@ void CScore::Render( HDC hDC )
 
 	string strScore{ };
 
-	int Score = (int)m_fScore;
+	int Score = m_iScore;
 	int temp = Score / 10000;
 	int tempScore[5]{};
 	tempScore[0] = temp;
@@ -64,5 +66,10 @@ void CScore::Render( HDC hDC )
 
 void CScore::SetScore( int iScore )
 {
-	m_fScore = (float)iScore;
+	m_iScore = iScore;
+}
+
+void CScore::SetPlayer(int ID)
+{
+	m_iID = ID;
 }

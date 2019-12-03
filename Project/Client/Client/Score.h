@@ -4,8 +4,8 @@ class CScore :
 	public CObj
 {
 private:
-	float m_fScore;
-
+	int m_iScore;
+	int m_iID;
 public:
 	CScore();
 	~CScore();
@@ -17,5 +17,6 @@ public:
 
 public:
 	void SetScore( int iScore );
+	void SetPlayer(int id);
 };
 

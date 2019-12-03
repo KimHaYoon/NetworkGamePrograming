@@ -77,7 +77,7 @@ int APIENTRY wWinMain( _In_ HINSTANCE hInstance,
 
 		DWORD dwNow = GetTickCount64();
 
-		if ( dwTime + 25 > dwNow )
+		if ( dwTime + 16 > dwNow )
 		{
 			continue;
 		}

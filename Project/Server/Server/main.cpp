@@ -2,8 +2,9 @@
 
 static int		g_iClientNumber = 0;
 static int		g_iState = GAME_WAIT;
+static float	g_fTime;
 
-static ULONGLONG g_ullFrame = 1000.0 / 60.0; // 10.0;
+static ULONGLONG g_ullFrame = 10.0;
 static float	g_fTimeDelta[2] = { 0.f, 0.f };
 
 unordered_map<int, SERVERPLAYER>		g_Clients;
@@ -13,6 +14,9 @@ BULLETINFO		g_tBulletInfo[2][5];
 
 unordered_multimap<int, TILEINFO>		g_Tiles;
 unordered_multimap<int, SERVERBALLINFO>		g_Balls;
+
+// 191203 스테이지 제한시간
+static float	g_fStageLimitTime;
 
 CRITICAL_SECTION g_CS;
 
@@ -27,6 +31,10 @@ void RecvKeysInfo(int clientnum);
 void SendPlayersInfo(int clientnum);
 void SendGameState(int clientnum);
 void SendBulletsInfo(int clientnum);
+
+// 191203 추가
+void Stage1_Init();
+
 
 // 191128 추가
 void SendTileInfo( int clientnum, const GAME_STATE& eState = GAME_START );
@@ -161,6 +169,10 @@ int main()
 DWORD WINAPI ProcessClient( LPVOID arg )
 {
 	int clientnum = g_iClientNumber++;
+	if (g_iClientNumber == 2)
+	{
+		Stage1_Init();
+	}
 
 	SOCKADDR_IN clientaddr;
 	int addrlen = sizeof( clientaddr );
@@ -183,7 +195,7 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 
 		DWORD dwNow = GetTickCount64();
 
-		if ( dwTime + 25 > dwNow )
+		if ( dwTime + 16 > dwNow )
 		{
 			continue;
 		}
@@ -193,9 +205,13 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 		SendGameState( clientnum );
 
 		send(g_Clients[clientnum].socket, (char *)&g_fTimeDelta[clientnum], sizeof(float), 0);
+
+
 		
 		if (g_iState >= GAME_STAGE1) // 스테이지1 이상부터
 		{
+			send(g_Clients[clientnum].socket, (char *)&g_fStageLimitTime, sizeof(float), 0);
+			
 			RecvKeysInfo(clientnum);
 
 			SendPlayersInfo(clientnum);
@@ -252,8 +268,31 @@ DWORD WINAPI ProcessUpdate(LPVOID arg)
 void Update(const float& fTimeDelta)
 {
 	EnterCriticalSection(&g_CS);
+	g_fTime += fTimeDelta;
+	if (g_fTime > 1.f)
+	{
+		if (g_Clients[0].info.gameStart)
+		{
+			g_Clients[0].info.score += 10;
+			g_Clients[0].info.score = g_Clients[0].info.score % 99999;
+		}
+		if (g_Clients[1].info.gameStart)
+		{
+			g_Clients[1].info.score += 10;
+			g_Clients[1].info.score = g_Clients[1].info.score % 99999;
+		}
+		g_fTime = 0.f;
+	}
+
+	if (g_iState >= GAME_STAGE1)
+	{
+		g_fStageLimitTime -= fTimeDelta;
+	}
+	LeaveCriticalSection(&g_CS);
+
 	for (int id = 0; id < 2; ++id)
 	{
+		EnterCriticalSection(&g_CS);
 		// 플레이어의 이동
 		// 왼쪽 방향키
 		if (g_Clients[id].keys.left == true)
@@ -275,7 +314,10 @@ void Update(const float& fTimeDelta)
 		{
 			g_Clients[id].info.maxFrame = 3;
 		}
+		LeaveCriticalSection(&g_CS);
 
+
+		EnterCriticalSection(&g_CS);
 		// 총알의 움직임
 		for (int i = 0; i < 5; ++i)
 		{
@@ -292,8 +334,8 @@ void Update(const float& fTimeDelta)
 				}
 			}
 		}
+		LeaveCriticalSection(&g_CS);
 	}
-	LeaveCriticalSection(&g_CS);
 }
 
 void Init()
@@ -431,6 +473,17 @@ void SendBulletsInfo(int clientnum)
 			(char *)&g_tBulletInfo[(clientnum + 1) % 2][i], sizeof(BULLETINFO), 0);
 	}
 	LeaveCriticalSection(&g_CS);
+}
+
+void Stage1_Init()
+{
+	static bool Stage1_Init = false;
+
+	if (Stage1_Init == false)
+	{
+		g_fStageLimitTime = 70;
+		Stage1_Init = true;
+	}
 }
 
 

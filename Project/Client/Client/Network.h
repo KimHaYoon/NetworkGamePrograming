@@ -21,6 +21,8 @@ private:
 	float				m_fServerTime;
 	// 191202 클라이언트의 총 접속시간
 	float				m_fTime;
+	// 191203 스테이지 제한 시간
+	float				m_fStageLimitTime;
 
 	unordered_map<int, PLAYERINFO> m_mapPlayers;
 
@@ -55,6 +57,7 @@ public:
 	float GetServerTime();
 	// 191202 클라이언트 총 시간 추가
 	float GetTotalTime();
+	float GetStageLimitTime();
 	// 191129 플레이어 스페이스키
 	void SendKeysInfo();
 
@@ -63,6 +66,10 @@ public:
 	int GetTilesSize() const;
 
 private:
+	// 191203 추가
+	void RecvStageLimitTime();
+
+
 	void RecvPlayersInfo();
 	void RecvBulletsInfo();
 	void RecvTilesInfo();

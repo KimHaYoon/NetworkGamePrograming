@@ -1,5 +1,5 @@
 #include "StageTime.h"
-
+#include "Network.h"
 
 
 CStageTime::CStageTime()
@@ -26,7 +26,7 @@ void CStageTime::Update(const float & fTimeDelta)
 {
 	CObj::Update(fTimeDelta);
 
-	m_fTime -= fTimeDelta;
+	m_fTime = GET_SINGLE(CNetwork)->GetStageLimitTime();
 }
 
 void CStageTime::Render(HDC hDC)
