@@ -82,6 +82,12 @@
     <Filter Include="02. Object\04. Stage\02. StageTime">
       <UniqueIdentifier>{dd1f29b7-4d80-4d34-9ddf-1c0aab865402}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02. Object\04. Stage\03. PlayerHP">
+      <UniqueIdentifier>{b449c2c3-8368-4609-b68c-c04c22a5094a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\04. Stage\04. PlayerBullet">
+      <UniqueIdentifier>{ce26d346-b895-4bd0-9ce1-669d034b927b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -170,6 +176,12 @@
     </ClCompile>
     <ClCompile Include="StageTime.cpp">
       <Filter>02. Object\04. Stage\02. StageTime</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerHP.cpp">
+      <Filter>02. Object\04. Stage\03. PlayerHP</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerBullet.cpp">
+      <Filter>02. Object\04. Stage\04. PlayerBullet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -271,6 +283,12 @@
     </ClInclude>
     <ClInclude Include="StageTime.h">
       <Filter>02. Object\04. Stage\02. StageTime</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerHP.h">
+      <Filter>02. Object\04. Stage\03. PlayerHP</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerBullet.h">
+      <Filter>02. Object\04. Stage\04. PlayerBullet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

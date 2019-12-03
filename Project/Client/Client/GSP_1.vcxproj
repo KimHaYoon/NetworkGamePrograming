@@ -125,6 +125,8 @@
     <ClCompile Include="LogoScene.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="PlayerHP.cpp" />
     <ClCompile Include="PlayerPortrait.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="EnterKeyObj.cpp" />
@@ -175,6 +177,8 @@
     </ClInclude>
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerBullet.h" />
+    <ClInclude Include="PlayerHP.h" />
     <ClInclude Include="PlayerPortrait.h" />
     <ClInclude Include="Protocol.h" />
     <ClInclude Include="Rect.h" />

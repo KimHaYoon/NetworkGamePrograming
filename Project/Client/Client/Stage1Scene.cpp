@@ -10,6 +10,8 @@
 #include "Ball.h"
 #include "Tile.h"
 #include "StageTime.h"
+#include "PlayerHP.h"
+#include "PlayerBullet.h"
 
 
 CStage1Scene::CStage1Scene()
@@ -50,8 +52,24 @@ bool CStage1Scene::Init()
 	((CScore*)pScore)->SetPlayer(1);
 
 	pScore = GET_SINGLE( CObjectManager )->CreateObject<CScore>( "PlayerScore2" );
-	pScore->SetPos( 550, 450 );
+	pScore->SetPos( 530, 450 );
 	((CScore*)pScore)->SetPlayer(2);
+
+	CObj* pHPUI = GET_SINGLE(CObjectManager)->CreateObject<CPlayerHP>("PlayerHP1");
+	pHPUI->SetPos(158, 500);
+	((CPlayerHP*)pHPUI)->SetPlayer(1);
+
+	pHPUI = GET_SINGLE(CObjectManager)->CreateObject<CPlayerHP>("PlayerHP2");
+	pHPUI->SetPos(507, 500);
+	((CPlayerHP*)pHPUI)->SetPlayer(2);
+
+	CObj* pBulletUI = GET_SINGLE(CObjectManager)->CreateObject<CPlayerBullet>("PlayerBullet1");
+	pBulletUI->SetPos(160, 550);
+	((CPlayerBullet*)pBulletUI)->SetPlayer(1);
+
+	pBulletUI = GET_SINGLE(CObjectManager)->CreateObject<CPlayerBullet>("PlayerBullet2");
+	pBulletUI->SetPos(545, 550);
+	((CPlayerBullet*)pBulletUI)->SetPlayer(2);
 
 	CObj* pStageUI = GET_SINGLE( CObjectManager )->CreateObject<CStageUI>( "Stage1" );
 
