@@ -7,16 +7,20 @@ static float	g_fTime;
 static ULONGLONG g_ullFrame = 10.0;
 static float	g_fTimeDelta[2] = { 0.f, 0.f };
 
-unordered_map<int, SERVERPLAYER>		g_Clients;
+unordered_map<int, SERVERPLAYER*>		g_Clients;
 
 BULLETINFO		g_tBulletInfo[2][5];
 
 
-unordered_multimap<int, TILEINFO>			g_Tiles;
+unordered_multimap<int, TILEINFO>				g_Tiles;
 unordered_multimap<int, SERVERBALLINFO*>		g_Balls;
 
 // 191203 스테이지 제한시간
 static float	g_fStageLimitTime;
+
+float g_fPlayerCollisionTime[2];
+bool	g_bPlayerCollisition[2];
+float g_BulletCollsionTime;
 
 CRITICAL_SECTION g_CS;
 
@@ -36,6 +40,9 @@ void SendBulletsInfo(int clientnum);
 void Stage1_Init();
 void BallsUpdate( const float& fTimeDelta );
 
+bool CollisionBall( const BALLINFO& tBall, int x, int y, int width, int height );
+void PlayerCollisionBall( int id );
+void BallCollisionBullet();
 
 // 191128 추가
 void SendTileInfo( int clientnum, const GAME_STATE& eState = GAME_START );
@@ -137,9 +144,9 @@ int main()
 		// 접속한 클라이언트 정보 출력
 		printf( "\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa( clientaddr.sin_addr ), ntohs( clientaddr.sin_port ) );
 		
-		g_Clients[g_iClientNumber].socket = client_sock;
-		send( g_Clients[g_iClientNumber].socket, ( char* )&g_Clients[g_iClientNumber].info, sizeof( PLAYERINFO ), 0 );			// 초기 정보 전송
-		PrintPlayerInfo( g_Clients[g_iClientNumber].info );		
+		g_Clients[g_iClientNumber]->socket = client_sock;
+		send( g_Clients[g_iClientNumber]->socket, ( char* )&g_Clients[g_iClientNumber]->info, sizeof( PLAYERINFO ), 0 );			// 초기 정보 전송
+		PrintPlayerInfo( g_Clients[g_iClientNumber]->info );
 		
 		hThread = CreateThread( NULL, 0, ProcessClient, NULL, 0, NULL );				// 스레드 생성
 
@@ -177,7 +184,7 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 
 	SOCKADDR_IN clientaddr;
 	int addrlen = sizeof( clientaddr );
-	getpeername( g_Clients[clientnum].socket, ( SOCKADDR * )&clientaddr, &addrlen );
+	getpeername( g_Clients[clientnum]->socket, ( SOCKADDR * )&clientaddr, &addrlen );
 
 	ULONGLONG ullOldTime = GetTickCount64();
 
@@ -205,13 +212,13 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 
 		SendGameState( clientnum );
 
-		send(g_Clients[clientnum].socket, (char *)&g_fTimeDelta[clientnum], sizeof(float), 0);
+		send(g_Clients[clientnum]->socket, (char *)&g_fTimeDelta[clientnum], sizeof(float), 0);
 
 
 		
 		if (g_iState >= GAME_STAGE1) // 스테이지1 이상부터
 		{
-			send(g_Clients[clientnum].socket, (char *)&g_fStageLimitTime, sizeof(float), 0);
+			send(g_Clients[clientnum]->socket, (char *)&g_fStageLimitTime, sizeof(float), 0);
 			
 			RecvKeysInfo(clientnum);
 
@@ -267,31 +274,56 @@ DWORD WINAPI ProcessUpdate(LPVOID arg)
 }
 
 
-void Update(const float& fTimeDelta)
+void Update( const float& fTimeDelta )
 {
-	EnterCriticalSection(&g_CS);
+	EnterCriticalSection( &g_CS );
 	g_fTime += fTimeDelta;
-	if (g_fTime > 1.f)
+	if ( g_fTime > 1.f )
 	{
-		if (g_Clients[0].info.gameStart)
+		if ( g_Clients[0]->info.gameStart )
 		{
-			g_Clients[0].info.score += 10;
-			g_Clients[0].info.score = g_Clients[0].info.score % 99999;
+			g_Clients[0]->info.score += 10;
+			g_Clients[0]->info.score = g_Clients[0]->info.score % 99999;
 		}
-		if (g_Clients[1].info.gameStart)
+		if ( g_Clients[1]->info.gameStart )
 		{
-			g_Clients[1].info.score += 10;
-			g_Clients[1].info.score = g_Clients[1].info.score % 99999;
+			g_Clients[1]->info.score += 10;
+			g_Clients[1]->info.score = g_Clients[1]->info.score % 99999;
 		}
 		g_fTime = 0.f;
 	}
 
-	if (g_iState >= GAME_STAGE1)
+	if ( g_iState >= GAME_STAGE1 )
 	{
 		g_fStageLimitTime -= fTimeDelta;
 	}
 
-	LeaveCriticalSection(&g_CS);
+	LeaveCriticalSection( &g_CS );
+
+	for ( int id = 0; id < 2; ++id )
+	{
+		if ( g_bPlayerCollisition[id] )
+			continue;
+		
+		g_fPlayerCollisionTime[id] += fTimeDelta;
+
+		if ( g_fPlayerCollisionTime[id] >= 2.f )
+		{
+			g_bPlayerCollisition[id] = true;
+			g_fPlayerCollisionTime[id] = 0.f;
+		}
+	}
+
+	BallCollisionBullet();
+
+	for ( int id = 0; id < 2; ++id )
+	{
+		if ( g_bPlayerCollisition[id] )
+		{
+			PlayerCollisionBall( id );
+			g_bPlayerCollisition[id] = false;
+		}
+	}
 
 	BallsUpdate( fTimeDelta );
 
@@ -300,24 +332,24 @@ void Update(const float& fTimeDelta)
 		EnterCriticalSection(&g_CS);
 		// 플레이어의 이동
 		// 왼쪽 방향키
-		if (g_Clients[id].keys.left == true)
+		if (g_Clients[id]->keys.left == true)
 		{
-			if(g_Clients[id].info.x > 10)
-				g_Clients[id].info.x -= (300.f * fTimeDelta);
-			g_Clients[id].info.maxFrame = 5;
+			if(g_Clients[id]->info.x > 10)
+				g_Clients[id]->info.x -= (300.f * fTimeDelta);
+			g_Clients[id]->info.maxFrame = 5;
 		}
 		// 오른쪽 방향키
-		else if (g_Clients[id].keys.right == true)
+		else if (g_Clients[id]->keys.right == true)
 		{
-			if(g_Clients[id].info.x < 730)
-				g_Clients[id].info.x += (300.f * fTimeDelta);
-			g_Clients[id].info.maxFrame = 5;
+			if(g_Clients[id]->info.x < 730)
+				g_Clients[id]->info.x += (300.f * fTimeDelta);
+			g_Clients[id]->info.maxFrame = 5;
 		}
 
 		// 스페이스 키
-		if (g_Clients[id].keys.space == true)
+		if (g_Clients[id]->keys.space == true)
 		{
-			g_Clients[id].info.maxFrame = 3;
+			g_Clients[id]->info.maxFrame = 3;
 		}
 		LeaveCriticalSection(&g_CS);
 
@@ -345,16 +377,16 @@ void Update(const float& fTimeDelta)
 
 void Init()
 {
-	PLAYERINFO* tInfo = new PLAYERINFO[2];
-	tInfo[0].x = 50;
-	tInfo[0].y = 360;
-	tInfo[1].x = 700;
-	tInfo[1].y = 360;
+	SERVERPLAYER* tInfo = new SERVERPLAYER[2];
+	tInfo[0].info.x = 50;
+	tInfo[0].info.y = 360;
+	tInfo[1].info.x = 700;
+	tInfo[1].info.y = 360;
 
 	for ( int i = 0; i < 2; ++i )
 	{
-		tInfo[i].id = i + 1;
-		g_Clients[i].info = tInfo[i];
+		tInfo[i].info.id = i + 1;
+		g_Clients[i] = &tInfo[i];
 	}
 
 	for (int id = 0; id < 2; ++id)
@@ -367,6 +399,10 @@ void Init()
 			g_tBulletInfo[id][i].height = 70.f;
 			g_tBulletInfo[id][i].shot = false;
 		}
+
+
+		g_fPlayerCollisionTime[id] = 0.f;
+		g_bPlayerCollisition[id] = false;
 	}
 
 	g_iState = GAME_WAIT;
@@ -387,25 +423,25 @@ void PrintPlayerInfo( const PLAYERINFO & tInfo )
 void RecvKeysInfo(int clientnum)
 {
 	EnterCriticalSection(&g_CS);
-	int ret = recv(g_Clients[clientnum].socket, (char *)&g_Clients[clientnum].keys, sizeof(PLAYERKEYINFO), 0);
+	int ret = recv(g_Clients[clientnum]->socket, (char *)&g_Clients[clientnum]->keys, sizeof(PLAYERKEYINFO), 0);
 	if (ret == SOCKET_ERROR)
 	{
 		err_display("recv()");
-		cout << g_Clients[clientnum].socket << " recv fail!" << endl;
+		cout << g_Clients[clientnum]->socket << " recv fail!" << endl;
 	}
 	LeaveCriticalSection(&g_CS);
 
 	EnterCriticalSection(&g_CS);
-	if (g_Clients[clientnum].keys.space == true)
+	if (g_Clients[clientnum]->keys.space == true)
 	{
 		for (int i = 0; i < 5; ++i)
 		{
 			if (g_tBulletInfo[clientnum][i].shot == false)
 			{
 				g_tBulletInfo[clientnum][i].shot = true;
-				g_tBulletInfo[clientnum][i].x = g_Clients[clientnum].info.x + 15;
-				g_tBulletInfo[clientnum][i].y = g_Clients[clientnum].info.y;
-				g_Clients[clientnum].keys.space = false;
+				g_tBulletInfo[clientnum][i].x = g_Clients[clientnum]->info.x + 15;
+				g_tBulletInfo[clientnum][i].y = g_Clients[clientnum]->info.y;
+				g_Clients[clientnum]->keys.space = false;
 				break;
 			}
 		}
@@ -418,18 +454,18 @@ void SendPlayersInfo(int clientnum)
 	EnterCriticalSection(&g_CS);
 	//////////////////////////////////////////////////////////////
 		// 현재 클라이언트넘버의 플레이어정보와 다른 클라이언트의 플레이어 정보 전송
-	int ret = send(g_Clients[clientnum].socket, (char *)&g_Clients[clientnum].info, sizeof(PLAYERINFO), 0);
+	int ret = send(g_Clients[clientnum]->socket, (char *)&g_Clients[clientnum]->info, sizeof(PLAYERINFO), 0);
 	if (ret == SOCKET_ERROR)
 	{
 		err_display("send()");
-		cout << g_Clients[clientnum].socket << " send fail!" << endl;
+		cout << g_Clients[clientnum]->socket << " send fail!" << endl;
 	}
 
-	ret = send(g_Clients[clientnum].socket, (char *)&g_Clients[(clientnum + 1) % 2].info, sizeof(PLAYERINFO), 0);
+	ret = send(g_Clients[clientnum]->socket, (char *)&g_Clients[(clientnum + 1) % 2]->info, sizeof(PLAYERINFO), 0);
 	if (ret == SOCKET_ERROR)
 	{
 		err_display("send()");
-		cout << g_Clients[clientnum].socket << " send fail!" << endl;
+		cout << g_Clients[clientnum]->socket << " send fail!" << endl;
 	}
 	/////////////////////////////////////////////////////////////
 	LeaveCriticalSection(&g_CS);
@@ -445,13 +481,13 @@ void SendGameState( int clientnum )
 		g_iState = GAME_STAGE1;
 	LeaveCriticalSection(&g_CS);
 
-	int ret = send( g_Clients[clientnum].socket, ( char* )&g_iState, sizeof( g_iState ), 0 );
+	int ret = send( g_Clients[clientnum]->socket, ( char* )&g_iState, sizeof( g_iState ), 0 );
 
 	EnterCriticalSection(&g_CS);
 	if ( ret == SOCKET_ERROR )
 	{
 		err_display( "send()" );
-		cout << g_Clients[clientnum].socket << " send fail!" << endl;
+		cout << g_Clients[clientnum]->socket << " send fail!" << endl;
 	}
 
 	else
@@ -466,7 +502,7 @@ void SendBulletsInfo(int clientnum)
 	EnterCriticalSection(&g_CS);
 	for (int i = 0; i < 5; ++i)
 	{
-		int ret = send(g_Clients[clientnum].socket, 
+		int ret = send(g_Clients[clientnum]->socket,
 			(char *)&g_tBulletInfo[clientnum][i], sizeof(BULLETINFO), 0);
 	}
 	LeaveCriticalSection(&g_CS);
@@ -474,7 +510,7 @@ void SendBulletsInfo(int clientnum)
 	EnterCriticalSection(&g_CS);
 	for (int i = 0; i < 5; ++i)
 	{
-		int ret = send(g_Clients[clientnum].socket,
+		int ret = send(g_Clients[clientnum]->socket,
 			(char *)&g_tBulletInfo[(clientnum + 1) % 2][i], sizeof(BULLETINFO), 0);
 	}
 	LeaveCriticalSection(&g_CS);
@@ -540,6 +576,49 @@ void BallsUpdate( const float & fTimeDelta )
 	}
 
 	LeaveCriticalSection( &g_CS );
+}
+
+void PlayerCollisionBall(int id)
+{
+	for ( auto iterB = g_Balls.begin(); iterB != g_Balls.end(); ++iterB )
+	{
+		if ( CollisionBall( iterB->second->info, g_Clients[id]->info.x, g_Clients[id]->info.y, 70, 70 ) )
+		{
+			EnterCriticalSection( &g_CS );
+			g_Clients[id]->info.hp -= 1;
+			cout << "id : " << id << "공과 충돌" << endl;
+			LeaveCriticalSection( &g_CS );
+		}
+	}
+}
+
+void BallCollisionBullet()
+{
+	for ( auto iterB = g_Balls.begin(); iterB != g_Balls.end(); ++iterB )
+	{
+		for ( int id = 0; id < 2; ++id )
+		{
+			for ( int i = 0; i < 5; ++i )
+			{
+				if ( !g_tBulletInfo[id][i].shot )
+					continue;
+
+				if ( CollisionBall( iterB->second->info, g_tBulletInfo[id][i].x, g_tBulletInfo[id][i].y, 30, g_tBulletInfo[id][i].height ) )
+				{
+					cout << "공이랑 총알 충돌됨 " << endl;
+				}
+			}
+		}
+	}
+}
+
+bool CollisionBall( const BALLINFO & tBall, int x, int y, int width, int height )
+{
+	if ( tBall.x < x + width && tBall.x + tBall.radius > x &&
+		tBall.y < y + height && tBall.y + tBall.radius > y )
+		return true;
+
+	return false;
 }
 
 
@@ -689,21 +768,21 @@ void SendTileInfo( int clientnum, const GAME_STATE& eState )
 {
 	int iSize = GetTilesSize( eState );
 	TILEINFO* pTiles = GetTilesInfo( eState );
-	send( g_Clients[clientnum].socket, ( char* )&iSize, sizeof( iSize ), 0 );
+	send( g_Clients[clientnum]->socket, ( char* )&iSize, sizeof( iSize ), 0 );
 	for ( int i = 0; i < iSize; ++i )
-		send( g_Clients[clientnum].socket, ( char* )&pTiles[i], sizeof( TILEINFO ), 0 );
+		send( g_Clients[clientnum]->socket, ( char* )&pTiles[i], sizeof( TILEINFO ), 0 );
 }
 
 void SendBallsInfo( int clientnum, const GAME_STATE & eState )
 {
 	int iSize = GetBallsSize( eState );
 	SERVERBALLINFO** pBalls = GetBallsInfo( eState );
-	send( g_Clients[clientnum].socket, ( char* )&iSize, sizeof( iSize ), 0 );
+	send( g_Clients[clientnum]->socket, ( char* )&iSize, sizeof( iSize ), 0 );
 
 	//cout << "Send Balls Size : " << iSize << endl;
 
 	for ( int i = 0; i < iSize; ++i )
-		send( g_Clients[clientnum].socket, ( char* )&pBalls[i]->info, sizeof( BALLINFO ), 0 );
+		send( g_Clients[clientnum]->socket, ( char* )&pBalls[i]->info, sizeof( BALLINFO ), 0 );
 
 	//cout << "Send Balls Info" << endl;
 }

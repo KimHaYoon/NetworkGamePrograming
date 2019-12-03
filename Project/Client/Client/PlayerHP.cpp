@@ -22,7 +22,7 @@ void CPlayerHP::Input()
 {
 	CObj::Input();
 
-	if (KEYDOWN("MoveLeft"))
+	/*if (KEYDOWN("MoveLeft"))
 	{
 		if (m_iHP > 0)
 			m_iHP--;
@@ -32,17 +32,17 @@ void CPlayerHP::Input()
 	{
 		if (m_iHP < 3)
 			m_iHP++;
-	}
+	}*/
 }
 
 void CPlayerHP::Update(const float & fTimeDelta)
 {
 	CObj::Update(fTimeDelta);
 
-	/*if(m_iID == 1)
-		m_iHP = GET_SINGLE(CNetwork)->GetPlayerInfo().hp;
+	if ( m_iID == 1 )
+		m_iHP = GET_SINGLE( CNetwork )->GetPlayerInfo().hp;
 	else
-		m_iHP = GET_SINGLE(CNetwork)->GetOtherPlayerInfo().hp;*/
+		m_iHP = GET_SINGLE( CNetwork )->GetOtherPlayerInfo().hp;
 }
 
 void CPlayerHP::Render(HDC hDC)
