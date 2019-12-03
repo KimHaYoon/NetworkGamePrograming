@@ -7,6 +7,8 @@ class CStage1Scene :
 	public CScene
 {
 	CObj* m_StageLimitTime;
+
+	int		m_iBallSize;
 public:
 	CStage1Scene();
 	virtual ~CStage1Scene();

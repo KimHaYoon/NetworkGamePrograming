@@ -24,8 +24,10 @@ private:
 	// 191203 스테이지 제한 시간
 	float				m_fStageLimitTime;
 
-	unordered_map<int, PLAYERINFO> m_mapPlayers;
-
+	unordered_map<int, PLAYERINFO>		m_mapPlayers;
+	
+	BALLINFO*	m_pBalls;
+	int			m_iBallSize;
 
 	// 191128 추가
 	TILEINFO*	m_pTiles;
@@ -65,6 +67,11 @@ public:
 	TILEINFO* GetTilesInfo() const;
 	int GetTilesSize() const;
 
+
+	// 191203 추가
+	BALLINFO* GetBallsInfo() const;
+	int	GetBallsSize() const;
+
 private:
 	// 191203 추가
 	void RecvStageLimitTime();
@@ -73,6 +80,8 @@ private:
 	void RecvPlayersInfo();
 	void RecvBulletsInfo();
 	void RecvTilesInfo();
+
+	void RecvBallsInfo();
 
 	DECLARE_SINGLE( CNetwork )
 };

@@ -12,7 +12,7 @@ unordered_map<int, SERVERPLAYER>		g_Clients;
 BULLETINFO		g_tBulletInfo[2][5];
 
 
-unordered_multimap<int, TILEINFO>		g_Tiles;
+unordered_multimap<int, TILEINFO>			g_Tiles;
 unordered_multimap<int, SERVERBALLINFO>		g_Balls;
 
 // 191203 스테이지 제한시간
@@ -34,6 +34,7 @@ void SendBulletsInfo(int clientnum);
 
 // 191203 추가
 void Stage1_Init();
+void BallsUpdate( const float& fTimeDelta );
 
 
 // 191128 추가
@@ -47,7 +48,7 @@ int	GetTilesSize( const GAME_STATE& eState = GAME_START );
 
 void BallsInit();
 void AddBallInfo( const SERVERBALLINFO& tBall, const GAME_STATE& eState = GAME_START );
-BALLINFO* GetBallsInfo( const GAME_STATE& eState = GAME_START );
+SERVERBALLINFO* GetBallsInfo( const GAME_STATE& eState = GAME_START );
 int GetBallsSize( const GAME_STATE& eState = GAME_START );
 //====================================================================================================
 
@@ -218,6 +219,8 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 
 			SendTileInfo( clientnum, ( GAME_STATE )g_iState );
 
+			SendBallsInfo( clientnum, ( GAME_STATE )g_iState );
+
 			SendBulletsInfo(clientnum);
 		}
 	}
@@ -288,7 +291,10 @@ void Update(const float& fTimeDelta)
 	{
 		g_fStageLimitTime -= fTimeDelta;
 	}
+
 	LeaveCriticalSection(&g_CS);
+
+	BallsUpdate( fTimeDelta );
 
 	for (int id = 0; id < 2; ++id)
 	{
@@ -385,8 +391,8 @@ void RecvKeysInfo(int clientnum)
 	int ret = recv(g_Clients[clientnum].socket, (char *)&g_Clients[clientnum].keys, sizeof(PLAYERKEYINFO), 0);
 	if (ret == SOCKET_ERROR)
 	{
-		err_display("send()");
-		cout << g_Clients[clientnum].socket << " send fail!" << endl;
+		err_display("recv()");
+		cout << g_Clients[clientnum].socket << " recv fail!" << endl;
 	}
 	LeaveCriticalSection(&g_CS);
 
@@ -486,6 +492,56 @@ void Stage1_Init()
 	}
 }
 
+void BallsUpdate( const float & fTimeDelta )
+{
+	SERVERBALLINFO* pBalls = GetBallsInfo( (GAME_STATE)g_iState );
+	int iSize = GetBallsSize( ( GAME_STATE )g_iState );
+
+	EnterCriticalSection( &g_CS );
+
+	for ( int i = 0; i < iSize; ++i )
+	{
+		int iGravity = ( pBalls[i].info.y + 80 ) * 1.5 * fTimeDelta; // 낙하속도
+		if ( iGravity <= 1 )
+			pBalls[i].yDir = DIR_DOWN;
+
+
+		if ( pBalls[i].xDir == DIR_LEFT )
+		{
+			pBalls[i].info.x -= 70 * fTimeDelta;
+
+			if ( pBalls[i].info.x - pBalls[i].info.radius < -10 ) // 왼쪽 벽에 충돌
+				pBalls[i].xDir = DIR_RIGHT;
+		}
+
+		else if ( pBalls[i].xDir == DIR_RIGHT )
+		{
+			pBalls[i].info.x += 70 * fTimeDelta;
+
+			if ( pBalls[i].info.x + pBalls[i].info.radius > 801 - 35 ) // 오른쪽 벽에 충돌
+				pBalls[i].xDir = DIR_LEFT;
+		}
+
+		if ( pBalls[i].yDir == DIR_DOWN )
+		{
+			pBalls[i].info.y += iGravity;
+
+			if ( pBalls[i].info.y + pBalls[i].info.radius > 400 ) // 바닥에 충돌
+				pBalls[i].yDir = DIR_UP;
+		}
+
+		else if ( pBalls[i].yDir == DIR_UP )
+		{
+			pBalls[i].info.y -= iGravity;
+
+			if ( pBalls[i].info.y - pBalls[i].info.radius < 150 ) // 최대 높이 값
+				pBalls[i].yDir = DIR_DOWN;
+		}
+	}
+
+	LeaveCriticalSection( &g_CS );
+}
+
 
 void TileInit()
 {
@@ -564,11 +620,18 @@ void BallsInit()
 		ballInfo.info.y = 250;
 		ballInfo.info.radius = 25;
 		ballInfo.info.type = 'A';
+		ballInfo.live = true;
+		ballInfo.xDir = true;
+		ballInfo.yDir = false;
+
 
 		AddBallInfo( ballInfo, GAME_STAGE1 );
 
 		ballInfo.info.x = 600;
 		ballInfo.info.y = 250;
+		ballInfo.xDir = false;
+		ballInfo.yDir = false;
+
 		AddBallInfo( ballInfo, GAME_STAGE1 );
 	}
 }
@@ -578,18 +641,18 @@ void AddBallInfo( const SERVERBALLINFO & tBall, const GAME_STATE & eState )
 	g_Balls.insert( make_pair( eState, tBall ) );
 }
 
-BALLINFO * GetBallsInfo( const GAME_STATE & eState )
+SERVERBALLINFO * GetBallsInfo( const GAME_STATE & eState )
 {
-	BALLINFO* pBalls = NULL;
+	SERVERBALLINFO* pBalls = NULL;
 
 	if ( eState == GAME_START )
 	{
-		pBalls = new BALLINFO[g_Balls.size()];
+		pBalls = new SERVERBALLINFO[g_Balls.size()];
 
 		auto iter = g_Balls.begin();
 		for ( int i = 0; i < g_Balls.size(); ++i )
 		{
-			pBalls[i] = iter->second.info;
+			pBalls[i] = iter->second;
 
 			++iter;
 		}
@@ -600,13 +663,13 @@ BALLINFO * GetBallsInfo( const GAME_STATE & eState )
 	auto iterRange = g_Balls.equal_range( eState );
 	int iSize = distance( iterRange.first, iterRange.second );
 
-	pBalls = new BALLINFO[g_Balls.count( eState )];
+	pBalls = new SERVERBALLINFO[g_Balls.count( eState )];
 
 	auto iter = iterRange.first;
 
 	for ( int i = 0; i < g_Balls.count( eState ); ++i )
 	{
-		pBalls[i] = iter->second.info;
+		pBalls[i] = iter->second;
 		++iter;
 	}
 
@@ -630,8 +693,13 @@ void SendTileInfo( int clientnum, const GAME_STATE& eState )
 void SendBallsInfo( int clientnum, const GAME_STATE & eState )
 {
 	int iSize = GetBallsSize( eState );
-	BALLINFO* pBalls = GetBallsInfo( eState );
+	SERVERBALLINFO* pBalls = GetBallsInfo( eState );
 	send( g_Clients[clientnum].socket, ( char* )&iSize, sizeof( iSize ), 0 );
+
+	cout << "Send Balls Size : " << iSize << endl;
+
 	for ( int i = 0; i < iSize; ++i )
-		send( g_Clients[clientnum].socket, ( char* )&pBalls[i], sizeof( BALLINFO ), 0 );
+		send( g_Clients[clientnum].socket, ( char* )&pBalls[i].info, sizeof( BALLINFO ), 0 );
+
+	cout << "Send Balls Info" << endl;
 }

@@ -60,7 +60,7 @@ bool CStage1Scene::Init()
 	// Radius 25 = A
 	// Radius 15 = B
 	// Radius 8 = C
-	CObj* pBall1 = GET_SINGLE( CObjectManager )->CreateObject<CBall>( "Ball1" );
+	/*CObj* pBall1 = GET_SINGLE( CObjectManager )->CreateObject<CBall>( "Ball1" );
 	BALLINFO ballInfo;
 	ballInfo.x = 200;
 	ballInfo.y = 250;
@@ -75,7 +75,15 @@ bool CStage1Scene::Init()
 	ballInfo.y = 250;
 	dynamic_cast<CBall*>(pBall2)->SetDirLR(DIR_RIGHT);
 	dynamic_cast<CBall*>(pBall2)->SetDirUD(DIR_DOWN);
-	dynamic_cast<CBall*>(pBall2)->SetBallInfo(ballInfo);
+	dynamic_cast<CBall*>(pBall2)->SetBallInfo(ballInfo);*/
+
+	BALLINFO* pBallInfo = GET_SINGLE( CNetwork )->GetBallsInfo();
+	m_iBallSize = GET_SINGLE( CNetwork )->GetBallsSize();
+	for ( int i = 0; i < m_iBallSize; ++i )
+	{
+		CObj* pBalls = GET_SINGLE( CObjectManager )->CreateObject<CBall>( "Ball" + to_string( i ) );
+		dynamic_cast< CBall* >( pBalls )->SetBallInfo( pBallInfo[i] );
+	}
 	// =====================================================//
 
 	// Block ===============================================//		191128 ¼öÁ¤
@@ -101,7 +109,23 @@ void CStage1Scene::Input()
 
 void CStage1Scene::Update( const float& fTimeDelta )
 {
-	
+	int iCurBallSize = GET_SINGLE( CNetwork )->GetBallsSize();
+	int iSubBallSize = abs( iCurBallSize - m_iBallSize );
+	BALLINFO* pBallInfo = GET_SINGLE( CNetwork )->GetBallsInfo();
+
+	for ( int i = 0; i < iSubBallSize; ++i )
+	{
+		CObj* pBalls = GET_SINGLE(CObjectManager)->CreateObject<CBall>( "Ball" + to_string( i + m_iBallSize ) );
+		dynamic_cast< CBall* >( pBalls )->SetBallInfo( pBallInfo[i + m_iBallSize] );
+	}
+
+	for ( int i = 0; i < iCurBallSize; ++i )
+	{
+		CObj* pBalls = GET_SINGLE( CObjectManager )->FindObject( "Ball" + to_string( i ) );
+		dynamic_cast< CBall* >( pBalls )->SetBallInfo( pBallInfo[i] );
+	}
+
+	m_iBallSize = iCurBallSize;
 }
 
 void CStage1Scene::Render( HDC hDC )

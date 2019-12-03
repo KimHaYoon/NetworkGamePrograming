@@ -1,5 +1,5 @@
 #include "Ball.h"
-
+#include "Network.h"
 
 
 CBall::CBall()
@@ -23,6 +23,8 @@ void CBall::Input()
 
 void CBall::Update(const float & fTimeDelta)
 {
+	if ( GET_SINGLE( CNetwork )->GetServerOn() )
+		return;
 	CObj::Update(fTimeDelta);
 
 	m_nGravity = (m_tPos.y + 80) * 1.5 * fTimeDelta; // ³«ÇÏ¼Óµµ
@@ -65,11 +67,6 @@ void CBall::Render(HDC hDC)
 {
 	CObj::Render(hDC);
 }
-
-
-
-
-
 
 void CBall::SetBallInfo(BALLINFO tInfo)
 {

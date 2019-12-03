@@ -5,6 +5,12 @@
 #define RIGHT			'MOVE_RIGHT'
 #define ATTACK			'BULLET_ATTACK'
 
+// 공 방향
+#define DIR_RIGHT false
+#define DIR_LEFT true
+#define DIR_UP false
+#define DIR_DOWN true
+
 // 서버에서 게임 제한시간을 받을 때 사용
 typedef float GAMETIME;
 
@@ -93,6 +99,7 @@ typedef struct ServerBallInfo
 	BALLINFO info;
 	bool	xDir;
 	bool	yDir;
+	bool	live;
 }SERVERBALLINFO;
 
 typedef struct Item
