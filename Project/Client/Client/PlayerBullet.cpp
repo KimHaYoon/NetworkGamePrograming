@@ -1,8 +1,6 @@
 #include "PlayerBullet.h"
 #include "Network.h"
 
-#include "Input.h"
-
 
 CPlayerBullet::CPlayerBullet()
 {
@@ -23,28 +21,16 @@ bool CPlayerBullet::Init()
 void CPlayerBullet::Input()
 {
 	CObj::Input();
-
-	if (KEYDOWN("MoveLeft"))
-	{
-		if (m_iCount > 0)
-			m_iCount--;
-	}
-
-	if (KEYDOWN("MoveRight"))
-	{
-		if (m_iCount < 5)
-			m_iCount++;
-	}
 }
 
 void CPlayerBullet::Update(const float & fTimeDelta)
 {
 	CObj::Update(fTimeDelta);
 
-	/*if(m_iID == 1)
-		m_iHP = GET_SINGLE(CNetwork)->GetPlayerInfo().bulletCount;
+	if(m_iID == 1)
+		m_iCount = GET_SINGLE(CNetwork)->GetPlayerInfo().bulletCount;
 	else
-		m_iHP = GET_SINGLE(CNetwork)->GetOtherPlayerInfo().bulletCount;*/
+		m_iCount = GET_SINGLE(CNetwork)->GetOtherPlayerInfo().bulletCount;
 }
 
 void CPlayerBullet::Render(HDC hDC)

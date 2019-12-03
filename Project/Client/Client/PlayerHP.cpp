@@ -1,8 +1,6 @@
 #include "PlayerHP.h"
 #include "Network.h"
 
-#include "Input.h"
-
 CPlayerHP::CPlayerHP()
 {
 }
@@ -21,18 +19,6 @@ bool CPlayerHP::Init()
 void CPlayerHP::Input()
 {
 	CObj::Input();
-
-	/*if (KEYDOWN("MoveLeft"))
-	{
-		if (m_iHP > 0)
-			m_iHP--;
-	}
-
-	if (KEYDOWN("MoveRight"))
-	{
-		if (m_iHP < 3)
-			m_iHP++;
-	}*/
 }
 
 void CPlayerHP::Update(const float & fTimeDelta)

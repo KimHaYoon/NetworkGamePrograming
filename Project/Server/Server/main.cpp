@@ -22,7 +22,10 @@ float g_fPlayerCollisionTime[2];
 bool	g_bPlayerCollisition[2];
 float g_BulletCollsionTime;
 
-CRITICAL_SECTION g_CS;
+CRITICAL_SECTION g_CS_Player;
+CRITICAL_SECTION g_CS_Bullet;
+CRITICAL_SECTION g_CS_Ball;
+CRITICAL_SECTION g_CS_Block;
 
 
 DWORD WINAPI ProcessClient( LPVOID arg );
@@ -74,7 +77,10 @@ void err_display( const char *msg )
 
 int main()
 {
-	InitializeCriticalSection( &g_CS );
+	InitializeCriticalSection( &g_CS_Player );
+	InitializeCriticalSection( &g_CS_Bullet );
+	InitializeCriticalSection( &g_CS_Ball );
+	InitializeCriticalSection( &g_CS_Block );
 	int retval;
 	
 	// 윈속 초기화
@@ -169,8 +175,10 @@ int main()
 	// 윈속 종료
 	WSACleanup();
 
-	DeleteCriticalSection( &g_CS );
-
+	DeleteCriticalSection( &g_CS_Player );
+	DeleteCriticalSection( &g_CS_Bullet );
+	DeleteCriticalSection( &g_CS_Ball );
+	DeleteCriticalSection( &g_CS_Block );
 	return 0;
 }
 
@@ -276,7 +284,7 @@ DWORD WINAPI ProcessUpdate(LPVOID arg)
 
 void Update( const float& fTimeDelta )
 {
-	EnterCriticalSection( &g_CS );
+	EnterCriticalSection( &g_CS_Player );
 	g_fTime += fTimeDelta;
 	if ( g_fTime > 1.f )
 	{
@@ -298,7 +306,7 @@ void Update( const float& fTimeDelta )
 		g_fStageLimitTime -= fTimeDelta;
 	}
 
-	LeaveCriticalSection( &g_CS );
+	LeaveCriticalSection( &g_CS_Player );
 
 	for ( int id = 0; id < 2; ++id )
 	{
@@ -329,7 +337,7 @@ void Update( const float& fTimeDelta )
 
 	for (int id = 0; id < 2; ++id)
 	{
-		EnterCriticalSection(&g_CS);
+		EnterCriticalSection(&g_CS_Player);
 		// 플레이어의 이동
 		// 왼쪽 방향키
 		if (g_Clients[id]->keys.left == true)
@@ -351,10 +359,10 @@ void Update( const float& fTimeDelta )
 		{
 			g_Clients[id]->info.maxFrame = 3;
 		}
-		LeaveCriticalSection(&g_CS);
+		LeaveCriticalSection(&g_CS_Player);
 
 
-		EnterCriticalSection(&g_CS);
+		EnterCriticalSection(&g_CS_Bullet);
 		// 총알의 움직임
 		for (int i = 0; i < 5; ++i)
 		{
@@ -371,7 +379,7 @@ void Update( const float& fTimeDelta )
 				}
 			}
 		}
-		LeaveCriticalSection(&g_CS);
+		LeaveCriticalSection(&g_CS_Bullet);
 	}
 }
 
@@ -412,26 +420,24 @@ void Init()
 
 void PrintPlayerInfo( const PLAYERINFO & tInfo )
 {
-	EnterCriticalSection( &g_CS );
 	cout << "ID : " << tInfo.id << endl;
 	cout << "X : " << tInfo.x << ", Y : " << tInfo.y << endl;
 	cout << "HP : " << tInfo.hp << endl;
-	LeaveCriticalSection( &g_CS );
 }
 
 
 void RecvKeysInfo(int clientnum)
 {
-	EnterCriticalSection(&g_CS);
+	EnterCriticalSection(&g_CS_Player);
 	int ret = recv(g_Clients[clientnum]->socket, (char *)&g_Clients[clientnum]->keys, sizeof(PLAYERKEYINFO), 0);
 	if (ret == SOCKET_ERROR)
 	{
 		err_display("recv()");
 		cout << g_Clients[clientnum]->socket << " recv fail!" << endl;
 	}
-	LeaveCriticalSection(&g_CS);
+	LeaveCriticalSection(&g_CS_Player);
 
-	EnterCriticalSection(&g_CS);
+	EnterCriticalSection(&g_CS_Bullet);
 	if (g_Clients[clientnum]->keys.space == true)
 	{
 		for (int i = 0; i < 5; ++i)
@@ -446,12 +452,11 @@ void RecvKeysInfo(int clientnum)
 			}
 		}
 	}
-	LeaveCriticalSection(&g_CS);
+	LeaveCriticalSection(&g_CS_Bullet);
 }
 
 void SendPlayersInfo(int clientnum)
 {	
-	EnterCriticalSection(&g_CS);
 	//////////////////////////////////////////////////////////////
 		// 현재 클라이언트넘버의 플레이어정보와 다른 클라이언트의 플레이어 정보 전송
 	int ret = send(g_Clients[clientnum]->socket, (char *)&g_Clients[clientnum]->info, sizeof(PLAYERINFO), 0);
@@ -468,22 +473,17 @@ void SendPlayersInfo(int clientnum)
 		cout << g_Clients[clientnum]->socket << " send fail!" << endl;
 	}
 	/////////////////////////////////////////////////////////////
-	LeaveCriticalSection(&g_CS);
 }
 
 void SendGameState( int clientnum )
 {
-	EnterCriticalSection(&g_CS);
-
 	if ( g_iClientNumber == 1 )
 		g_iState = GAME_START;
 	else if( g_iClientNumber == 2 )
 		g_iState = GAME_STAGE1;
-	LeaveCriticalSection(&g_CS);
 
 	int ret = send( g_Clients[clientnum]->socket, ( char* )&g_iState, sizeof( g_iState ), 0 );
 
-	EnterCriticalSection(&g_CS);
 	if ( ret == SOCKET_ERROR )
 	{
 		err_display( "send()" );
@@ -494,26 +494,20 @@ void SendGameState( int clientnum )
 	{
 		//cout << g_Clients[clientnum].socket << " send GameState : " << g_iState << endl;
 	}
-	LeaveCriticalSection(&g_CS);
 }
 
 void SendBulletsInfo(int clientnum)
 {
-	EnterCriticalSection(&g_CS);
 	for (int i = 0; i < 5; ++i)
 	{
 		int ret = send(g_Clients[clientnum]->socket,
 			(char *)&g_tBulletInfo[clientnum][i], sizeof(BULLETINFO), 0);
 	}
-	LeaveCriticalSection(&g_CS);
-
-	EnterCriticalSection(&g_CS);
 	for (int i = 0; i < 5; ++i)
 	{
 		int ret = send(g_Clients[clientnum]->socket,
 			(char *)&g_tBulletInfo[(clientnum + 1) % 2][i], sizeof(BULLETINFO), 0);
 	}
-	LeaveCriticalSection(&g_CS);
 }
 
 void Stage1_Init()
@@ -532,7 +526,7 @@ void BallsUpdate( const float & fTimeDelta )
 	int iSize = GetBallsSize( ( GAME_STATE )g_iState );
 	SERVERBALLINFO** pBalls = GetBallsInfo( ( GAME_STATE )g_iState );
 
-	EnterCriticalSection( &g_CS );
+	EnterCriticalSection( &g_CS_Ball );
 
 	for ( int i = 0; i < iSize; ++i )
 	{
@@ -570,12 +564,66 @@ void BallsUpdate( const float & fTimeDelta )
 		{
 			pBalls[i]->info.y -= iGravity;
 
-			if ( pBalls[i]->info.y - pBalls[i]->info.radius < 150 ) // 최대 높이 값
+			if ( pBalls[i]->info.y - pBalls[i]->info.radius < -30 ) // 최대 높이 값
 				pBalls[i]->yDir = DIR_DOWN;
+		}
+
+		TILEINFO* pTiles = GetTilesInfo(GAME_STATE(g_iState));
+		int iTileSize = GetTilesSize(GAME_STATE(g_iState));
+
+		for (int j = 0; j < iTileSize; ++j)
+		{
+			if (pBalls[i]->yDir == DIR_UP)
+			{
+				if (CollisionBall(pBalls[i]->info,
+					pTiles[j].x,
+					pTiles[j].y + pTiles[j].cy - 5,
+					pTiles[j].cx,
+					5))
+				{
+					pBalls[i]->yDir = DIR_DOWN;
+				}
+			}
+
+			else if (pBalls[i]->yDir == DIR_DOWN)
+			{
+				if (CollisionBall(pBalls[i]->info,
+					pTiles[j].x,
+					pTiles[j].y - 5,
+					pTiles[j].cx,
+					5))
+				{
+					pBalls[i]->yDir = DIR_UP;
+				}
+			}
+
+			if (pBalls[i]->xDir == DIR_LEFT)
+			{
+				if (CollisionBall(pBalls[i]->info,
+					pTiles[j].x + pTiles[j].cx - 5,
+					pTiles[j].y + (pTiles[j].cy / 2) - 5,
+					5,
+					pTiles[j].cy + (pTiles[j].cy / 2) + 5))
+				{
+					pBalls[i]->xDir = DIR_RIGHT;
+				}
+			}
+
+			else if (pBalls[i]->xDir == DIR_RIGHT)
+			{
+				if (CollisionBall(pBalls[i]->info,
+					pTiles[j].x - 5,
+					pTiles[j].y + (pTiles[j].cy / 2) - 5,
+					5,
+					pTiles[j].y + (pTiles[j].cy / 2) + 5))
+				{
+					pBalls[i]->xDir = DIR_LEFT;
+				}
+			}
 		}
 	}
 
-	LeaveCriticalSection( &g_CS );
+	LeaveCriticalSection( &g_CS_Ball );
 }
 
 void PlayerCollisionBall(int id)
@@ -584,10 +632,10 @@ void PlayerCollisionBall(int id)
 	{
 		if ( CollisionBall( iterB->second->info, g_Clients[id]->info.x, g_Clients[id]->info.y, 70, 70 ) )
 		{
-			EnterCriticalSection( &g_CS );
+			EnterCriticalSection( &g_CS_Player );
 			g_Clients[id]->info.hp -= 1;
 			cout << "id : " << id << "공과 충돌" << endl;
-			LeaveCriticalSection( &g_CS );
+			LeaveCriticalSection( &g_CS_Player );
 		}
 	}
 }
