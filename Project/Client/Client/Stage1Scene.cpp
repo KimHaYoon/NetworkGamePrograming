@@ -141,6 +141,8 @@ void CStage1Scene::Update( const float& fTimeDelta )
 	{
 		CObj* pBalls = GET_SINGLE( CObjectManager )->FindObject( "Ball" + to_string( i ) );
 		dynamic_cast< CBall* >( pBalls )->SetBallInfo( pBallInfo[i] );
+
+		_cprintf( "%s:%d, %d \n", pBalls->GetTag(), (int)pBalls->GetPos().x, (int)pBalls->GetPos().y );
 	}
 
 	m_iBallSize = iCurBallSize;

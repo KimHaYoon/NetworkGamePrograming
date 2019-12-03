@@ -13,7 +13,7 @@ BULLETINFO		g_tBulletInfo[2][5];
 
 
 unordered_multimap<int, TILEINFO>			g_Tiles;
-unordered_multimap<int, SERVERBALLINFO>		g_Balls;
+unordered_multimap<int, SERVERBALLINFO*>		g_Balls;
 
 // 191203 스테이지 제한시간
 static float	g_fStageLimitTime;
@@ -47,8 +47,8 @@ TILEINFO* GetTilesInfo( const GAME_STATE& eState = GAME_START );
 int	GetTilesSize( const GAME_STATE& eState = GAME_START );
 
 void BallsInit();
-void AddBallInfo( const SERVERBALLINFO& tBall, const GAME_STATE& eState = GAME_START );
-SERVERBALLINFO* GetBallsInfo( const GAME_STATE& eState = GAME_START );
+void AddBallInfo( SERVERBALLINFO* tBall, const GAME_STATE& eState = GAME_START );
+SERVERBALLINFO** GetBallsInfo( const GAME_STATE& eState = GAME_START );
 int GetBallsSize( const GAME_STATE& eState = GAME_START );
 //====================================================================================================
 
@@ -232,7 +232,6 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 DWORD WINAPI ProcessUpdate(LPVOID arg)
 {
 	int clientnum = -1;
-
 	ULONGLONG ullOldTime = GetTickCount64();
 
 	int frame = 0;
@@ -494,48 +493,49 @@ void Stage1_Init()
 
 void BallsUpdate( const float & fTimeDelta )
 {
-	SERVERBALLINFO* pBalls = GetBallsInfo( (GAME_STATE)g_iState );
 	int iSize = GetBallsSize( ( GAME_STATE )g_iState );
+	SERVERBALLINFO** pBalls = GetBallsInfo( ( GAME_STATE )g_iState );
 
 	EnterCriticalSection( &g_CS );
 
 	for ( int i = 0; i < iSize; ++i )
 	{
-		int iGravity = ( pBalls[i].info.y + 80 ) * 1.5 * fTimeDelta; // 낙하속도
+
+		int iGravity = ( pBalls[i]->info.y + 80 ) * 1.5 * fTimeDelta; // 낙하속도
 		if ( iGravity <= 1 )
-			pBalls[i].yDir = DIR_DOWN;
+			pBalls[i]->yDir = DIR_DOWN;
 
 
-		if ( pBalls[i].xDir == DIR_LEFT )
+		if ( pBalls[i]->xDir == DIR_LEFT )
 		{
-			pBalls[i].info.x -= 70 * fTimeDelta;
+			pBalls[i]->info.x -= (70 * fTimeDelta);
 
-			if ( pBalls[i].info.x - pBalls[i].info.radius < -10 ) // 왼쪽 벽에 충돌
-				pBalls[i].xDir = DIR_RIGHT;
+			if ( pBalls[i]->info.x - pBalls[i]->info.radius < -10 ) // 왼쪽 벽에 충돌
+				pBalls[i]->xDir = DIR_RIGHT;
 		}
 
-		else if ( pBalls[i].xDir == DIR_RIGHT )
+		else if ( pBalls[i]->xDir == DIR_RIGHT )
 		{
-			pBalls[i].info.x += 70 * fTimeDelta;
+			pBalls[i]->info.x += (70 * fTimeDelta);
 
-			if ( pBalls[i].info.x + pBalls[i].info.radius > 801 - 35 ) // 오른쪽 벽에 충돌
-				pBalls[i].xDir = DIR_LEFT;
+			if ( pBalls[i]->info.x + pBalls[i]->info.radius > 801 - 35 ) // 오른쪽 벽에 충돌
+				pBalls[i]->xDir = DIR_LEFT;
 		}
 
-		if ( pBalls[i].yDir == DIR_DOWN )
+		if ( pBalls[i]->yDir == DIR_DOWN )
 		{
-			pBalls[i].info.y += iGravity;
+			pBalls[i]->info.y += iGravity;
 
-			if ( pBalls[i].info.y + pBalls[i].info.radius > 400 ) // 바닥에 충돌
-				pBalls[i].yDir = DIR_UP;
+			if ( pBalls[i]->info.y + pBalls[i]->info.radius > 400 ) // 바닥에 충돌
+				pBalls[i]->yDir = DIR_UP;
 		}
 
-		else if ( pBalls[i].yDir == DIR_UP )
+		else if ( pBalls[i]->yDir == DIR_UP )
 		{
-			pBalls[i].info.y -= iGravity;
+			pBalls[i]->info.y -= iGravity;
 
-			if ( pBalls[i].info.y - pBalls[i].info.radius < 150 ) // 최대 높이 값
-				pBalls[i].yDir = DIR_DOWN;
+			if ( pBalls[i]->info.y - pBalls[i]->info.radius < 150 ) // 최대 높이 값
+				pBalls[i]->yDir = DIR_DOWN;
 		}
 	}
 
@@ -615,44 +615,48 @@ void BallsInit()
 {
 	// Stage1
 	{
-		SERVERBALLINFO ballInfo;
-		ballInfo.info.x = 200;
-		ballInfo.info.y = 250;
-		ballInfo.info.radius = 25;
-		ballInfo.info.type = 'A';
-		ballInfo.live = true;
-		ballInfo.xDir = true;
-		ballInfo.yDir = false;
+		SERVERBALLINFO* ballInfo = new SERVERBALLINFO;
+		ballInfo->info.x = 200;
+		ballInfo->info.y = 250;
+		ballInfo->info.radius = 25;
+		ballInfo->info.type = 'A';
+		ballInfo->live = true;
+		ballInfo->xDir = DIR_RIGHT;
+		ballInfo->yDir = DIR_DOWN;
 
 
 		AddBallInfo( ballInfo, GAME_STAGE1 );
 
-		ballInfo.info.x = 600;
-		ballInfo.info.y = 250;
-		ballInfo.xDir = false;
-		ballInfo.yDir = false;
+		ballInfo = new SERVERBALLINFO;
+		ballInfo->info.x = 600;
+		ballInfo->info.y = 250;
+		ballInfo->info.radius = 25;
+		ballInfo->info.type = 'A';
+		ballInfo->live = true;
+		ballInfo->xDir = DIR_LEFT;
+		ballInfo->yDir = DIR_DOWN;
 
 		AddBallInfo( ballInfo, GAME_STAGE1 );
 	}
 }
 
-void AddBallInfo( const SERVERBALLINFO & tBall, const GAME_STATE & eState )
+void AddBallInfo( SERVERBALLINFO * tBall, const GAME_STATE & eState )
 {
 	g_Balls.insert( make_pair( eState, tBall ) );
 }
 
-SERVERBALLINFO * GetBallsInfo( const GAME_STATE & eState )
+SERVERBALLINFO ** GetBallsInfo( const GAME_STATE & eState )
 {
-	SERVERBALLINFO* pBalls = NULL;
+	SERVERBALLINFO** pBalls = NULL;
 
 	if ( eState == GAME_START )
 	{
-		pBalls = new SERVERBALLINFO[g_Balls.size()];
+		pBalls = new SERVERBALLINFO *[g_Balls.size()];
 
 		auto iter = g_Balls.begin();
 		for ( int i = 0; i < g_Balls.size(); ++i )
 		{
-			pBalls[i] = iter->second;
+			pBalls[i] = (iter->second);
 
 			++iter;
 		}
@@ -663,7 +667,7 @@ SERVERBALLINFO * GetBallsInfo( const GAME_STATE & eState )
 	auto iterRange = g_Balls.equal_range( eState );
 	int iSize = distance( iterRange.first, iterRange.second );
 
-	pBalls = new SERVERBALLINFO[g_Balls.count( eState )];
+	pBalls = new SERVERBALLINFO *[g_Balls.count( eState )];
 
 	auto iter = iterRange.first;
 
@@ -693,13 +697,13 @@ void SendTileInfo( int clientnum, const GAME_STATE& eState )
 void SendBallsInfo( int clientnum, const GAME_STATE & eState )
 {
 	int iSize = GetBallsSize( eState );
-	SERVERBALLINFO* pBalls = GetBallsInfo( eState );
+	SERVERBALLINFO** pBalls = GetBallsInfo( eState );
 	send( g_Clients[clientnum].socket, ( char* )&iSize, sizeof( iSize ), 0 );
 
-	cout << "Send Balls Size : " << iSize << endl;
+	//cout << "Send Balls Size : " << iSize << endl;
 
 	for ( int i = 0; i < iSize; ++i )
-		send( g_Clients[clientnum].socket, ( char* )&pBalls[i].info, sizeof( BALLINFO ), 0 );
+		send( g_Clients[clientnum].socket, ( char* )&pBalls[i]->info, sizeof( BALLINFO ), 0 );
 
-	cout << "Send Balls Info" << endl;
+	//cout << "Send Balls Info" << endl;
 }

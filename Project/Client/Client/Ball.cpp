@@ -23,9 +23,11 @@ void CBall::Input()
 
 void CBall::Update(const float & fTimeDelta)
 {
+
+	CObj::Update(fTimeDelta);
+
 	if ( GET_SINGLE( CNetwork )->GetServerOn() )
 		return;
-	CObj::Update(fTimeDelta);
 
 	m_nGravity = (m_tPos.y + 80) * 1.5 * fTimeDelta; // ³«ÇÏ¼Óµµ
 	if (m_nGravity <= 1)
@@ -87,6 +89,7 @@ void CBall::SetBallInfo(BALLINFO tInfo)
 		SetTexture("SmallBall", L"Texture/Ball/Ball3.bmp", true, RGB(0, 0, 0));
 		//m_tSize.x = m_tSize.y = 15;
 	}
+	
 	SetPos(m_tInfo.x, m_tInfo.y);
 }
 
