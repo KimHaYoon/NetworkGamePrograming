@@ -69,7 +69,7 @@ typedef struct Ball
 {
 	int x;
 	int y;
-	char type;
+	int type;
 	int radius;
 }BALLINFO;
 

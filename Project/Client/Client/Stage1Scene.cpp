@@ -16,6 +16,7 @@
 
 CStage1Scene::CStage1Scene()
 {
+	m_iBallTagCount = 2;
 }
 
 

@@ -674,6 +674,12 @@ void BallCollisionBullet()
 {
 	for ( auto iterB = g_Balls.begin(); iterB != g_Balls.end(); ++iterB )
 	{
+		if ( iterB->first != g_iState )
+			continue;
+
+		if ( !iterB->second->live )
+			continue;
+
 		for ( int id = 0; id < 2; ++id )
 		{
 			for ( int i = 0; i < 5; ++i )
@@ -683,7 +689,46 @@ void BallCollisionBullet()
 
 				if ( CollisionBall( iterB->second->info, g_tBulletInfo[id][i].x, g_tBulletInfo[id][i].y, 30, g_tBulletInfo[id][i].height ) )
 				{
-					cout << "°øÀÌ¶û ÃÑ¾Ë Ãæµ¹µÊ " << endl;
+					// Ãæµ¹ÇÑ ÃÑ¾Ë »èÁ¦
+					EnterCriticalSection( &g_CS_Player );
+					g_tBulletInfo[id][i].shot = false;
+
+					// °ø Å©±â ¹Ù²ãÁÖ±â
+					int radius, type;
+
+					if ( iterB->second->info.type == 11 )
+					{
+						radius = 15;
+						type = 21;
+					}
+
+					else if ( iterB->second->info.type == 21 )
+					{
+						radius = 8;
+						type = 31;
+					}
+
+					else
+					{
+						radius = 0;
+						type = 30;
+					}
+
+					iterB->second->info.radius = radius;
+					iterB->second->info.type = type;
+					iterB->second->xDir = DIR_LEFT;
+					iterB->second->yDir = DIR_DOWN;
+
+					SERVERBALLINFO* ballInfo = new SERVERBALLINFO;
+					ballInfo->info.x = iterB->second->info.x;
+					ballInfo->info.y = iterB->second->info.y;
+					ballInfo->info.radius = radius;
+					ballInfo->info.type = type;
+					ballInfo->live = true;
+					ballInfo->xDir = DIR_RIGHT;
+					ballInfo->yDir = DIR_DOWN;
+					AddBallInfo( ballInfo, (GAME_STATE)iterB->first );
+					LeaveCriticalSection( &g_CS_Player );
 				}
 			}
 		}
@@ -791,24 +836,98 @@ void BallsInit()
 		ballInfo->info.x = 200;
 		ballInfo->info.y = 250;
 		ballInfo->info.radius = 25;
-		ballInfo->info.type = 'A';
+		ballInfo->info.type = 11;
 		ballInfo->live = true;
 		ballInfo->xDir = DIR_RIGHT;
 		ballInfo->yDir = DIR_DOWN;
-
-
 		AddBallInfo( ballInfo, GAME_STAGE1 );
 
 		ballInfo = new SERVERBALLINFO;
 		ballInfo->info.x = 600;
 		ballInfo->info.y = 250;
 		ballInfo->info.radius = 25;
-		ballInfo->info.type = 'A';
+		ballInfo->info.type = 11;
 		ballInfo->live = true;
 		ballInfo->xDir = DIR_LEFT;
 		ballInfo->yDir = DIR_DOWN;
-
 		AddBallInfo( ballInfo, GAME_STAGE1 );
+	}
+
+	// Stage 2
+	{
+		SERVERBALLINFO* ballInfo = new SERVERBALLINFO;
+		ballInfo->info.x = 200;
+		ballInfo->info.y = 250;
+		ballInfo->info.radius = 25;
+		ballInfo->info.type = 11;
+		ballInfo->live = true;
+		ballInfo->xDir = DIR_RIGHT;
+		ballInfo->yDir = DIR_DOWN;
+		AddBallInfo( ballInfo, GAME_STAGE2 );
+
+		ballInfo = new SERVERBALLINFO;
+		ballInfo->info.x = 600;
+		ballInfo->info.y = 250;
+		ballInfo->info.radius = 25;
+		ballInfo->info.type = 11;
+		ballInfo->live = true;
+		ballInfo->xDir = DIR_LEFT;
+		ballInfo->yDir = DIR_DOWN;
+		AddBallInfo( ballInfo, GAME_STAGE2 );
+
+		ballInfo = new SERVERBALLINFO;
+		ballInfo->info.x = 600;
+		ballInfo->info.y = 250;
+		ballInfo->info.radius = 25;
+		ballInfo->info.type = 11;
+		ballInfo->live = true;
+		ballInfo->xDir = DIR_LEFT;
+		ballInfo->yDir = DIR_DOWN;
+		AddBallInfo( ballInfo, GAME_STAGE2 );
+
+	}
+
+	// Stage 3
+	{
+		SERVERBALLINFO* ballInfo = new SERVERBALLINFO;
+		ballInfo->info.x = 200;
+		ballInfo->info.y = 250;
+		ballInfo->info.radius = 25;
+		ballInfo->info.type = 11;
+		ballInfo->live = true;
+		ballInfo->xDir = DIR_RIGHT;
+		ballInfo->yDir = DIR_DOWN;
+		AddBallInfo( ballInfo, GAME_STAGE3 );
+
+		ballInfo = new SERVERBALLINFO;
+		ballInfo->info.x = 200;
+		ballInfo->info.y = 250;
+		ballInfo->info.radius = 25;
+		ballInfo->info.type = 11;
+		ballInfo->live = true;
+		ballInfo->xDir = DIR_RIGHT;
+		ballInfo->yDir = DIR_DOWN;
+		AddBallInfo( ballInfo, GAME_STAGE3 );
+
+		ballInfo = new SERVERBALLINFO;
+		ballInfo->info.x = 600;
+		ballInfo->info.y = 250;
+		ballInfo->info.radius = 25;
+		ballInfo->info.type = 11;
+		ballInfo->live = true;
+		ballInfo->xDir = DIR_LEFT;
+		ballInfo->yDir = DIR_DOWN;
+		AddBallInfo( ballInfo, GAME_STAGE3 );
+
+		ballInfo = new SERVERBALLINFO;
+		ballInfo->info.x = 600;
+		ballInfo->info.y = 250;
+		ballInfo->info.radius = 25;
+		ballInfo->info.type = 11;
+		ballInfo->live = true;
+		ballInfo->xDir = DIR_LEFT;
+		ballInfo->yDir = DIR_DOWN;
+		AddBallInfo( ballInfo, GAME_STAGE3 );
 	}
 }
 

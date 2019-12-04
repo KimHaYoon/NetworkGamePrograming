@@ -67,6 +67,12 @@ void CBall::Update(const float & fTimeDelta)
 
 void CBall::Render(HDC hDC)
 {
+	string strType = to_string( m_tInfo.type );
+	char type = strType[1];
+
+	if ( type == '0' )
+		return;
+
 	CObj::Render(hDC);
 }
 
@@ -74,17 +80,21 @@ void CBall::SetBallInfo(BALLINFO tInfo)
 {
 	m_tInfo = tInfo;
 	m_tSize.x = m_tSize.y = m_tInfo.radius * 2;
-	if (m_tInfo.type == 'A')
+
+	string strType = to_string( m_tInfo.type );
+	char type = strType[1];
+
+	if (type == '1')
 	{
 		SetTexture("LargeBall", L"Texture/Ball/Ball1.bmp", true, RGB(0, 0, 0));
 		//m_tSize.x = m_tSize.y = 50;
 	}
-	else if (m_tInfo.type == 'B')
+	else if (type == '2')
 	{
 		SetTexture("MidiumBall", L"Texture/Ball/Ball2.bmp", true, RGB(0, 0, 0));
 		//m_tSize.x = m_tSize.y = 30;
 	}
-	else if (m_tInfo.type == 'C')
+	else if (type == '3')
 	{
 		SetTexture("SmallBall", L"Texture/Ball/Ball3.bmp", true, RGB(0, 0, 0));
 		//m_tSize.x = m_tSize.y = 15;

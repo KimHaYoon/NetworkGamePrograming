@@ -90,7 +90,7 @@ typedef struct Ball
 {
 	int x;
 	int y;
-	char type;
+	int type;
 	int radius;
 }BALLINFO;
 
@@ -100,6 +100,7 @@ typedef struct ServerBallInfo
 	bool	xDir;
 	bool	yDir;
 	bool	live;
+	float	limitTime;
 }SERVERBALLINFO;
 
 typedef struct Item
