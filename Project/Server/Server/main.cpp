@@ -695,7 +695,7 @@ void BallCollisionBullet()
 					g_tBulletInfo[id][i].shot = false;
 
 					// 공 크기 바꿔주기
-					int radius, type;
+					int radius{}, type{};
 
 					if ( iterB->second->info.type == 11 )
 					{
@@ -709,11 +709,14 @@ void BallCollisionBullet()
 						type = 31;
 					}
 
-					else
+					else if(iterB->second->info.type == 31 )
 					{
-						radius = 0;
-						type = 30;
+						iterB->second->info.radius = 0;
+						iterB->second->info.type = 30;
+						iterB->second->live = false;
+						continue;
 					}
+
 
 					iterB->second->info.radius = radius;
 					iterB->second->info.type = type;

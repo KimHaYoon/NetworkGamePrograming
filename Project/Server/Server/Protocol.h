@@ -100,7 +100,6 @@ typedef struct ServerBallInfo
 	bool	xDir;
 	bool	yDir;
 	bool	live;
-	float	limitTime;
 }SERVERBALLINFO;
 
 typedef struct Item
