@@ -142,10 +142,20 @@ void CStage1Scene::Update( const float& fTimeDelta )
 		CObj* pBalls = GET_SINGLE( CObjectManager )->FindObject( "Ball" + to_string( i ) );
 		dynamic_cast< CBall* >( pBalls )->SetBallInfo( pBallInfo[i] );
 
-		_cprintf( "%s:%d, %d \n", pBalls->GetTag(), (int)pBalls->GetPos().x, (int)pBalls->GetPos().y );
+		//_cprintf( "%s:%d, %d \n", pBalls->GetTag(), (int)pBalls->GetPos().x, (int)pBalls->GetPos().y );
 	}
 
 	m_iBallSize = iCurBallSize;
+
+	int iTileSize = GET_SINGLE(CNetwork)->GetTilesSize();
+	TILEINFO* pTiles = GET_SINGLE(CNetwork)->GetTilesInfo();
+	
+	for (int i = 0; i < iTileSize; ++i)
+	{
+		_cprintf("%d\n", i);
+		CObj* pTile = GET_SINGLE(CObjectManager)->FindObject("Block" + to_string(i));
+		dynamic_cast<CTile*>(pTile)->SetTileInfo(pTiles[i]);
+	}
 }
 
 void CStage1Scene::Render( HDC hDC )

@@ -44,6 +44,7 @@ void Stage1_Init();
 void BallsUpdate( const float& fTimeDelta );
 
 bool CollisionBall( const BALLINFO& tBall, int x, int y, int width, int height );
+bool AABBCollisionCheck(int AminX, int AminY, int AmaxX, int AmaxY, int BminX, int BminY, int BmaxX, int BmaxY);
 void PlayerCollisionBall( int id );
 void BallCollisionBullet();
 
@@ -53,7 +54,7 @@ void SendBallsInfo( int clientnum, const GAME_STATE& eState = GAME_START );
 
 
 void TileInit();
-TILEINFO* GetTilesInfo( const GAME_STATE& eState = GAME_START );
+TILEINFO** GetTilesInfo( const GAME_STATE& eState = GAME_START );
 int	GetTilesSize( const GAME_STATE& eState = GAME_START );
 
 void BallsInit();
@@ -358,6 +359,17 @@ void Update( const float& fTimeDelta )
 		if (g_Clients[id]->keys.space == true)
 		{
 			g_Clients[id]->info.maxFrame = 3;
+			for (int i = 0; i < 5; ++i)
+			{
+				if (g_tBulletInfo[id][i].shot == false)
+				{
+					g_tBulletInfo[id][i].shot = true;
+					g_tBulletInfo[id][i].x = g_Clients[id]->info.x + 15;
+					g_tBulletInfo[id][i].y = g_Clients[id]->info.y;
+					g_Clients[id]->keys.space = false;
+					break;
+				}
+			}
 		}
 		LeaveCriticalSection(&g_CS_Player);
 
@@ -376,6 +388,40 @@ void Update( const float& fTimeDelta )
 				{
 					g_tBulletInfo[id][i].shot = false;
 					g_tBulletInfo[id][i].height = 70.f;
+				}
+
+				// 총알과 타일의 충돌
+				TILEINFO** pTiles = GetTilesInfo(GAME_STATE(g_iState));
+				int iTileSize = GetTilesSize(GAME_STATE(g_iState));
+
+				for (int j = 0; j < iTileSize; ++j)
+				{
+					if (pTiles[j]->type == 0)
+						continue;
+
+					if (AABBCollisionCheck(
+						g_tBulletInfo[id][i].x,
+						g_tBulletInfo[id][i].y,
+						g_tBulletInfo[id][i].x + 30,
+						g_tBulletInfo[id][i].y + g_tBulletInfo[id][i].height,
+						pTiles[j]->x,
+						pTiles[j]->y,
+						pTiles[j]->x + pTiles[j]->cx - 10,
+						pTiles[j]->y + pTiles[j]->cy))
+					{
+						g_tBulletInfo[id][i].shot = false;
+						g_tBulletInfo[id][i].x = 0;
+						g_tBulletInfo[id][i].y = 0;
+						g_tBulletInfo[id][i].height = 70;
+
+						if (pTiles[j]->type == 1)
+						{
+							pTiles[j]->animation = true;
+							pTiles[j]->maxFrame = 5;
+							pTiles[j]->type = 0;
+						}
+						break;
+					}
 				}
 			}
 		}
@@ -428,31 +474,12 @@ void PrintPlayerInfo( const PLAYERINFO & tInfo )
 
 void RecvKeysInfo(int clientnum)
 {
-	EnterCriticalSection(&g_CS_Player);
 	int ret = recv(g_Clients[clientnum]->socket, (char *)&g_Clients[clientnum]->keys, sizeof(PLAYERKEYINFO), 0);
 	if (ret == SOCKET_ERROR)
 	{
 		err_display("recv()");
 		cout << g_Clients[clientnum]->socket << " recv fail!" << endl;
 	}
-	LeaveCriticalSection(&g_CS_Player);
-
-	EnterCriticalSection(&g_CS_Bullet);
-	if (g_Clients[clientnum]->keys.space == true)
-	{
-		for (int i = 0; i < 5; ++i)
-		{
-			if (g_tBulletInfo[clientnum][i].shot == false)
-			{
-				g_tBulletInfo[clientnum][i].shot = true;
-				g_tBulletInfo[clientnum][i].x = g_Clients[clientnum]->info.x + 15;
-				g_tBulletInfo[clientnum][i].y = g_Clients[clientnum]->info.y;
-				g_Clients[clientnum]->keys.space = false;
-				break;
-			}
-		}
-	}
-	LeaveCriticalSection(&g_CS_Bullet);
 }
 
 void SendPlayersInfo(int clientnum)
@@ -556,7 +583,7 @@ void BallsUpdate( const float & fTimeDelta )
 		{
 			pBalls[i]->info.y += iGravity;
 
-			if ( pBalls[i]->info.y + pBalls[i]->info.radius > 400 ) // 바닥에 충돌
+			if ( pBalls[i]->info.y + pBalls[i]->info.radius > 410 ) // 바닥에 충돌
 				pBalls[i]->yDir = DIR_UP;
 		}
 
@@ -568,17 +595,20 @@ void BallsUpdate( const float & fTimeDelta )
 				pBalls[i]->yDir = DIR_DOWN;
 		}
 
-		TILEINFO* pTiles = GetTilesInfo(GAME_STATE(g_iState));
+		TILEINFO** pTiles = GetTilesInfo(GAME_STATE(g_iState));
 		int iTileSize = GetTilesSize(GAME_STATE(g_iState));
 
 		for (int j = 0; j < iTileSize; ++j)
 		{
+			if (pTiles[j]->type == 0)
+				continue;
+
 			if (pBalls[i]->yDir == DIR_UP)
 			{
 				if (CollisionBall(pBalls[i]->info,
-					pTiles[j].x,
-					pTiles[j].y + pTiles[j].cy - 5,
-					pTiles[j].cx,
+					pTiles[j]->x,
+					pTiles[j]->y + pTiles[j]->cy - 5,
+					pTiles[j]->cx - 20,
 					5))
 				{
 					pBalls[i]->yDir = DIR_DOWN;
@@ -588,9 +618,9 @@ void BallsUpdate( const float & fTimeDelta )
 			else if (pBalls[i]->yDir == DIR_DOWN)
 			{
 				if (CollisionBall(pBalls[i]->info,
-					pTiles[j].x,
-					pTiles[j].y - 5,
-					pTiles[j].cx,
+					pTiles[j]->x,
+					pTiles[j]->y - 5,
+					pTiles[j]->cx - 20,
 					5))
 				{
 					pBalls[i]->yDir = DIR_UP;
@@ -600,10 +630,10 @@ void BallsUpdate( const float & fTimeDelta )
 			if (pBalls[i]->xDir == DIR_LEFT)
 			{
 				if (CollisionBall(pBalls[i]->info,
-					pTiles[j].x + pTiles[j].cx - 5,
-					pTiles[j].y + (pTiles[j].cy / 2) - 5,
-					5,
-					pTiles[j].cy + (pTiles[j].cy / 2) + 5))
+					pTiles[j]->x + pTiles[j]->cx - 15,
+					pTiles[j]->y + (pTiles[j]->cy / 2) - 5,
+					10,
+					10))
 				{
 					pBalls[i]->xDir = DIR_RIGHT;
 				}
@@ -612,10 +642,10 @@ void BallsUpdate( const float & fTimeDelta )
 			else if (pBalls[i]->xDir == DIR_RIGHT)
 			{
 				if (CollisionBall(pBalls[i]->info,
-					pTiles[j].x - 5,
-					pTiles[j].y + (pTiles[j].cy / 2) - 5,
-					5,
-					pTiles[j].y + (pTiles[j].cy / 2) + 5))
+					pTiles[j]->x - 10,
+					pTiles[j]->y + (pTiles[j]->cy / 2) - 5,
+					10,
+					10))
 				{
 					pBalls[i]->xDir = DIR_LEFT;
 				}
@@ -669,6 +699,21 @@ bool CollisionBall( const BALLINFO & tBall, int x, int y, int width, int height 
 	return false;
 }
 
+bool AABBCollisionCheck(int AminX, int AminY, int AmaxX, int AmaxY, int BminX, int BminY, int BmaxX, int BmaxY)
+{
+	if (AmaxX < BminX)
+		return false;
+	if (AminX > BmaxX)
+		return false;
+
+	if (AmaxY < BminY)
+		return false;
+	if (AminY > BmaxY)
+		return false;
+
+	return true;
+}
+
 
 void TileInit()
 {
@@ -679,11 +724,11 @@ void TileInit()
 		blockInfo.x = 100;
 		blockInfo.y = 250;
 		blockInfo.maxFrame = 5;
-		blockInfo.nowFrame = 0;
-		blockInfo.type = 2;
+		blockInfo.type = 1;
 		blockInfo.color = 0;
 		blockInfo.cx = 100;
 		blockInfo.cy = 40;
+		blockInfo.animation = false;
 		g_Tiles.insert( make_pair( GAME_STAGE1, blockInfo ) );
 
 		blockInfo.id = 1;
@@ -698,18 +743,18 @@ void TileInit()
 	}
 }
 
-TILEINFO * GetTilesInfo( const GAME_STATE & eState )
+TILEINFO ** GetTilesInfo( const GAME_STATE & eState )
 {
-	TILEINFO* pTiles = NULL;
+	TILEINFO** pTiles = NULL;
 
 	if ( eState == GAME_START )
 	{
-		pTiles = new TILEINFO[g_Tiles.size()];
+		pTiles = new TILEINFO*[g_Tiles.size()];
 
 		auto iter = g_Tiles.begin();
 		for ( int i = 0; i < g_Tiles.size(); ++i )
 		{
-			pTiles[i] = iter->second;
+			pTiles[i] = (TILEINFO*)&(iter->second);
 
 			++iter;
 		}
@@ -720,13 +765,13 @@ TILEINFO * GetTilesInfo( const GAME_STATE & eState )
 	auto iterRange = g_Tiles.equal_range( eState );
 	int iSize = distance( iterRange.first, iterRange.second );
 
-	pTiles = new TILEINFO[g_Tiles.count( eState )];
+	pTiles = new TILEINFO*[g_Tiles.count( eState )];
 
 	auto iter = iterRange.first;
 
 	for ( int i = 0; i < g_Tiles.count( eState ); ++i )
 	{
-		pTiles[i] = iter->second;
+		pTiles[i] = (TILEINFO*)&(iter->second);
 		++iter;
 	}
 
@@ -815,10 +860,14 @@ int GetBallsSize( const GAME_STATE & eState )
 void SendTileInfo( int clientnum, const GAME_STATE& eState )
 {
 	int iSize = GetTilesSize( eState );
-	TILEINFO* pTiles = GetTilesInfo( eState );
+	TILEINFO** pTiles = GetTilesInfo( eState );
 	send( g_Clients[clientnum]->socket, ( char* )&iSize, sizeof( iSize ), 0 );
-	for ( int i = 0; i < iSize; ++i )
-		send( g_Clients[clientnum]->socket, ( char* )&pTiles[i], sizeof( TILEINFO ), 0 );
+	for (int i = 0; i < iSize; ++i)
+	{
+		TILEINFO tInfo = *pTiles[i];
+		send(g_Clients[clientnum]->socket, (char*)&tInfo, sizeof(TILEINFO), 0);
+	}
+
 }
 
 void SendBallsInfo( int clientnum, const GAME_STATE & eState )

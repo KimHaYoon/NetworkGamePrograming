@@ -99,7 +99,7 @@ typedef struct Tile
 	int type; // 0 없음 1 부서짐 2 안부서짐
 	int color; // 0 블루 1 옐로우
 
-	int nowFrame;
+	bool animation;
 	int maxFrame;
 }TILEINFO;
 

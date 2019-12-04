@@ -4,9 +4,12 @@
 class CTile :
 	public CObj
 {
-	TILEINFO m_tInfo;
+	TILEINFO	m_tInfo;
 
-	float m_fFrame;
+	int			m_iNowFrame;
+	float		m_fFrame;
+
+	bool		m_bRender;
 public:
 	CTile();
 	virtual ~CTile();
