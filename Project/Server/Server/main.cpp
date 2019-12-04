@@ -366,6 +366,7 @@ void Update( const float& fTimeDelta )
 					g_tBulletInfo[id][i].shot = true;
 					g_tBulletInfo[id][i].x = g_Clients[id]->info.x + 15;
 					g_tBulletInfo[id][i].y = g_Clients[id]->info.y;
+					g_tBulletInfo[id][i].height = 70.f;
 					g_Clients[id]->keys.space = false;
 					break;
 				}
