@@ -29,6 +29,8 @@ void CItem::Update(const float & fTimeDelta)
 void CItem::Render(HDC hDC)
 {
 	CObj::Render(hDC);
+
+	Die();
 }
 
 void CItem::SetItemInfo(ITEMINFO tInfo)

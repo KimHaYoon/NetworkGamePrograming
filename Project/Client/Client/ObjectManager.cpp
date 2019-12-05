@@ -38,10 +38,10 @@ void CObjectManager::Input()
 		if ( !( *iter )->GetAlive() )
 		{
 			SAFE_DELETE( *iter );
-			m_ObjList.erase( iter );
+			iter = m_ObjList.erase( iter );
 		}
-
-		++iter;
+		else
+			++iter;
 	}
 }
 
@@ -57,10 +57,10 @@ void CObjectManager::Update( const float& fTimeDelta )
 		if ( !( *iter )->GetAlive() )
 		{
 			SAFE_DELETE( *iter );
-			m_ObjList.erase( iter );
+			iter = m_ObjList.erase( iter );
 		}
-
-		++iter;
+		else
+			++iter;
 	}
 }
 
@@ -76,10 +76,10 @@ void CObjectManager::Render(HDC hDC)
 		if ( !( *iter )->GetAlive() )
 		{
 			SAFE_DELETE( *iter );
-			m_ObjList.erase( iter );
+			iter = m_ObjList.erase( iter );
 		}
-
-		++iter;
+		else
+			++iter;
 	}
 }
 
