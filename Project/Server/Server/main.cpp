@@ -26,7 +26,7 @@ CRITICAL_SECTION g_CS_Player;
 CRITICAL_SECTION g_CS_Bullet;
 CRITICAL_SECTION g_CS_Ball;
 CRITICAL_SECTION g_CS_Block;
-
+CRITICAL_SECTION g_CS_State;
 
 DWORD WINAPI ProcessClient( LPVOID arg );
 DWORD WINAPI ProcessUpdate(LPVOID arg);
@@ -38,6 +38,10 @@ void RecvKeysInfo(int clientnum);
 void SendPlayersInfo(int clientnum);
 void SendGameState(int clientnum);
 void SendBulletsInfo(int clientnum);
+
+// 191205 추가
+bool SceneChange();			// 공이 다 죽었을 때
+bool GameLose();			// 플레이어가 둘 다 죽었을 때
 
 // 191203 추가
 void Stage1_Init();
@@ -88,6 +92,8 @@ int main()
 	InitializeCriticalSection( &g_CS_Bullet );
 	InitializeCriticalSection( &g_CS_Ball );
 	InitializeCriticalSection( &g_CS_Block );
+	InitializeCriticalSection( &g_CS_State );
+
 	int retval;
 	
 	// 윈속 초기화
@@ -186,6 +192,7 @@ int main()
 	DeleteCriticalSection( &g_CS_Bullet );
 	DeleteCriticalSection( &g_CS_Ball );
 	DeleteCriticalSection( &g_CS_Block );
+	DeleteCriticalSection( &g_CS_State );
 	return 0;
 }
 
@@ -437,6 +444,15 @@ void Update( const float& fTimeDelta )
 		}
 		LeaveCriticalSection(&g_CS_Bullet);
 	}
+
+	if ( SceneChange() )
+	{
+		EnterCriticalSection( &g_CS_State );
+		if(g_iState != GAME_END )
+			g_iState += 1;
+		LeaveCriticalSection( &g_CS_State );
+
+	}
 }
 
 void Init()
@@ -543,6 +559,30 @@ void SendBulletsInfo(int clientnum)
 		int ret = send(g_Clients[clientnum]->socket,
 			(char *)&g_tBulletInfo[(clientnum + 1) % 2][i], sizeof(BULLETINFO), 0);
 	}
+}
+
+bool SceneChange()
+{
+	bool bCheck = true;
+
+	for ( auto ball : g_Balls )
+	{
+		if ( ball.first != g_iState )
+			continue;
+
+		if ( ball.second->live )
+		{
+			bCheck = false;
+			break;
+		}
+	}
+
+	return bCheck;
+}
+
+bool GameLose()
+{
+	return false;
 }
 
 void Stage1_Init()
