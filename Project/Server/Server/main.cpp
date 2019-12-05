@@ -21,6 +21,8 @@ list<ITEMINFO*>				g_Items;
 
 // 191203 스테이지 제한시간
 static float	g_fStageLimitTime;
+static bool		g_bPause = false;
+static float	g_fPauseTime = 5.f;
 
 CRITICAL_SECTION g_CS_Player;
 CRITICAL_SECTION g_CS_Bullet;
@@ -93,7 +95,7 @@ int main()
 	InitializeCriticalSection( &g_CS_Ball );
 	InitializeCriticalSection( &g_CS_Block );
 	InitializeCriticalSection( &g_CS_State );
-
+	srand((unsigned)time(NULL));
 	int retval;
 	
 	// 윈속 초기화
@@ -319,7 +321,16 @@ void Update( const float& fTimeDelta )
 
 	if ( g_iState >= GAME_STAGE1 )
 	{
-		g_fStageLimitTime -= fTimeDelta;
+		if (g_bPause == false)
+			g_fStageLimitTime -= fTimeDelta;
+		else
+		{
+			g_fPauseTime -= fTimeDelta;
+			if (g_fPauseTime < 0.f)
+			{
+				g_bPause = false;
+			}
+		}
 	}
 
 	LeaveCriticalSection( &g_CS_Player );
@@ -599,6 +610,9 @@ void Stage1_Init()
 
 void BallsUpdate( const float & fTimeDelta )
 {
+	if (g_bPause == true)
+		return;
+
 	int iSize = GetBallsSize( ( GAME_STATE )g_iState );
 	SERVERBALLINFO** pBalls = GetBallsInfo( ( GAME_STATE )g_iState );
 
@@ -747,15 +761,25 @@ void BallCollisionBullet()
 				if ( !g_tBulletInfo[id][i].shot )
 					continue;
 
+
 				if ( CollisionBall( iterB->second->info, g_tBulletInfo[id][i].x, g_tBulletInfo[id][i].y, 30, g_tBulletInfo[id][i].height ) )
 				{
 					// 아이템 생성 20%확률
-					if ((rand() % 10) < 2)
-						CreateItem(iterB->second->info.x, iterB->second->info.y, rand() % 2);
-					
+					int item = rand() % 100;
+					if (item < 30)
+					{
+						if (item < 15)
+							CreateItem(iterB->second->info.x, iterB->second->info.y, 0);
+						else if (item < 24)
+							CreateItem(iterB->second->info.x, iterB->second->info.y, 2);
+						else
+							CreateItem(iterB->second->info.x, iterB->second->info.y, 1);
+					}
+
 					// 충돌한 총알 삭제
 					EnterCriticalSection( &g_CS_Player );
 					g_tBulletInfo[id][i].shot = false;
+					g_Clients[id]->info.score += 50;
 
 					// 공 크기 바꿔주기
 					int radius{}, type{};
@@ -896,6 +920,26 @@ void ItemUpdate(const float& fTimeDelta)
 			(*iter)->y + 30
 			))
 			{
+				// 총알
+				if ((*iter)->type == 0)
+				{
+					if (g_Clients[id]->info.bulletCount < 5)
+						g_Clients[id]->info.bulletCount++;
+				}
+				// 시간 정지
+				else if ((*iter)->type == 1)
+				{
+					g_bPause = true;
+					g_fPauseTime = 5.f;
+				}
+				// 생명력 증가
+				else if ((*iter)->type == 2)
+				{
+					if (g_Clients[id]->info.hp < 3)
+						g_Clients[id]->info.hp++;
+				}
+
+
 				delete *iter;
 				*iter = NULL;
 				iter = g_Items.erase(iter);

@@ -45,6 +45,10 @@ void CItem::SetItemInfo(ITEMINFO tInfo)
 	{
 		SetTexture("TimerItem", L"Texture/Item/StopTime.bmp", true, RGB(0, 0, 0));
 	}
+	else if (m_tInfo.type == 2)
+	{
+		SetTexture("TimerItem", L"Texture/Item/Life.bmp", true, RGB(27, 24, 24));
+	}
 
 	SetSize(30.f, 30.f);
 	SetPos(m_tInfo.x, m_tInfo.y);

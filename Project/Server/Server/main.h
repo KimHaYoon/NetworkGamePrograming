@@ -9,7 +9,8 @@
 #include <iostream>
 #include <algorithm>
 #include <list>
-
+#include <random>
+#include <time.h>
 
 #include "Define.h"
 #include "Protocol.h"
