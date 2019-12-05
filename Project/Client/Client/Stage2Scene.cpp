@@ -1,4 +1,4 @@
-#include "Stage1Scene.h"
+#include "Stage2Scene.h"
 #include "Stage1Background.h"
 #include "Player.h"
 #include "ObjectManager.h"
@@ -14,38 +14,32 @@
 #include "PlayerBullet.h"
 #include "Item.h"
 
-CStage1Scene::CStage1Scene()
+CStage2Scene::CStage2Scene() : 
+	m_StageLimitTime(NULL)
 {
 	m_iBallTagCount = 2;
 }
 
 
-CStage1Scene::~CStage1Scene()
+CStage2Scene::~CStage2Scene()
 {
 }
 
-bool CStage1Scene::Init()
+bool CStage2Scene::Init()
 {
 	CObj* pBack = GET_SINGLE( CObjectManager )->CreateObject<CRect>( "Rect" );
-	CObj* pBG = GET_SINGLE( CObjectManager )->CreateObject<CStage1Background>( "Stage1BG" );
-
+	CObj* pBG = GET_SINGLE( CObjectManager )->CreateObject<CStage1Background>( "Stage2BG" );
+	pBG->SetTexture( "Stage2", L"Texture/Stage/Stage2_Background.bmp" );
+	
 	PLAYERINFO tPlayerInfo = GET_SINGLE( CNetwork )->GetPlayerInfo();
 	CObj* pPlayer = GET_SINGLE( CObjectManager )->CreateObject<CPlayer>( "Player" + to_string( tPlayerInfo.id ) );
 	( ( CPlayer* )pPlayer )->SetPlayerInfo( tPlayerInfo );
 	( ( CPlayer* )pPlayer )->CreateBullets( tPlayerInfo.id );
 
-	CObj* pHPUI = GET_SINGLE( CObjectManager )->CreateObject<CPlayerHP>( "MyPlayerHP" );
-	( ( CPlayerHP* )pHPUI )->SetPlayer( tPlayerInfo.id );
-	_cprintf( "MyPlayerID : %d\n", tPlayerInfo.id );
-
 	tPlayerInfo = GET_SINGLE( CNetwork )->GetOtherPlayerInfo();
 	pPlayer = GET_SINGLE( CObjectManager )->CreateObject<CPlayer>( "Player" + to_string( tPlayerInfo.id ) );
 	( ( CPlayer* )pPlayer )->SetPlayerInfo( tPlayerInfo );
 	( ( CPlayer* )pPlayer )->CreateBullets( tPlayerInfo.id );
-
-	pHPUI = GET_SINGLE( CObjectManager )->CreateObject<CPlayerHP>( "OtherPlayerHP" );
-	( ( CPlayerHP* )pHPUI )->SetPlayer( tPlayerInfo.id );
-	_cprintf( "OtherPlayerID : %d\n", tPlayerInfo.id );
 
 	CObj* pPortrait = GET_SINGLE( CObjectManager )->CreateObject<CPlayerPortrait>( "PlayerPortrait1" );
 	( ( CPlayerPortrait* )pPortrait )->SetNumber( 1 );
@@ -65,7 +59,13 @@ bool CStage1Scene::Init()
 	pScore->SetPos( 530, 450 );
 	( ( CScore* )pScore )->SetPlayer( 2 );
 
+	CObj* pHPUI = GET_SINGLE( CObjectManager )->CreateObject<CPlayerHP>( "PlayerHP1" );
+	pHPUI->SetPos( 158, 500 );
+	( ( CPlayerHP* )pHPUI )->SetPlayer( 1 );
 
+	pHPUI = GET_SINGLE( CObjectManager )->CreateObject<CPlayerHP>( "PlayerHP2" );
+	pHPUI->SetPos( 507, 500 );
+	( ( CPlayerHP* )pHPUI )->SetPlayer( 2 );
 
 	CObj* pBulletUI = GET_SINGLE( CObjectManager )->CreateObject<CPlayerBullet>( "PlayerBullet1" );
 	pBulletUI->SetPos( 160, 550 );
@@ -98,11 +98,11 @@ bool CStage1Scene::Init()
 	return true;
 }
 
-void CStage1Scene::Input()
+void CStage2Scene::Input()
 {
 }
 
-void CStage1Scene::Update( const float& fTimeDelta )
+void CStage2Scene::Update( const float & fTimeDelta )
 {
 	int iCurBallSize = GET_SINGLE( CNetwork )->GetBallsSize();
 	int iSubBallSize = abs( iCurBallSize - m_iBallSize );
@@ -110,7 +110,7 @@ void CStage1Scene::Update( const float& fTimeDelta )
 
 	for ( int i = 0; i < iSubBallSize; ++i )
 	{
-		CObj* pBalls = GET_SINGLE(CObjectManager)->CreateObject<CBall>( "Ball" + to_string( i + m_iBallSize ) );
+		CObj* pBalls = GET_SINGLE( CObjectManager )->CreateObject<CBall>( "Ball" + to_string( i + m_iBallSize ) );
 		dynamic_cast< CBall* >( pBalls )->SetBallInfo( pBallInfo[i + m_iBallSize] );
 	}
 
@@ -124,25 +124,25 @@ void CStage1Scene::Update( const float& fTimeDelta )
 
 	m_iBallSize = iCurBallSize;
 
-	int iTileSize = GET_SINGLE(CNetwork)->GetTilesSize();
-	TILEINFO* pTiles = GET_SINGLE(CNetwork)->GetTilesInfo();
-	
-	for (int i = 0; i < iTileSize; ++i)
+	int iTileSize = GET_SINGLE( CNetwork )->GetTilesSize();
+	TILEINFO* pTiles = GET_SINGLE( CNetwork )->GetTilesInfo();
+
+	for ( int i = 0; i < iTileSize; ++i )
 	{
-		CObj* pTile = GET_SINGLE(CObjectManager)->FindObject("Block" + to_string(i));
-		dynamic_cast<CTile*>(pTile)->SetTileInfo(pTiles[i]);
+		CObj* pTile = GET_SINGLE( CObjectManager )->FindObject( "Block" + to_string( i ) );
+		dynamic_cast< CTile* >( pTile )->SetTileInfo( pTiles[i] );
 	}
 
-	int iItemSize = GET_SINGLE(CNetwork)->GetItemsSize();
-	ITEMINFO* pItems = GET_SINGLE(CNetwork)->GetItemsInfo();
+	int iItemSize = GET_SINGLE( CNetwork )->GetItemsSize();
+	ITEMINFO* pItems = GET_SINGLE( CNetwork )->GetItemsInfo();
 
-	for (int i = 0; i < iItemSize; ++i)
+	for ( int i = 0; i < iItemSize; ++i )
 	{
-		CObj* pItem = GET_SINGLE(CObjectManager)->CreateObject<CItem>("Item" + to_string(i));
-		dynamic_cast<CItem*>(pItem)->SetItemInfo(pItems[i]);
+		CObj* pItem = GET_SINGLE( CObjectManager )->CreateObject<CItem>( "Item" + to_string( i ) );
+		dynamic_cast< CItem* >( pItem )->SetItemInfo( pItems[i] );
 	}
 }
 
-void CStage1Scene::Render( HDC hDC )
+void CStage2Scene::Render( HDC hDC )
 {
 }

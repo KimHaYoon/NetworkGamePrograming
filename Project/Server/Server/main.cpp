@@ -2,7 +2,7 @@
 
 static int		g_iClientNumber = 0;
 static int		g_iState = GAME_WAIT;
-static float	g_fTime;
+static float	g_fTime = 0.f;
 
 static ULONGLONG g_ullFrame = 10.0;
 static float	g_fTimeDelta[2] = { 0.f, 0.f };
@@ -445,14 +445,14 @@ void Update( const float& fTimeDelta )
 		LeaveCriticalSection(&g_CS_Bullet);
 	}
 
-	if ( SceneChange() )
+	/*if ( SceneChange() )
 	{
 		EnterCriticalSection( &g_CS_State );
 		if(g_iState != GAME_END )
 			g_iState += 1;
 		LeaveCriticalSection( &g_CS_State );
 
-	}
+	}*/
 }
 
 void Init()

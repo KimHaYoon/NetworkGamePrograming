@@ -119,6 +119,7 @@
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Circle.cpp" />
+    <ClCompile Include="Stage2Scene.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="LobbyBackground.cpp" />
     <ClCompile Include="LobbyScene.cpp" />
@@ -148,6 +149,7 @@
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="Stage1Background.cpp" />
     <ClCompile Include="Stage1Scene.cpp" />
+    <ClCompile Include="Stage3Scene.cpp" />
     <ClCompile Include="StageTime.cpp" />
     <ClCompile Include="StageUI.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -189,6 +191,8 @@
     <ClInclude Include="Score.h" />
     <ClInclude Include="Stage1Background.h" />
     <ClInclude Include="Stage1Scene.h" />
+    <ClInclude Include="Stage2Scene.h" />
+    <ClInclude Include="Stage3Scene.h" />
     <ClInclude Include="StageTime.h" />
     <ClInclude Include="StageUI.h" />
     <ClInclude Include="Struct.h" />

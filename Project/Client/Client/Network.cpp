@@ -252,10 +252,8 @@ void CNetwork::RecvItemInfo()
 
 void CNetwork::RecvPlayersInfo()
 {
-	recv( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
-	cout << "1P 정보 받음" << endl;
-	recv( m_Sock, ( char* )&m_tOtherPlayerInfo, sizeof( PLAYERINFO ), 0 );
-	cout << "2P 정보 받음" << endl;
+	recvn( m_Sock, ( char* )&m_tPlayerInfo, sizeof( PLAYERINFO ), 0 );
+	recvn( m_Sock, ( char* )&m_tOtherPlayerInfo, sizeof( PLAYERINFO ), 0 );
 }
 
 void CNetwork::RecvBulletsInfo()

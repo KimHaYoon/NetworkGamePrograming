@@ -88,6 +88,12 @@
     <Filter Include="02. Object\04. Stage\04. PlayerBullet">
       <UniqueIdentifier>{ce26d346-b895-4bd0-9ce1-669d034b927b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04. Scene\02. Stage2">
+      <UniqueIdentifier>{e9aa4dfe-334f-4968-b2dd-92e3bf3b457d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04. Scene\03. Stage3">
+      <UniqueIdentifier>{786b078f-b28a-4211-b534-736e82655f99}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -182,6 +188,12 @@
     </ClCompile>
     <ClCompile Include="PlayerBullet.cpp">
       <Filter>02. Object\04. Stage\04. PlayerBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage2Scene.cpp">
+      <Filter>04. Scene\02. Stage2</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage3Scene.cpp">
+      <Filter>04. Scene\03. Stage3</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -289,6 +301,12 @@
     </ClInclude>
     <ClInclude Include="PlayerBullet.h">
       <Filter>02. Object\04. Stage\04. PlayerBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage2Scene.h">
+      <Filter>04. Scene\02. Stage2</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage3Scene.h">
+      <Filter>04. Scene\03. Stage3</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

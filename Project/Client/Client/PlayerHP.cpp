@@ -25,8 +25,9 @@ void CPlayerHP::Update(const float & fTimeDelta)
 {
 	CObj::Update(fTimeDelta);
 
-	if ( m_iID == 1 )
+	if ( m_strTag == "MyPlayerHP" )
 		m_iHP = GET_SINGLE( CNetwork )->GetPlayerInfo().hp;
+
 	else
 		m_iHP = GET_SINGLE( CNetwork )->GetOtherPlayerInfo().hp;
 }
@@ -71,6 +72,16 @@ void CPlayerHP::Render(HDC hDC)
 void CPlayerHP::SetPlayer(int ID)
 {
 	m_iID = ID;
+
+	if ( m_iID == 1 )
+	{
+		SetPos( 158, 500 );
+	}
+
+	else
+	{
+		SetPos( 507, 500 );
+	}
 }
 
 
