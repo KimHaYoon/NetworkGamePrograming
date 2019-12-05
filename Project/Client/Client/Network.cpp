@@ -88,7 +88,7 @@ void CNetwork::Update( const float& fTimeDelta )
 	RecvServerTime();
 
 	//_cprintf( "Client ID : %d, GameState : %d \n", m_tPlayerInfo.id, m_iGameState );
-	if (m_iGameState >= GAME_STAGE1) 
+	if (m_iGameState >= GAME_STAGE1 && m_iGameState < GAME_ENDING) 
 	{
 		RecvStageLimitTime();
 

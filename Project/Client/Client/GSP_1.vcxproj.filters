@@ -94,6 +94,21 @@
     <Filter Include="04. Scene\03. Stage3">
       <UniqueIdentifier>{786b078f-b28a-4211-b534-736e82655f99}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04. Scene\99. GameOver">
+      <UniqueIdentifier>{f533cfc8-b7af-432f-8a83-e563127c4a46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04. Scene\98. Ending">
+      <UniqueIdentifier>{e10e97f7-ed14-4169-805e-23fe1332dc8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\04. Stage\99. GameOver">
+      <UniqueIdentifier>{afaea55b-76b6-43c7-bdef-48e117b4d2fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\04. Stage\98. Ending">
+      <UniqueIdentifier>{f5240293-c02d-46a1-8e58-9b23a4222fc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Object\09. Marker">
+      <UniqueIdentifier>{d703bbbe-cf85-4b7a-9514-2eca50850365}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -194,6 +209,21 @@
     </ClCompile>
     <ClCompile Include="Stage3Scene.cpp">
       <Filter>04. Scene\03. Stage3</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOverScene.cpp">
+      <Filter>04. Scene\99. GameOver</Filter>
+    </ClCompile>
+    <ClCompile Include="EndingScene.cpp">
+      <Filter>04. Scene\98. Ending</Filter>
+    </ClCompile>
+    <ClCompile Include="EndingLogo.cpp">
+      <Filter>02. Object\04. Stage\98. Ending</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOverLogo.cpp">
+      <Filter>02. Object\04. Stage\99. GameOver</Filter>
+    </ClCompile>
+    <ClCompile Include="Marker.cpp">
+      <Filter>02. Object\09. Marker</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -307,6 +337,21 @@
     </ClInclude>
     <ClInclude Include="Stage3Scene.h">
       <Filter>04. Scene\03. Stage3</Filter>
+    </ClInclude>
+    <ClInclude Include="GameOverScene.h">
+      <Filter>04. Scene\99. GameOver</Filter>
+    </ClInclude>
+    <ClInclude Include="EndingScene.h">
+      <Filter>04. Scene\98. Ending</Filter>
+    </ClInclude>
+    <ClInclude Include="EndingLogo.h">
+      <Filter>02. Object\04. Stage\98. Ending</Filter>
+    </ClInclude>
+    <ClInclude Include="GameOverLogo.h">
+      <Filter>02. Object\04. Stage\99. GameOver</Filter>
+    </ClInclude>
+    <ClInclude Include="Marker.h">
+      <Filter>02. Object\09. Marker</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -36,6 +36,8 @@ bool CPlayer::Init()
 
 void CPlayer::Input()
 {
+	if (m_tInfo.hp == 0)
+		return;
 	CObj::Input();
 
 	if ( KEYDOWN( "MoveLeft" ) || KEYPUSH( "MoveLeft" ) )
@@ -81,6 +83,8 @@ void CPlayer::Input()
 
 void CPlayer::Update( const float& fTimeDelta )
 {
+	if (m_tInfo.hp == 0)
+		return;
 	CObj::Update(fTimeDelta);
 
 	if (GET_SINGLE(CNetwork)->GetPlayerInfo().id != m_tInfo.id)
@@ -146,6 +150,9 @@ void CPlayer::Update( const float& fTimeDelta )
 
 void CPlayer::Render( HDC hDC )
 {
+	if (m_tInfo.hp == 0)
+		return;
+
 	if ( m_tInfo.invincibile )
 	{
 		m_binvincibile = !m_binvincibile;

@@ -13,6 +13,9 @@
 #include "PlayerHP.h"
 #include "PlayerBullet.h"
 #include "Item.h"
+#include "SceneManager.h"
+#include "GameOverScene.h"
+#include "Marker.h"
 
 CStage1Scene::CStage1Scene()
 {
@@ -33,6 +36,8 @@ bool CStage1Scene::Init()
 	CObj* pPlayer = GET_SINGLE( CObjectManager )->CreateObject<CPlayer>( "Player" + to_string( tPlayerInfo.id ) );
 	( ( CPlayer* )pPlayer )->SetPlayerInfo( tPlayerInfo );
 	( ( CPlayer* )pPlayer )->CreateBullets( tPlayerInfo.id );
+
+	CObj* pPlayerRect = GET_SINGLE(CObjectManager)->CreateObject<CMarker>("PlayerRect");
 
 	CObj* pHPUI = GET_SINGLE( CObjectManager )->CreateObject<CPlayerHP>( "MyPlayerHP" );
 	( ( CPlayerHP* )pHPUI )->SetPlayer( tPlayerInfo.id );
@@ -136,6 +141,12 @@ void CStage1Scene::Update( const float& fTimeDelta )
 	{
 		CObj* pItem = GET_SINGLE(CObjectManager)->CreateObject<CItem>("Item" + to_string(i));
 		dynamic_cast<CItem*>(pItem)->SetItemInfo(pItems[i]);
+	}
+
+	int iGameState = GET_SINGLE(CNetwork)->GetGameState();
+	if (iGameState == GAME_GAMEOVER)
+	{
+		GET_SINGLE(CSceneManager)->CreateScene<CGameOverScene>("GameOver");
 	}
 }
 

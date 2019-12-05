@@ -1,6 +1,6 @@
 #include "Rect.h"
 #include "Texture.h"
-
+#include "Network.h"
 
 CRect::CRect()
 {
@@ -14,7 +14,7 @@ CRect::~CRect()
 bool CRect::Init()
 {
 	SetTexture( "Rect", L"Texture/BackBuffer.bmp" );
-
+	SetSize(70.f, 70.f);
 	return true;
 }
 

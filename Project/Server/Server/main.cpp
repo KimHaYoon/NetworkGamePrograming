@@ -240,7 +240,7 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 
 
 		
-		if (g_iState >= GAME_STAGE1) // 스테이지1 이상부터
+		if (g_iState >= GAME_STAGE1 && g_iState < GAME_ENDING) // 스테이지1 이상부터
 		{
 			send(g_Clients[clientnum]->socket, (char *)&g_fStageLimitTime, sizeof(float), 0);
 			
@@ -319,7 +319,7 @@ void Update( const float& fTimeDelta )
 		g_fTime = 0.f;
 	}
 
-	if ( g_iState >= GAME_STAGE1 )
+	if ( g_iState >= GAME_STAGE1  && g_iState < GAME_ENDING)
 	{
 		if (g_bPause == false)
 			g_fStageLimitTime -= fTimeDelta;
@@ -340,6 +340,8 @@ void Update( const float& fTimeDelta )
 	
 	for ( int id = 0; id < 2; ++id )
 	{
+		if (g_Clients[id]->info.gameStart == false)
+			continue;
 		EnterCriticalSection( &g_CS_Player );
 		if ( g_Clients[id]->info.invincibile )
 		{
@@ -366,6 +368,8 @@ void Update( const float& fTimeDelta )
 	for (int id = 0; id < 2; ++id)
 	{
 		EnterCriticalSection(&g_CS_Player);
+		if (g_Clients[id]->info.gameStart == false)
+			continue;
 		// 플레이어의 이동
 		// 왼쪽 방향키
 		if (g_Clients[id]->keys.left == true)
@@ -539,10 +543,15 @@ void SendPlayersInfo(int clientnum)
 
 void SendGameState( int clientnum )
 {
-	if ( g_iClientNumber == 1 )
+	if (g_iClientNumber == 1)
 		g_iState = GAME_START;
-	else if( g_iClientNumber == 2 )
+	else if (g_iClientNumber == 2 && g_iState == GAME_START)
 		g_iState = GAME_STAGE1;
+
+	if ((g_Clients[0]->info.gameStart == false && g_Clients[1]->info.gameStart == false) 
+		&&
+		(g_iState > GAME_START && g_iState < GAME_ENDING))
+		g_iState = GAME_GAMEOVER;
 
 	int ret = send( g_Clients[clientnum]->socket, ( char* )&g_iState, sizeof( g_iState ), 0 );
 
@@ -603,7 +612,6 @@ void Stage1_Init()
 	if (Stage1_Init == false)
 	{
 		g_fStageLimitTime = 70;
-
 		Stage1_Init = true;
 	}
 }
@@ -737,6 +745,14 @@ void PlayerCollisionBall(int id)
 			EnterCriticalSection( &g_CS_Player );
 			g_Clients[id]->info.hp -= 1;
 			g_Clients[id]->info.invincibile = true;
+			if (g_Clients[id]->info.hp < 1)
+			{
+				g_Clients[id]->info.hp = 0;
+				g_Clients[id]->info.gameStart = false;
+
+				if (g_Clients[(id + 1) % 2]->info.gameStart == false)
+					g_iState = GAME_GAMEOVER;
+			}
 			LeaveCriticalSection( &g_CS_Player );
 
 			return;

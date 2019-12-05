@@ -119,6 +119,11 @@
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Circle.cpp" />
+    <ClCompile Include="EndingLogo.cpp" />
+    <ClCompile Include="EndingScene.cpp" />
+    <ClCompile Include="GameOverLogo.cpp" />
+    <ClCompile Include="GameOverScene.cpp" />
+    <ClCompile Include="Marker.cpp" />
     <ClCompile Include="Stage2Scene.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="LobbyBackground.cpp" />
@@ -159,7 +164,11 @@
     <ClInclude Include="Ball.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Circle.h" />
+    <ClInclude Include="EndingLogo.h" />
+    <ClInclude Include="EndingScene.h" />
     <ClInclude Include="EnterKeyObj.h" />
+    <ClInclude Include="GameOverLogo.h" />
+    <ClInclude Include="GameOverScene.h" />
     <ClInclude Include="InputServerIP.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="LobbyBackground.h" />
@@ -170,6 +179,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="LogoScene.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="Marker.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Obj.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
