@@ -24,7 +24,7 @@ void CScore::Update( const float& fTimeDelta )
 {
 	CObj::Update( fTimeDelta );
 
-	if (m_iID = 1)
+	if (m_strTag == "PlayerScore1")
 		m_iScore = GET_SINGLE(CNetwork)->GetPlayerInfo().score;
 	else
 		m_iScore = GET_SINGLE(CNetwork)->GetOtherPlayerInfo().score;
@@ -72,4 +72,13 @@ void CScore::SetScore( int iScore )
 void CScore::SetPlayer(int ID)
 {
 	m_iID = ID;
+
+	if (m_iID == 1)
+	{
+		SetPos(150, 450);
+	}
+	else
+	{
+		SetPos(530, 450);
+	}
 }

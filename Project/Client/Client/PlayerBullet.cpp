@@ -27,7 +27,7 @@ void CPlayerBullet::Update(const float & fTimeDelta)
 {
 	CObj::Update(fTimeDelta);
 
-	if(m_iID == 1)
+	if(m_strTag == "PlayerBullet1")
 		m_iCount = GET_SINGLE(CNetwork)->GetPlayerInfo().bulletCount;
 	else
 		m_iCount = GET_SINGLE(CNetwork)->GetOtherPlayerInfo().bulletCount;
@@ -73,6 +73,14 @@ void CPlayerBullet::Render(HDC hDC)
 void CPlayerBullet::SetPlayer(int ID)
 {
 	m_iID = ID;
+	if (m_iID == 1)
+	{
+		SetPos(160, 550);
+	}
+	else
+	{
+		SetPos(545, 550);
+	}
 }
 
 void CPlayerBullet::SetCount(int count)

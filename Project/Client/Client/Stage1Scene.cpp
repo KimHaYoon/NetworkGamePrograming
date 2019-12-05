@@ -58,22 +58,18 @@ bool CStage1Scene::Init()
 	pPortrait->SetSize( 0, 0 );
 
 	CObj* pScore = GET_SINGLE( CObjectManager )->CreateObject<CScore>( "PlayerScore1" );
-	pScore->SetPos( 150, 450 );
-	( ( CScore* )pScore )->SetPlayer( 1 );
+	( ( CScore* )pScore )->SetPlayer(GET_SINGLE(CNetwork)->GetPlayerInfo().id);
 
 	pScore = GET_SINGLE( CObjectManager )->CreateObject<CScore>( "PlayerScore2" );
-	pScore->SetPos( 530, 450 );
-	( ( CScore* )pScore )->SetPlayer( 2 );
+	( ( CScore* )pScore )->SetPlayer(GET_SINGLE(CNetwork)->GetOtherPlayerInfo().id);
 
 
 
 	CObj* pBulletUI = GET_SINGLE( CObjectManager )->CreateObject<CPlayerBullet>( "PlayerBullet1" );
-	pBulletUI->SetPos( 160, 550 );
-	( ( CPlayerBullet* )pBulletUI )->SetPlayer( 1 );
+	( ( CPlayerBullet* )pBulletUI )->SetPlayer(GET_SINGLE(CNetwork)->GetPlayerInfo().id);
 
 	pBulletUI = GET_SINGLE( CObjectManager )->CreateObject<CPlayerBullet>( "PlayerBullet2" );
-	pBulletUI->SetPos( 545, 550 );
-	( ( CPlayerBullet* )pBulletUI )->SetPlayer( 2 );
+	( ( CPlayerBullet* )pBulletUI )->SetPlayer(GET_SINGLE(CNetwork)->GetOtherPlayerInfo().id);
 
 	CObj* pStageUI = GET_SINGLE( CObjectManager )->CreateObject<CStageUI>( "Stage1" );
 
