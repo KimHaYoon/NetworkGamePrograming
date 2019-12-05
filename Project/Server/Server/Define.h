@@ -12,3 +12,7 @@
 
 #define DIR_LEFT  1
 #define DIR_RIGHT  0
+
+#define ITEM_BULLET 0
+#define ITEM_HP 1
+#define ITEM_TIMER 2

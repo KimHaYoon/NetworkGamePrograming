@@ -15,6 +15,10 @@ BULLETINFO		g_tBulletInfo[2][5];
 unordered_multimap<int, TILEINFO>				g_Tiles;
 unordered_multimap<int, SERVERBALLINFO*>		g_Balls;
 
+// 191205 아이템 추가
+list<ITEMINFO*>				g_Items;
+
+
 // 191203 스테이지 제한시간
 static float	g_fStageLimitTime;
 
@@ -56,6 +60,12 @@ void SendBallsInfo( int clientnum, const GAME_STATE& eState = GAME_START );
 void TileInit();
 TILEINFO** GetTilesInfo( const GAME_STATE& eState = GAME_START );
 int	GetTilesSize( const GAME_STATE& eState = GAME_START );
+
+// 191205 아이템 추가
+void ItemInit();
+void CreateItem(int x, int y, int type);
+void ItemUpdate(const float& fTimeDelta);
+void SendItemInfo(int clientnum);
 
 void BallsInit();
 void AddBallInfo( SERVERBALLINFO* tBall, const GAME_STATE& eState = GAME_START );
@@ -238,6 +248,8 @@ DWORD WINAPI ProcessClient( LPVOID arg )
 			SendBallsInfo( clientnum, ( GAME_STATE )g_iState );
 
 			SendBulletsInfo(clientnum);
+
+			SendItemInfo(clientnum);
 		}
 	}
 
@@ -335,6 +347,7 @@ void Update( const float& fTimeDelta )
 	}
 
 	BallsUpdate( fTimeDelta );
+	ItemUpdate(fTimeDelta);
 
 	for (int id = 0; id < 2; ++id)
 	{
@@ -463,6 +476,7 @@ void Init()
 	g_iState = GAME_WAIT;
 	TileInit();
 	BallsInit();
+	ItemInit();
 }
 
 void PrintPlayerInfo( const PLAYERINFO & tInfo )
@@ -545,6 +559,7 @@ void Stage1_Init()
 	if (Stage1_Init == false)
 	{
 		g_fStageLimitTime = 70;
+
 		Stage1_Init = true;
 	}
 }
@@ -690,6 +705,8 @@ void BallCollisionBullet()
 
 				if ( CollisionBall( iterB->second->info, g_tBulletInfo[id][i].x, g_tBulletInfo[id][i].y, 30, g_tBulletInfo[id][i].height ) )
 				{
+					// 아이템 생성
+					CreateItem(iterB->second->info.x, iterB->second->info.y, rand() % 2);
 					// 충돌한 총알 삭제
 					EnterCriticalSection( &g_CS_Player );
 					g_tBulletInfo[id][i].shot = false;
@@ -789,6 +806,39 @@ void TileInit()
 		blockInfo.x = 350;
 		blockInfo.y = 150;
 		g_Tiles.insert( make_pair( GAME_STAGE1, blockInfo ) );
+	}
+}
+
+void ItemInit()
+{
+	if (g_Items.empty())
+		return;
+
+	g_Items.clear();
+}
+
+void CreateItem(int x, int y, int type)
+{
+	ITEMINFO* pItem = new ITEMINFO();
+	pItem->x = x;
+	pItem->y = y;
+	pItem->type = type;
+
+	g_Items.emplace_back(pItem);
+}
+
+void ItemUpdate(const float& fTimeDelta)
+{
+	for (auto iter = g_Items.begin(); iter != g_Items.end(); ++iter)
+	{
+		(*iter)->y += (100.f * fTimeDelta);
+
+		if ((*iter)->y > 410)
+		{
+			cout << "삭제" << endl;
+			g_Items.remove((*iter));
+			break;
+		}
 	}
 }
 
@@ -1005,4 +1055,15 @@ void SendBallsInfo( int clientnum, const GAME_STATE & eState )
 		send( g_Clients[clientnum]->socket, ( char* )&pBalls[i]->info, sizeof( BALLINFO ), 0 );
 
 	//cout << "Send Balls Info" << endl;
+}
+
+void SendItemInfo(int clientnum)
+{
+	int iSize = g_Items.size();
+	send(g_Clients[clientnum]->socket, (char*)&iSize, sizeof(iSize), 0);
+
+	for (const auto& items : g_Items)
+	{
+		send(g_Clients[clientnum]->socket, (char*)&(*items), sizeof(ITEMINFO), 0);
+	}
 }

@@ -12,7 +12,7 @@
 #include "StageTime.h"
 #include "PlayerHP.h"
 #include "PlayerBullet.h"
-
+#include "Item.h"
 
 CStage1Scene::CStage1Scene()
 {
@@ -153,9 +153,17 @@ void CStage1Scene::Update( const float& fTimeDelta )
 	
 	for (int i = 0; i < iTileSize; ++i)
 	{
-		_cprintf("%d\n", i);
 		CObj* pTile = GET_SINGLE(CObjectManager)->FindObject("Block" + to_string(i));
 		dynamic_cast<CTile*>(pTile)->SetTileInfo(pTiles[i]);
+	}
+
+	int iItemSize = GET_SINGLE(CNetwork)->GetItemsSize();
+	ITEMINFO* pItems = GET_SINGLE(CNetwork)->GetItemsInfo();
+
+	for (int i = 0; i < iItemSize; ++i)
+	{
+		CObj* pItem = GET_SINGLE(CObjectManager)->CreateObject<CItem>("Item" + to_string(i));
+		dynamic_cast<CItem*>(pItem)->SetItemInfo(pItems[i]);
 	}
 }
 

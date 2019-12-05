@@ -19,6 +19,7 @@ CNetwork::~CNetwork()
 {
 	SAFE_DELETE_ARRAY( m_pTiles );
 	SAFE_DELETE_ARRAY( m_pBalls );
+	SAFE_DELETE_ARRAY( m_pItems );
 	closesocket( m_Sock );
 	WSACleanup();
 }
@@ -100,6 +101,8 @@ void CNetwork::Update( const float& fTimeDelta )
 		RecvBallsInfo();
 
 		RecvBulletsInfo();
+
+		RecvItemInfo();
 	}
 
 
@@ -220,9 +223,31 @@ int CNetwork::GetBallsSize() const
 	return m_iBallSize;
 }
 
+ITEMINFO * CNetwork::GetItemsInfo() const
+{
+	return m_pItems;
+}
+
+int CNetwork::GetItemsSize() const
+{
+	return m_iItemsSize;
+}
+
 void CNetwork::RecvStageLimitTime()
 {
 	recv(m_Sock, (char *)&m_fStageLimitTime, sizeof(float), 0);
+}
+
+void CNetwork::RecvItemInfo()
+{
+	SAFE_DELETE_ARRAY(m_pItems);
+	recvn(m_Sock, (char *)&m_iItemsSize, sizeof(m_iItemsSize), 0);
+
+	m_pItems = new ITEMINFO[m_iItemsSize];
+	for (int i = 0; i < m_iItemsSize; ++i)
+	{
+		recvn(m_Sock, (char*)&m_pItems[i], sizeof(ITEMINFO), 0);
+	}
 }
 
 void CNetwork::RecvPlayersInfo()

@@ -106,7 +106,7 @@ typedef struct Item
 {
 	int x;
 	int y;
-	char type;
+	int type;
 }ITEMINFO;
 
 typedef struct Tile

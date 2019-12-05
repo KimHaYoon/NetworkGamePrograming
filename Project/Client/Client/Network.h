@@ -33,6 +33,10 @@ private:
 	TILEINFO*	m_pTiles;
 	int			m_iTilesSize;
 
+	// 191205
+	ITEMINFO* m_pItems;
+	int			m_iItemsSize;
+
 public:
 	bool Init( const string& strServerIP = "127.0.0.1" );
 	void Update( const float& fTimeDelta );
@@ -72,9 +76,16 @@ public:
 	BALLINFO* GetBallsInfo() const;
 	int	GetBallsSize() const;
 
+	//191205 추가
+	ITEMINFO* GetItemsInfo() const;
+	int GetItemsSize() const;
+
 private:
 	// 191203 추가
 	void RecvStageLimitTime();
+
+	// 191205 추가
+	void RecvItemInfo();
 
 
 	void RecvPlayersInfo();

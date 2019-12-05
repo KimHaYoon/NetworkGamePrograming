@@ -84,7 +84,6 @@ void CTile::Render(HDC hDC)
 void CTile::SetTileInfo(TILEINFO tInfo)
 {
 	m_tInfo = tInfo;
-	_cprintf("SetTileInfo : %d\n", m_tInfo.animation);
 
 	SetSize(m_tInfo.cx, m_tInfo.cy);
 	SetPos(m_tInfo.x, m_tInfo.y);

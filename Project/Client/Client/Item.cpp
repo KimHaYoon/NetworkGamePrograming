@@ -13,40 +13,37 @@ CItem::~CItem()
 
 bool CItem::Init()
 {
-	return false;
+	return true;
 }
 
 void CItem::Input()
 {
+	CObj::Input();
 }
 
 void CItem::Update(const float & fTimeDelta)
 {
+	CObj::Update(fTimeDelta);
 }
 
 void CItem::Render(HDC hDC)
 {
+	CObj::Render(hDC);
 }
 
 void CItem::SetItemInfo(ITEMINFO tInfo)
 {
 	m_tInfo = tInfo;
 
-
-	// Type == 'A' 체력회복
-	// Type == 'B' 최대탄수 증가
-	// Type == 'C' 시간정지
-	if (m_tInfo.type == 'A')
+	if (m_tInfo.type == 0)
 	{
-
+		SetTexture("BulletItem", L"Texture/Item/DoubleShot.bmp", true, RGB(0, 0, 0));
 	}
-	else if (m_tInfo.type == 'B')
+	else if (m_tInfo.type == 1)
 	{
-
+		SetTexture("TimerItem", L"Texture/Item/StopTime.bmp", true, RGB(0, 0, 0));
 	}
-	else if (m_tInfo.type == 'C')
-	{
 
-	}
+	SetSize(30.f, 30.f);
 	SetPos(m_tInfo.x, m_tInfo.y);
 }
