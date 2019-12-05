@@ -38,6 +38,7 @@ typedef struct Player
 	int score;
 	int bulletCount;
 	bool gameStart;
+	bool invincibile;
 
 	int maxFrame;
 
@@ -47,6 +48,7 @@ typedef struct Player
 		bulletCount = 1;
 		maxFrame = 5;
 		gameStart = true;
+		invincibile = false;
 	}
 
 }PLAYERINFO;
@@ -70,6 +72,7 @@ typedef struct ServerPlayerInfo
 	PLAYERINFO info;
 	SOCKET socket;
 	PLAYERKEYINFO keys;
+	float	invincibileTime;
 }SERVERPLAYER;
 
 typedef struct Bullet

@@ -32,6 +32,7 @@ typedef struct Player
 	int score;
 	int bulletCount;
 	bool gameStart;
+	bool invincibile;
 
 	int maxFrame;
 
@@ -41,6 +42,7 @@ typedef struct Player
 		bulletCount = 1;
 		maxFrame = 5;
 		gameStart = true;
+		invincibile = false;
 	}
 
 }PLAYERINFO;

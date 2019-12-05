@@ -22,6 +22,7 @@ bool CPlayer::Init()
 
 	m_bMoveAnimation = false;
 	m_bShoot = false;
+	m_binvincibile = false;
 	m_bDir = rand() % 2;
 	GET_SINGLE(CNetwork)->SetKeyInfo(tKeys);
 
@@ -145,6 +146,17 @@ void CPlayer::Update( const float& fTimeDelta )
 
 void CPlayer::Render( HDC hDC )
 {
+	if ( m_tInfo.invincibile )
+	{
+		m_binvincibile = !m_binvincibile;
+	}
+
+	else
+		m_binvincibile = false;
+
+	if ( m_binvincibile )
+		return;
+
 	CObj::Render( hDC );
 }
 

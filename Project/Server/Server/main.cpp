@@ -22,10 +22,6 @@ list<ITEMINFO*>				g_Items;
 // 191203 스테이지 제한시간
 static float	g_fStageLimitTime;
 
-float g_fPlayerCollisionTime[2];
-bool	g_bPlayerCollisition[2];
-float g_BulletCollsionTime;
-
 CRITICAL_SECTION g_CS_Player;
 CRITICAL_SECTION g_CS_Bullet;
 CRITICAL_SECTION g_CS_Ball;
@@ -321,29 +317,29 @@ void Update( const float& fTimeDelta )
 
 	LeaveCriticalSection( &g_CS_Player );
 
-	for ( int id = 0; id < 2; ++id )
-	{
-		if ( g_bPlayerCollisition[id] )
-			continue;
-		
-		g_fPlayerCollisionTime[id] += fTimeDelta;
-
-		if ( g_fPlayerCollisionTime[id] >= 2.f )
-		{
-			g_bPlayerCollisition[id] = true;
-			g_fPlayerCollisionTime[id] = 0.f;
-		}
-	}
 
 	BallCollisionBullet();
-
+	
 	for ( int id = 0; id < 2; ++id )
 	{
-		if ( g_bPlayerCollisition[id] )
+		EnterCriticalSection( &g_CS_Player );
+		if ( g_Clients[id]->info.invincibile )
 		{
-			PlayerCollisionBall( id );
-			g_bPlayerCollisition[id] = false;
+			g_Clients[id]->invincibileTime -= fTimeDelta;
+
+			if ( g_Clients[id]->invincibileTime <= 0 )
+			{
+				g_Clients[id]->info.invincibile = false;
+				g_Clients[id]->invincibileTime = 3.f;
+
+			}
+
+			//cout << id << "'s 무적 시간 : " << g_Clients[id]->invincibileTime << endl;
+			continue;
 		}
+		LeaveCriticalSection( &g_CS_Player );
+
+		PlayerCollisionBall( id );
 	}
 
 	BallsUpdate( fTimeDelta );
@@ -453,6 +449,7 @@ void Init()
 
 	for ( int i = 0; i < 2; ++i )
 	{
+		tInfo[i].invincibileTime = 3.f;
 		tInfo[i].info.id = i + 1;
 		g_Clients[i] = &tInfo[i];
 	}
@@ -467,10 +464,6 @@ void Init()
 			g_tBulletInfo[id][i].height = 70.f;
 			g_tBulletInfo[id][i].shot = false;
 		}
-
-
-		g_fPlayerCollisionTime[id] = 0.f;
-		g_bPlayerCollisition[id] = false;
 	}
 
 	g_iState = GAME_WAIT;
@@ -674,14 +667,25 @@ void BallsUpdate( const float & fTimeDelta )
 
 void PlayerCollisionBall(int id)
 {
+	if ( g_Clients[id]->info.hp <= 0 )
+		return;
+
 	for ( auto iterB = g_Balls.begin(); iterB != g_Balls.end(); ++iterB )
 	{
+		if ( iterB->first != g_iState )
+			continue;
+
+		if ( !iterB->second->live )
+			continue;
+
 		if ( CollisionBall( iterB->second->info, g_Clients[id]->info.x, g_Clients[id]->info.y, 70, 70 ) )
 		{
 			EnterCriticalSection( &g_CS_Player );
 			g_Clients[id]->info.hp -= 1;
-			cout << "id : " << id << "공과 충돌" << endl;
+			g_Clients[id]->info.invincibile = true;
 			LeaveCriticalSection( &g_CS_Player );
+
+			return;
 		}
 	}
 }

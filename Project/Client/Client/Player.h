@@ -23,6 +23,8 @@ private:
 	bool m_bShoot;
 	bool m_bDir;
 
+	bool m_binvincibile;
+
 public:
 	CPlayer();
 	virtual ~CPlayer();

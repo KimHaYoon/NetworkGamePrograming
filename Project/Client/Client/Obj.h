@@ -20,6 +20,8 @@ protected:
 	_SIZE			m_tSize;
 	string			m_strTag;
 
+	bool			m_bAlive;
+
 public:
 	class CTexture* GetTexture()	const;
 
@@ -38,6 +40,11 @@ public:
 		return m_strTag;
 	}
 
+	bool GetAlive() const
+	{
+		return m_bAlive;
+	}
+
 public:
 	void SetPos(float x, float y)
 	{
@@ -52,6 +59,11 @@ public:
 	void SetTag( const string& strTag )
 	{
 		m_strTag = strTag;
+	}
+
+	void Die()
+	{
+		m_bAlive = false;
 	}
 
 public:
