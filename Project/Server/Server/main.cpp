@@ -709,8 +709,10 @@ void BallCollisionBullet()
 
 				if ( CollisionBall( iterB->second->info, g_tBulletInfo[id][i].x, g_tBulletInfo[id][i].y, 30, g_tBulletInfo[id][i].height ) )
 				{
-					// 아이템 생성
-					CreateItem(iterB->second->info.x, iterB->second->info.y, rand() % 2);
+					// 아이템 생성 20%확률
+					if ((rand() % 10) < 2)
+						CreateItem(iterB->second->info.x, iterB->second->info.y, rand() % 2);
+					
 					// 충돌한 총알 삭제
 					EnterCriticalSection( &g_CS_Player );
 					g_tBulletInfo[id][i].shot = false;
@@ -828,21 +830,55 @@ void CreateItem(int x, int y, int type)
 	pItem->y = y;
 	pItem->type = type;
 
-	g_Items.emplace_back(pItem);
+	g_Items.push_back(pItem);
 }
 
 void ItemUpdate(const float& fTimeDelta)
 {
-	for (auto iter = g_Items.begin(); iter != g_Items.end(); ++iter)
+	list<ITEMINFO*>::iterator iter;
+	list<ITEMINFO*>::iterator iterEnd = g_Items.end();
+
+	for (iter = g_Items.begin(); iter != iterEnd;)
 	{
-		(*iter)->y += (100.f * fTimeDelta);
+		(*iter)->y += (200.f * fTimeDelta);
+
+		bool bCollision = false;
+		for (int id = 0; id < 2; ++id)
+		{
+			if (AABBCollisionCheck(
+			g_Clients[id]->info.x,
+			g_Clients[id]->info.y,
+			g_Clients[id]->info.x + 70,
+			g_Clients[id]->info.y + 70,
+			(*iter)->x,
+			(*iter)->y,
+			(*iter)->x + 30,
+			(*iter)->y + 30
+			))
+			{
+				delete *iter;
+				*iter = NULL;
+				iter = g_Items.erase(iter);
+				bCollision = true;
+				break;
+			}
+		}
+		if (bCollision)
+		{
+			continue;
+		}
 
 		if ((*iter)->y > 410)
 		{
-			cout << "삭제" << endl;
-			g_Items.remove((*iter));
-			break;
+			if (*iter)
+			{
+				delete *iter;
+				*iter = NULL;
+			}
+			iter = g_Items.erase(iter);
 		}
+		else
+			++iter;
 	}
 }
 
@@ -1064,10 +1100,20 @@ void SendBallsInfo( int clientnum, const GAME_STATE & eState )
 void SendItemInfo(int clientnum)
 {
 	int iSize = g_Items.size();
-	send(g_Clients[clientnum]->socket, (char*)&iSize, sizeof(iSize), 0);
+	send(g_Clients[clientnum]->socket, (char*)&iSize, sizeof(int), 0);
 
-	for (const auto& items : g_Items)
+	ITEMINFO* pItems = new ITEMINFO[iSize];
+	int num = 0;
+	for (auto& item : g_Items)
 	{
-		send(g_Clients[clientnum]->socket, (char*)&(*items), sizeof(ITEMINFO), 0);
+		pItems[num++] = *item;
 	}
+
+	for (int i = 0; i < iSize; ++i)
+	{
+		send(g_Clients[clientnum]->socket, (char*)&pItems[i], sizeof(ITEMINFO), 0);
+	}
+
+	delete[] pItems;
+	pItems = NULL;
 }

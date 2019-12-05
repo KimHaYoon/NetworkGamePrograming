@@ -240,8 +240,8 @@ void CNetwork::RecvStageLimitTime()
 
 void CNetwork::RecvItemInfo()
 {
-	SAFE_DELETE_ARRAY(m_pItems);
-	recvn(m_Sock, (char *)&m_iItemsSize, sizeof(m_iItemsSize), 0);
+	//SAFE_DELETE_ARRAY(m_pItems);
+	recvn(m_Sock, (char *)&m_iItemsSize, sizeof(int), 0);
 
 	m_pItems = new ITEMINFO[m_iItemsSize];
 	for (int i = 0; i < m_iItemsSize; ++i)
