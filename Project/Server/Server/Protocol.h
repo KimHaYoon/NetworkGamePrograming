@@ -11,6 +11,7 @@
 #define DIR_UP false
 #define DIR_DOWN true
 
+
 // 서버에서 게임 제한시간을 받을 때 사용
 typedef float GAMETIME;
 

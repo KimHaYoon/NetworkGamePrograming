@@ -1,5 +1,10 @@
 #include "main.h"
 
+//typedef struct LINGER {
+//	u_short l_onoff;
+//	u_short l_linger;
+//}LINGER;
+
 static int		g_iClientNumber = 0;
 static int		g_iState = GAME_WAIT;
 static float	g_fTime = 0.f;
@@ -172,6 +177,17 @@ int main()
 		printf( "\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa( clientaddr.sin_addr ), ntohs( clientaddr.sin_port ) );
 		
 		g_Clients[g_iClientNumber]->socket = client_sock;
+
+		BOOL bEnable = TRUE;
+		int result = setsockopt(g_Clients[g_iClientNumber]->socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&bEnable, sizeof(bEnable));
+		LINGER optval;
+		optval.l_onoff = 1;
+		optval.l_linger = 10;
+		result = setsockopt(g_Clients[g_iClientNumber]->socket, SOL_SOCKET, SO_LINGER, (char*)&optval, sizeof(optval));
+
+
+
+
 		send( g_Clients[g_iClientNumber]->socket, ( char* )&g_Clients[g_iClientNumber]->info, sizeof( PLAYERINFO ), 0 );			// 초기 정보 전송
 		PrintPlayerInfo( g_Clients[g_iClientNumber]->info );
 		
