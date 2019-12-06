@@ -178,15 +178,13 @@ int main()
 		
 		g_Clients[g_iClientNumber]->socket = client_sock;
 
-		BOOL bEnable = TRUE;
+		BOOL bEnable = TRUE; // 일정시간 (2시간) 데이터 통신이 없는 경우 연결 여부 확인
 		int result = setsockopt(g_Clients[g_iClientNumber]->socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&bEnable, sizeof(bEnable));
-		LINGER optval;
+
+		LINGER optval;  // 소켓 송신 버퍼에 미전송 데이터가 있을때 
 		optval.l_onoff = 1;
-		optval.l_linger = 10;
+		optval.l_linger = 10; // 10초동안 데이터가 미전송일때
 		result = setsockopt(g_Clients[g_iClientNumber]->socket, SOL_SOCKET, SO_LINGER, (char*)&optval, sizeof(optval));
-
-
-
 
 		send( g_Clients[g_iClientNumber]->socket, ( char* )&g_Clients[g_iClientNumber]->info, sizeof( PLAYERINFO ), 0 );			// 초기 정보 전송
 		PrintPlayerInfo( g_Clients[g_iClientNumber]->info );
