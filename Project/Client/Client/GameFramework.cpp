@@ -13,7 +13,7 @@ CGameFramework::CGameFramework() :
 	m_pBackBuffer(NULL)
 {
 #ifdef _DEBUG
-	AllocConsole();
+	//AllocConsole();
 #endif
 }
 
@@ -21,7 +21,7 @@ CGameFramework::CGameFramework() :
 CGameFramework::~CGameFramework()
 {
 #ifdef _DEBUG
-	FreeConsole();
+	//FreeConsole();
 #endif // _DEBUG
 
 	GET_SINGLE( CObjectManager )->DestroyInst();

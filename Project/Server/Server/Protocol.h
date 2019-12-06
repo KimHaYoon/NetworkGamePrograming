@@ -48,7 +48,7 @@ typedef struct Player
 	Player() {
 		hp = 3;
 		score = 0;
-		bulletCount = 1;
+		bulletCount = 2;
 		maxFrame = 5;
 		gameStart = true;
 		invincibile = false;

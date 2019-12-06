@@ -410,7 +410,7 @@ void Update( const float& fTimeDelta )
 			if ( g_Clients[id]->keys.space == true )
 			{
 				g_Clients[id]->info.maxFrame = 3;
-				for ( int i = 0; i < 5; ++i )
+				for ( int i = 0; i < g_Clients[id]->info.bulletCount; ++i )
 				{
 					if ( g_tBulletInfo[id][i].shot == false )
 					{
@@ -792,7 +792,7 @@ void PlayerCollisionBall(int id)
 		if ( !iterB->second->live )
 			continue;
 
-		if ( CollisionBall( iterB->second->info, g_Clients[id]->info.x, g_Clients[id]->info.y, 50, 70 ) )
+		if ( CollisionBall( iterB->second->info, g_Clients[id]->info.x + 10, g_Clients[id]->info.y, 50, 70 ) )
 		{
 			EnterCriticalSection( &g_CS_Player );
 			g_Clients[id]->info.hp -= 1;
