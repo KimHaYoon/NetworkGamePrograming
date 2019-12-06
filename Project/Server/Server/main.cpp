@@ -25,10 +25,9 @@ list<ITEMINFO*>				g_Items;
 
 // 191206 씬 전환시 카운트 다운
 static GAMETIME	g_fChangeSceneTime = 5.f;
-static GAMETIME	g_fAfterChangeSceneTime = 5.f;
 static bool		g_bChangeScene = false;
-static bool		g_bAfterChangeScene = false;
 
+static bool		g_bCheat = false;
 
 // 191203 스테이지 제한시간
 static float	g_fStageLimitTime;
@@ -378,8 +377,7 @@ void Update( const float& fTimeDelta )
 		}
 		LeaveCriticalSection( &g_CS_Player );
 
-		if ( !g_bAfterChangeScene )
-			PlayerCollisionBall( id );
+		PlayerCollisionBall( id );
 	}
 
 	if ( !g_bChangeScene )
@@ -516,18 +514,6 @@ void Update( const float& fTimeDelta )
 		g_fStageLimitTime = 60.f;
 
 		g_bChangeScene = false;
-
-		g_bAfterChangeScene = true;
-	}
-
-	if ( g_bAfterChangeScene )
-	{
-		g_fAfterChangeSceneTime -= fTimeDelta;
-
-		if ( g_fAfterChangeSceneTime <= 0.f )
-		{
-			g_bAfterChangeScene = false;
-		}
 	}
 }
 
@@ -580,6 +566,8 @@ void RecvKeysInfo(int clientnum)
 		err_display("recv()");
 		cout << g_Clients[clientnum]->socket << " recv fail!" << endl;
 	}
+
+	g_bCheat = g_Clients[0]->keys.cheat;
 }
 
 void SendPlayersInfo(int clientnum)
@@ -790,6 +778,9 @@ void BallsUpdate( const float & fTimeDelta )
 
 void PlayerCollisionBall(int id)
 {
+	if(g_bCheat )
+		return;
+
 	if ( g_Clients[id]->info.hp <= 0 )
 		return;
 
@@ -823,12 +814,17 @@ void PlayerCollisionBall(int id)
 
 void BallCollisionBullet()
 {
+	bool bCollision = false;
+	
 	for ( auto iterB = g_Balls.begin(); iterB != g_Balls.end(); ++iterB )
 	{
 		if ( iterB->first != g_iState )
 			continue;
 
-		if ( !iterB->second->live )
+		if ( !(iterB->second->live) )
+			continue;
+
+		if ( iterB->second->info.type == 30 )
 			continue;
 
 		for ( int id = 0; id < 2; ++id )
@@ -838,67 +834,80 @@ void BallCollisionBullet()
 				if ( !g_tBulletInfo[id][i].shot )
 					continue;
 
-
 				if ( CollisionBall( iterB->second->info, g_tBulletInfo[id][i].x, g_tBulletInfo[id][i].y, 30, g_tBulletInfo[id][i].height ) )
 				{
-					// 아이템 생성 20%확률
-					int item = rand() % 100;
-					if (item < 30)
-					{
-						if (item < 15)
-							CreateItem(iterB->second->info.x, iterB->second->info.y, 0);
-						else if (item < 24)
-							CreateItem(iterB->second->info.x, iterB->second->info.y, 2);
-						else
-							CreateItem(iterB->second->info.x, iterB->second->info.y, 1);
-					}
-
+					bCollision = true;
+					
 					// 충돌한 총알 삭제
 					EnterCriticalSection( &g_CS_Player );
 					g_tBulletInfo[id][i].shot = false;
 					g_Clients[id]->info.score += 50;
 
-					// 공 크기 바꿔주기
-					int radius{}, type{};
-
-					if ( iterB->second->info.type == 11 )
-					{
-						radius = 15;
-						type = 21;
-					}
-
-					else if ( iterB->second->info.type == 21 )
-					{
-						radius = 8;
-						type = 31;
-					}
-
-					else if(iterB->second->info.type == 31 )
-					{
-						iterB->second->info.radius = 0;
-						iterB->second->info.type = 30;
-						iterB->second->live = false;
-						continue;
-					}
-
-
-					iterB->second->info.radius = radius;
-					iterB->second->info.type = type;
-					iterB->second->xDir = DIR_LEFT;
-					iterB->second->yDir = DIR_DOWN;
-
-					SERVERBALLINFO* ballInfo = new SERVERBALLINFO;
-					ballInfo->info.x = iterB->second->info.x;
-					ballInfo->info.y = iterB->second->info.y;
-					ballInfo->info.radius = radius;
-					ballInfo->info.type = type;
-					ballInfo->live = true;
-					ballInfo->xDir = DIR_RIGHT;
-					ballInfo->yDir = DIR_DOWN;
-					AddBallInfo( ballInfo, (GAME_STATE)iterB->first );
-					LeaveCriticalSection( &g_CS_Player );
+					break;
 				}
 			}
+
+			if ( bCollision )
+				break;
+		}
+		
+		if ( bCollision )
+		{
+			// 아이템 생성 20%확률
+			int item = rand() % 100;
+			if ( item < 30 )
+			{
+				if ( item < 15 )
+					CreateItem( iterB->second->info.x, iterB->second->info.y, 0 );
+				else if ( item < 24 )
+					CreateItem( iterB->second->info.x, iterB->second->info.y, 2 );
+				else
+					CreateItem( iterB->second->info.x, iterB->second->info.y, 1 );
+			}
+
+			// 공 크기 바꿔주기
+			int radius{}, type{};
+
+			if ( iterB->second->info.type == 11 )
+			{
+				radius = 15;
+				type = 21;
+			}
+
+			else if ( iterB->second->info.type == 21 )
+			{
+				radius = 8;
+				type = 31;
+			}
+
+			else if ( iterB->second->info.type == 31 )
+			{
+				radius = 0;
+				type = 30;
+				iterB->second->info.radius = 0;
+				iterB->second->info.type = 30;
+				iterB->second->live = false;
+				return;
+			}
+
+			iterB->second->info.radius = radius;
+			iterB->second->info.type = type;
+			iterB->second->xDir = DIR_LEFT;
+			iterB->second->yDir = DIR_DOWN;
+
+			SERVERBALLINFO* ballInfo = new SERVERBALLINFO;
+			ballInfo->info.x = iterB->second->info.x;
+			ballInfo->info.y = iterB->second->info.y;
+			ballInfo->info.radius = radius;
+			ballInfo->info.type = type;
+			ballInfo->live = true;
+			ballInfo->xDir = DIR_RIGHT;
+			ballInfo->yDir = DIR_DOWN;
+			AddBallInfo( ballInfo, ( GAME_STATE )iterB->first );
+
+			LeaveCriticalSection( &g_CS_Player );
+			
+			bCollision = false;
 		}
 	}
 }
@@ -953,6 +962,63 @@ void TileInit()
 		blockInfo.x = 350;
 		blockInfo.y = 150;
 		g_Tiles.insert( make_pair( GAME_STAGE1, blockInfo ) );
+	}
+
+	// Stage2
+	{
+		TILEINFO blockInfo;
+		blockInfo.id = 0;
+		blockInfo.x = 250;
+		blockInfo.y = 250;
+		blockInfo.maxFrame = 5;
+		blockInfo.type = 1;
+		blockInfo.color = 1;
+		blockInfo.cx = 150;
+		blockInfo.cy = 40;
+		blockInfo.animation = false;
+		g_Tiles.insert( make_pair( GAME_STAGE2, blockInfo ) );
+
+		blockInfo.id = 1;
+		blockInfo.x = 490;
+		blockInfo.y = 150;
+		blockInfo.cx = 150;
+		blockInfo.cy = 40;
+		blockInfo.color = 1;
+		g_Tiles.insert( make_pair( GAME_STAGE2, blockInfo ) );
+
+		blockInfo.id = 2;
+		blockInfo.x = 400;
+		blockInfo.y = 250;
+		blockInfo.cx = 150;
+		blockInfo.cy = 40;
+		blockInfo.color = 1;
+		g_Tiles.insert( make_pair( GAME_STAGE2, blockInfo ) );
+	}
+
+	// Stage3
+	{
+		TILEINFO blockInfo;
+		blockInfo.id = 0;
+		blockInfo.x = 200;
+		blockInfo.y = 250;
+		blockInfo.maxFrame = 5;
+		blockInfo.type = 1;
+		blockInfo.color = 0;
+		blockInfo.cx = 200;
+		blockInfo.cy = 40;
+		blockInfo.animation = false;
+		g_Tiles.insert( make_pair( GAME_STAGE3, blockInfo ) );
+
+		blockInfo.id = 1;
+		blockInfo.x = 600;
+		blockInfo.y = 250;
+		g_Tiles.insert( make_pair( GAME_STAGE3, blockInfo ) );
+
+		blockInfo.id = 2;
+		blockInfo.x = 350;
+		blockInfo.y = 150;
+		blockInfo.color = 1;
+		g_Tiles.insert( make_pair( GAME_STAGE3, blockInfo ) );
 	}
 }
 
@@ -1089,7 +1155,7 @@ void BallsInit()
 	{
 		SERVERBALLINFO* ballInfo = new SERVERBALLINFO;
 		ballInfo->info.x = 200;
-		ballInfo->info.y = 250;
+		ballInfo->info.y = 150;
 		ballInfo->info.radius = 25;
 		ballInfo->info.type = 11;
 		ballInfo->live = true;
@@ -1099,7 +1165,7 @@ void BallsInit()
 
 		ballInfo = new SERVERBALLINFO;
 		ballInfo->info.x = 600;
-		ballInfo->info.y = 250;
+		ballInfo->info.y = 150;
 		ballInfo->info.radius = 25;
 		ballInfo->info.type = 11;
 		ballInfo->live = true;
@@ -1112,7 +1178,7 @@ void BallsInit()
 	{
 		SERVERBALLINFO* ballInfo = new SERVERBALLINFO;
 		ballInfo->info.x = 200;
-		ballInfo->info.y = 250;
+		ballInfo->info.y = 150;
 		ballInfo->info.radius = 25;
 		ballInfo->info.type = 11;
 		ballInfo->live = true;
@@ -1121,8 +1187,8 @@ void BallsInit()
 		AddBallInfo( ballInfo, GAME_STAGE2 );
 
 		ballInfo = new SERVERBALLINFO;
-		ballInfo->info.x = 600;
-		ballInfo->info.y = 250;
+		ballInfo->info.x = 400;
+		ballInfo->info.y = 150;
 		ballInfo->info.radius = 25;
 		ballInfo->info.type = 11;
 		ballInfo->live = true;
@@ -1132,7 +1198,7 @@ void BallsInit()
 
 		ballInfo = new SERVERBALLINFO;
 		ballInfo->info.x = 600;
-		ballInfo->info.y = 250;
+		ballInfo->info.y = 150;
 		ballInfo->info.radius = 25;
 		ballInfo->info.type = 11;
 		ballInfo->live = true;
@@ -1145,8 +1211,8 @@ void BallsInit()
 	// Stage 3
 	{
 		SERVERBALLINFO* ballInfo = new SERVERBALLINFO;
-		ballInfo->info.x = 200;
-		ballInfo->info.y = 250;
+		ballInfo->info.x = 100;
+		ballInfo->info.y = 150;
 		ballInfo->info.radius = 25;
 		ballInfo->info.type = 11;
 		ballInfo->live = true;
@@ -1155,8 +1221,8 @@ void BallsInit()
 		AddBallInfo( ballInfo, GAME_STAGE3 );
 
 		ballInfo = new SERVERBALLINFO;
-		ballInfo->info.x = 200;
-		ballInfo->info.y = 250;
+		ballInfo->info.x = 300;
+		ballInfo->info.y = 150;
 		ballInfo->info.radius = 25;
 		ballInfo->info.type = 11;
 		ballInfo->live = true;
@@ -1165,8 +1231,8 @@ void BallsInit()
 		AddBallInfo( ballInfo, GAME_STAGE3 );
 
 		ballInfo = new SERVERBALLINFO;
-		ballInfo->info.x = 600;
-		ballInfo->info.y = 250;
+		ballInfo->info.x = 500;
+		ballInfo->info.y = 150;
 		ballInfo->info.radius = 25;
 		ballInfo->info.type = 11;
 		ballInfo->live = true;
@@ -1175,8 +1241,8 @@ void BallsInit()
 		AddBallInfo( ballInfo, GAME_STAGE3 );
 
 		ballInfo = new SERVERBALLINFO;
-		ballInfo->info.x = 600;
-		ballInfo->info.y = 250;
+		ballInfo->info.x = 700;
+		ballInfo->info.y = 150;
 		ballInfo->info.radius = 25;
 		ballInfo->info.type = 11;
 		ballInfo->live = true;
@@ -1250,7 +1316,7 @@ void SendBallsInfo( int clientnum, const GAME_STATE & eState )
 	SERVERBALLINFO** pBalls = GetBallsInfo( eState );
 	send( g_Clients[clientnum]->socket, ( char* )&iSize, sizeof( iSize ), 0 );
 
-	cout << "Send Balls Size : " << iSize << endl;
+	//cout << "Send Balls Size : " << iSize << endl;
 
 	for ( int i = 0; i < iSize; ++i )
 		send( g_Clients[clientnum]->socket, ( char* )&pBalls[i]->info, sizeof( BALLINFO ), 0 );

@@ -51,6 +51,8 @@ public:
 	void LeftKeyOn();
 	void RightKeyOn();
 	void SpaceKeyOn();
+	void CheatKey();
+
 public:
 	PLAYERINFO GetPlayerInfo() const;
 	PLAYERINFO GetOtherPlayerInfo() const;

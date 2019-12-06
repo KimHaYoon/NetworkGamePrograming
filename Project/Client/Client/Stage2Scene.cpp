@@ -16,6 +16,7 @@
 #include "GameOverScene.h"
 #include "Stage3Scene.h"
 #include "SceneManager.h"
+#include "Marker.h"
 
 CStage2Scene::CStage2Scene() : 
 	m_StageLimitTime(NULL)
@@ -39,6 +40,8 @@ bool CStage2Scene::Init()
 	CObj* pPlayer = GET_SINGLE( CObjectManager )->CreateObject<CPlayer>( "Player" + to_string( tPlayerInfo.id ) );
 	( ( CPlayer* )pPlayer )->SetPlayerInfo( tPlayerInfo );
 	( ( CPlayer* )pPlayer )->CreateBullets( tPlayerInfo.id );
+
+	CObj* pPlayerRect = GET_SINGLE( CObjectManager )->CreateObject<CMarker>( "PlayerRect" );
 
 	tPlayerInfo = GET_SINGLE( CNetwork )->GetOtherPlayerInfo();
 	pPlayer = GET_SINGLE( CObjectManager )->CreateObject<CPlayer>( "Player" + to_string( tPlayerInfo.id ) );

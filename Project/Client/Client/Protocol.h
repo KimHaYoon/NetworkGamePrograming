@@ -4,6 +4,7 @@
 #define LEFT			'MOVE_LEFT'
 #define RIGHT			'MOVE_RIGHT'
 #define ATTACK			'BULLET_ATTACK'
+#define CHEAT			'Cheat'					// 무적 자꾸 죽어서..
 
 // 서버에서 게임 제한시간을 받을 때 사용
 typedef float GAMETIME;
@@ -113,11 +114,13 @@ typedef struct Keys
 	bool left;
 	bool right;
 	bool space;
+	bool cheat;
 
 	Keys() {
 		left = false;
 		right = false;
 		space = false;
+		cheat = false;
 	}
 }PLAYERKEYINFO;
 #pragma pack (pop)  // 위에 선언한 패킹상태를 원상태로 돌리는것

@@ -147,6 +147,11 @@ void CNetwork::SpaceKeyOn()
 	m_tPlayerKeyInfo.space = true;
 }
 
+void CNetwork::CheatKey()
+{
+	m_tPlayerKeyInfo.cheat = !m_tPlayerKeyInfo.cheat;
+}
+
 PLAYERINFO CNetwork::GetPlayerInfo() const
 {
 	return m_tPlayerInfo;

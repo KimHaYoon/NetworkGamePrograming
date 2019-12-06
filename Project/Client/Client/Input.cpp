@@ -32,7 +32,7 @@ bool CInput::Init(HWND hWnd)
 
 
 	CreateKey( VK_RETURN, "Enter" );
-
+	CreateKey( VK_F2, "Cheat" );
 	return true;
 }
 

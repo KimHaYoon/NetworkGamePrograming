@@ -62,11 +62,13 @@ typedef struct Keys
 	bool left;
 	bool right;
 	bool space;
+	bool cheat;
 
 	Keys() {
 		left = false;
 		right = false;
 		space = false;
+		cheat = false;
 	}
 }PLAYERKEYINFO;
 

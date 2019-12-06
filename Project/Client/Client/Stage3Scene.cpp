@@ -16,6 +16,7 @@
 #include "SceneManager.h"
 #include "GameOverScene.h"
 #include "EndingScene.h"
+#include "Marker.h"
 
 CStage3Scene::CStage3Scene() : 
 	m_StageLimitTime(NULL)
@@ -40,6 +41,8 @@ bool CStage3Scene::Init()
 	( ( CPlayer* )pPlayer )->SetPlayerInfo( tPlayerInfo );
 	( ( CPlayer* )pPlayer )->CreateBullets( tPlayerInfo.id );
 
+
+	CObj* pPlayerRect = GET_SINGLE( CObjectManager )->CreateObject<CMarker>( "PlayerRect" );
 
 	CObj* pHPUI = GET_SINGLE( CObjectManager )->CreateObject<CPlayerHP>( "MyPlayerHP" );
 	( ( CPlayerHP* )pHPUI )->SetPlayer( tPlayerInfo.id );

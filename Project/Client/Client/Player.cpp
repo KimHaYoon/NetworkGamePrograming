@@ -79,6 +79,11 @@ void CPlayer::Input()
 		m_bMoveAnimation = false;
 		m_bShoot = false;
 	}
+
+	if ( KEYDOWN( "Cheat" ) && m_tInfo.id == 1)
+	{
+		GET_SINGLE( CNetwork )->CheatKey();
+	}
 }
 
 void CPlayer::Update( const float& fTimeDelta )
