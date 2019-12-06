@@ -284,6 +284,7 @@ void CNetwork::RecvTilesInfo()
 void CNetwork::RecvBallsInfo()
 {
 	recvn( m_Sock, ( char* )&m_iBallSize, sizeof( int ), 0 );
+	_cprintf( "Recv Ball Size : %d\n", m_iBallSize );
 
 	m_pBalls = new BALLINFO[m_iBallSize];
 	for ( int i = 0; i < m_iBallSize; ++i )

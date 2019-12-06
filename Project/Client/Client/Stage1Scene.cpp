@@ -16,6 +16,7 @@
 #include "SceneManager.h"
 #include "GameOverScene.h"
 #include "Marker.h"
+#include "Stage2Scene.h"
 
 CStage1Scene::CStage1Scene()
 {
@@ -43,22 +44,22 @@ bool CStage1Scene::Init()
 	( ( CPlayerHP* )pHPUI )->SetPlayer( tPlayerInfo.id );
 	_cprintf( "MyPlayerID : %d\n", tPlayerInfo.id );
 
-	tPlayerInfo = GET_SINGLE( CNetwork )->GetOtherPlayerInfo();
-	pPlayer = GET_SINGLE( CObjectManager )->CreateObject<CPlayer>( "Player" + to_string( tPlayerInfo.id ) );
-	( ( CPlayer* )pPlayer )->SetPlayerInfo( tPlayerInfo );
-	( ( CPlayer* )pPlayer )->CreateBullets( tPlayerInfo.id );
+	PLAYERINFO tOtherPlayerInfo = GET_SINGLE( CNetwork )->GetOtherPlayerInfo();
+	pPlayer = GET_SINGLE( CObjectManager )->CreateObject<CPlayer>( "Player" + to_string( tOtherPlayerInfo.id ) );
+	( ( CPlayer* )pPlayer )->SetPlayerInfo( tOtherPlayerInfo );
+	( ( CPlayer* )pPlayer )->CreateBullets( tOtherPlayerInfo.id );
 
 	pHPUI = GET_SINGLE( CObjectManager )->CreateObject<CPlayerHP>( "OtherPlayerHP" );
-	( ( CPlayerHP* )pHPUI )->SetPlayer( tPlayerInfo.id );
-	_cprintf( "OtherPlayerID : %d\n", tPlayerInfo.id );
+	( ( CPlayerHP* )pHPUI )->SetPlayer( tOtherPlayerInfo.id );
+	_cprintf( "OtherPlayerID : %d\n", tOtherPlayerInfo.id );
 
-	CObj* pPortrait = GET_SINGLE( CObjectManager )->CreateObject<CPlayerPortrait>( "PlayerPortrait1" );
-	( ( CPlayerPortrait* )pPortrait )->SetNumber( 1 );
+	CObj* pPortrait = GET_SINGLE( CObjectManager )->CreateObject<CPlayerPortrait>( "MyPlayerPortrait" );
+	( ( CPlayerPortrait* )pPortrait )->SetNumber( tPlayerInfo.id );
 	pPortrait->SetPos( 0, 450 );
 	pPortrait->SetSize( 0, 0 );
 
-	pPortrait = GET_SINGLE( CObjectManager )->CreateObject<CPlayerPortrait>( "PlayerPortrait2" );
-	( ( CPlayerPortrait* )pPortrait )->SetNumber( 2 );
+	pPortrait = GET_SINGLE( CObjectManager )->CreateObject<CPlayerPortrait>( "OtherPlayerPortrait" );
+	( ( CPlayerPortrait* )pPortrait )->SetNumber( tOtherPlayerInfo.id );
 	pPortrait->SetPos( 650, 450 );
 	pPortrait->SetSize( 0, 0 );
 
@@ -147,6 +148,11 @@ void CStage1Scene::Update( const float& fTimeDelta )
 	if (iGameState == GAME_GAMEOVER)
 	{
 		GET_SINGLE(CSceneManager)->CreateScene<CGameOverScene>("GameOver");
+	}
+
+	else if ( iGameState == GAME_STAGE2 )
+	{
+		GET_SINGLE( CSceneManager )->CreateScene<CStage2Scene>( "Stage2" );
 	}
 }
 

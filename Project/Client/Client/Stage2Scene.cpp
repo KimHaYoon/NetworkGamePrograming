@@ -13,6 +13,9 @@
 #include "PlayerHP.h"
 #include "PlayerBullet.h"
 #include "Item.h"
+#include "GameOverScene.h"
+#include "Stage3Scene.h"
+#include "SceneManager.h"
 
 CStage2Scene::CStage2Scene() : 
 	m_StageLimitTime(NULL)
@@ -29,7 +32,8 @@ bool CStage2Scene::Init()
 {
 	CObj* pBack = GET_SINGLE( CObjectManager )->CreateObject<CRect>( "Rect" );
 	CObj* pBG = GET_SINGLE( CObjectManager )->CreateObject<CStage1Background>( "Stage2BG" );
-	pBG->SetTexture( "Stage2", L"Texture/Stage/Stage2_Background.bmp" );
+	pBG->SetTexture( "Stage2BG", L"Texture/Stage/Stage2_Background.bmp", true );
+	pBG->SetSize( 800, 450 );
 	
 	PLAYERINFO tPlayerInfo = GET_SINGLE( CNetwork )->GetPlayerInfo();
 	CObj* pPlayer = GET_SINGLE( CObjectManager )->CreateObject<CPlayer>( "Player" + to_string( tPlayerInfo.id ) );
@@ -75,7 +79,7 @@ bool CStage2Scene::Init()
 	pBulletUI->SetPos( 545, 550 );
 	( ( CPlayerBullet* )pBulletUI )->SetPlayer( 2 );
 
-	CObj* pStageUI = GET_SINGLE( CObjectManager )->CreateObject<CStageUI>( "Stage1" );
+	CObj* pStageUI = GET_SINGLE( CObjectManager )->CreateObject<CStageUI>( "Stage2" );
 
 	BALLINFO* pBallInfo = GET_SINGLE( CNetwork )->GetBallsInfo();
 	m_iBallSize = GET_SINGLE( CNetwork )->GetBallsSize();
@@ -140,6 +144,17 @@ void CStage2Scene::Update( const float & fTimeDelta )
 	{
 		CObj* pItem = GET_SINGLE( CObjectManager )->CreateObject<CItem>( "Item" + to_string( i ) );
 		dynamic_cast< CItem* >( pItem )->SetItemInfo( pItems[i] );
+	}
+
+	int iGameState = GET_SINGLE( CNetwork )->GetGameState();
+	if ( iGameState == GAME_GAMEOVER )
+	{
+		GET_SINGLE( CSceneManager )->CreateScene<CGameOverScene>( "GameOver" );
+	}
+
+	else if ( iGameState == GAME_STAGE3 )
+	{
+		GET_SINGLE( CSceneManager )->CreateScene<CStage3Scene>( "Stage3" );
 	}
 }
 

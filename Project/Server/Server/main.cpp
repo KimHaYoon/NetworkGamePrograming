@@ -18,6 +18,12 @@ unordered_multimap<int, SERVERBALLINFO*>		g_Balls;
 // 191205 아이템 추가
 list<ITEMINFO*>				g_Items;
 
+// 191206 씬 전환시 카운트 다운
+static GAMETIME	g_fChangeSceneTime = 5.f;
+static GAMETIME	g_fAfterChangeSceneTime = 5.f;
+static bool		g_bChangeScene = false;
+static bool		g_bAfterChangeScene = false;
+
 
 // 191203 스테이지 제한시간
 static float	g_fStageLimitTime;
@@ -335,9 +341,8 @@ void Update( const float& fTimeDelta )
 
 	LeaveCriticalSection( &g_CS_Player );
 
-
 	BallCollisionBullet();
-	
+
 	for ( int id = 0; id < 2; ++id )
 	{
 		if (g_Clients[id]->info.gameStart == false)
@@ -359,115 +364,157 @@ void Update( const float& fTimeDelta )
 		}
 		LeaveCriticalSection( &g_CS_Player );
 
-		PlayerCollisionBall( id );
+		if ( !g_bAfterChangeScene )
+			PlayerCollisionBall( id );
 	}
 
-	BallsUpdate( fTimeDelta );
-	ItemUpdate(fTimeDelta);
-
-	for (int id = 0; id < 2; ++id)
+	if ( !g_bChangeScene )
 	{
-		EnterCriticalSection(&g_CS_Player);
-		if (g_Clients[id]->info.gameStart == false)
-			continue;
-		// 플레이어의 이동
-		// 왼쪽 방향키
-		if (g_Clients[id]->keys.left == true)
-		{
-			if(g_Clients[id]->info.x > 10)
-				g_Clients[id]->info.x -= (300.f * fTimeDelta);
-			g_Clients[id]->info.maxFrame = 5;
-		}
-		// 오른쪽 방향키
-		else if (g_Clients[id]->keys.right == true)
-		{
-			if(g_Clients[id]->info.x < 730)
-				g_Clients[id]->info.x += (300.f * fTimeDelta);
-			g_Clients[id]->info.maxFrame = 5;
-		}
+		BallsUpdate( fTimeDelta );
+		ItemUpdate( fTimeDelta );
 
-		// 스페이스 키
-		if (g_Clients[id]->keys.space == true)
+		for ( int id = 0; id < 2; ++id )
 		{
-			g_Clients[id]->info.maxFrame = 3;
-			for (int i = 0; i < 5; ++i)
+			EnterCriticalSection( &g_CS_Player );
+			if ( g_Clients[id]->info.gameStart == false )
+				continue;
+			// 플레이어의 이동
+			// 왼쪽 방향키
+			if ( g_Clients[id]->keys.left == true )
 			{
-				if (g_tBulletInfo[id][i].shot == false)
-				{
-					g_tBulletInfo[id][i].shot = true;
-					g_tBulletInfo[id][i].x = g_Clients[id]->info.x + 15;
-					g_tBulletInfo[id][i].y = g_Clients[id]->info.y;
-					g_tBulletInfo[id][i].height = 70.f;
-					g_Clients[id]->keys.space = false;
-					break;
-				}
+				if ( g_Clients[id]->info.x > 10 )
+					g_Clients[id]->info.x -= ( 300.f * fTimeDelta );
+				g_Clients[id]->info.maxFrame = 5;
 			}
-		}
-		LeaveCriticalSection(&g_CS_Player);
-
-
-		EnterCriticalSection(&g_CS_Bullet);
-		// 총알의 움직임
-		for (int i = 0; i < 5; ++i)
-		{
-			if (g_tBulletInfo[id][i].shot == true)
+			// 오른쪽 방향키
+			else if ( g_Clients[id]->keys.right == true )
 			{
-				float height = 200.f * fTimeDelta;
-				g_tBulletInfo[id][i].y -= height;
-				g_tBulletInfo[id][i].height += (height * 1.25f);
+				if ( g_Clients[id]->info.x < 730 )
+					g_Clients[id]->info.x += ( 300.f * fTimeDelta );
+				g_Clients[id]->info.maxFrame = 5;
+			}
 
-				if (g_tBulletInfo[id][i].y < 10.f)
+			// 스페이스 키
+			if ( g_Clients[id]->keys.space == true )
+			{
+				g_Clients[id]->info.maxFrame = 3;
+				for ( int i = 0; i < 5; ++i )
 				{
-					g_tBulletInfo[id][i].shot = false;
-					g_tBulletInfo[id][i].height = 70.f;
-				}
-
-				// 총알과 타일의 충돌
-				TILEINFO** pTiles = GetTilesInfo(GAME_STATE(g_iState));
-				int iTileSize = GetTilesSize(GAME_STATE(g_iState));
-
-				for (int j = 0; j < iTileSize; ++j)
-				{
-					if (pTiles[j]->type == 0)
-						continue;
-
-					if (AABBCollisionCheck(
-						g_tBulletInfo[id][i].x,
-						g_tBulletInfo[id][i].y,
-						g_tBulletInfo[id][i].x + 30,
-						g_tBulletInfo[id][i].y + g_tBulletInfo[id][i].height,
-						pTiles[j]->x,
-						pTiles[j]->y,
-						pTiles[j]->x + pTiles[j]->cx - 10,
-						pTiles[j]->y + pTiles[j]->cy))
+					if ( g_tBulletInfo[id][i].shot == false )
 					{
-						g_tBulletInfo[id][i].shot = false;
-						g_tBulletInfo[id][i].x = 0;
-						g_tBulletInfo[id][i].y = 0;
-						g_tBulletInfo[id][i].height = 70;
-
-						if (pTiles[j]->type == 1)
-						{
-							pTiles[j]->animation = true;
-							pTiles[j]->maxFrame = 5;
-							pTiles[j]->type = 0;
-						}
+						g_tBulletInfo[id][i].shot = true;
+						g_tBulletInfo[id][i].x = g_Clients[id]->info.x + 15;
+						g_tBulletInfo[id][i].y = g_Clients[id]->info.y;
+						g_tBulletInfo[id][i].height = 70.f;
+						g_Clients[id]->keys.space = false;
 						break;
 					}
 				}
 			}
+			LeaveCriticalSection( &g_CS_Player );
+
+
+			EnterCriticalSection( &g_CS_Bullet );
+			// 총알의 움직임
+			for ( int i = 0; i < 5; ++i )
+			{
+				if ( g_tBulletInfo[id][i].shot == true )
+				{
+					float height = 200.f * fTimeDelta;
+					g_tBulletInfo[id][i].y -= height;
+					g_tBulletInfo[id][i].height += ( height * 1.25f );
+
+					if ( g_tBulletInfo[id][i].y < 10.f )
+					{
+						g_tBulletInfo[id][i].shot = false;
+						g_tBulletInfo[id][i].height = 70.f;
+					}
+
+					// 총알과 타일의 충돌
+					TILEINFO** pTiles = GetTilesInfo( GAME_STATE( g_iState ) );
+					int iTileSize = GetTilesSize( GAME_STATE( g_iState ) );
+
+					for ( int j = 0; j < iTileSize; ++j )
+					{
+						if ( pTiles[j]->type == 0 )
+							continue;
+
+						if ( AABBCollisionCheck(
+							g_tBulletInfo[id][i].x,
+							g_tBulletInfo[id][i].y,
+							g_tBulletInfo[id][i].x + 30,
+							g_tBulletInfo[id][i].y + g_tBulletInfo[id][i].height,
+							pTiles[j]->x,
+							pTiles[j]->y,
+							pTiles[j]->x + pTiles[j]->cx - 10,
+							pTiles[j]->y + pTiles[j]->cy ) )
+						{
+							g_tBulletInfo[id][i].shot = false;
+							g_tBulletInfo[id][i].x = 0;
+							g_tBulletInfo[id][i].y = 0;
+							g_tBulletInfo[id][i].height = 70;
+
+							if ( pTiles[j]->type == 1 )
+							{
+								pTiles[j]->animation = true;
+								pTiles[j]->maxFrame = 5;
+								pTiles[j]->type = 0;
+							}
+							break;
+						}
+					}
+				}
+			}
+			LeaveCriticalSection( &g_CS_Bullet );
 		}
-		LeaveCriticalSection(&g_CS_Bullet);
 	}
 
-	/*if ( SceneChange() )
+	if ( SceneChange() && g_iState >= GAME_STAGE1 )
+	{
+		g_fChangeSceneTime -= fTimeDelta;
+
+		if ( g_fChangeSceneTime <= 0.f )
+		{
+			g_bChangeScene = true;
+			g_fChangeSceneTime = 5.f;
+		}
+	}
+
+	if ( g_bChangeScene )
 	{
 		EnterCriticalSection( &g_CS_State );
-		if(g_iState != GAME_END )
+		if ( g_iState < GAME_ENDING )
 			g_iState += 1;
 		LeaveCriticalSection( &g_CS_State );
+		ItemInit();
 
-	}*/
+		EnterCriticalSection( &g_CS_Bullet );
+		for ( int i = 0; i < 2; ++i )
+		{
+			for ( int j = 0; j < 5; ++j )
+			{
+				g_tBulletInfo[i][j].shot = false;
+			}
+		}
+		LeaveCriticalSection( &g_CS_Bullet );
+
+		g_bPause = false;
+		g_fStageLimitTime = 60.f;
+
+		g_bChangeScene = false;
+
+		g_bAfterChangeScene = true;
+	}
+
+	if ( g_bAfterChangeScene )
+	{
+		g_fAfterChangeSceneTime -= fTimeDelta;
+
+		if ( g_fAfterChangeSceneTime <= 0.f )
+		{
+			g_bAfterChangeScene = false;
+		}
+	}
 }
 
 void Init()
@@ -740,7 +787,7 @@ void PlayerCollisionBall(int id)
 		if ( !iterB->second->live )
 			continue;
 
-		if ( CollisionBall( iterB->second->info, g_Clients[id]->info.x, g_Clients[id]->info.y, 70, 70 ) )
+		if ( CollisionBall( iterB->second->info, g_Clients[id]->info.x, g_Clients[id]->info.y, 50, 70 ) )
 		{
 			EnterCriticalSection( &g_CS_Player );
 			g_Clients[id]->info.hp -= 1;
@@ -1189,7 +1236,7 @@ void SendBallsInfo( int clientnum, const GAME_STATE & eState )
 	SERVERBALLINFO** pBalls = GetBallsInfo( eState );
 	send( g_Clients[clientnum]->socket, ( char* )&iSize, sizeof( iSize ), 0 );
 
-	//cout << "Send Balls Size : " << iSize << endl;
+	cout << "Send Balls Size : " << iSize << endl;
 
 	for ( int i = 0; i < iSize; ++i )
 		send( g_Clients[clientnum]->socket, ( char* )&pBalls[i]->info, sizeof( BALLINFO ), 0 );
